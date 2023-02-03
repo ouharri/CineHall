@@ -1,18 +1,23 @@
 <?php
+
+use JetBrains\PhpStorm\NoReturn;
+
 function url($url = ''): string
 {
     return BURL . $url;
 }
 
-function redirect($page)
+function redirect($page): void
 {
     header('location: ' . BURL . $page);
 }
 
-function debug($var)
+#[NoReturn] function debug($var): void
 {
     echo '<pre>';
-    var_dump($var);
+    {
+        var_dump($var);
+    }
     echo '</pre>';
     die();
 }

@@ -1,6 +1,4 @@
 <?php
-require_once(LIBS . 'DB/MysqliDb.php');
-
 class DB
 {
     protected MysqliDb $db;
@@ -66,6 +64,9 @@ class DB
         return $db->update($this->table, $data);
     }
 
+    /**
+     * @throws Exception
+     */
     public function getInsertId(): int
     {
         return $this->db->getInsertId();

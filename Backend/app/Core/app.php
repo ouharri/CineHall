@@ -1,13 +1,13 @@
 <?php
 
-/*************************\
- * -   front-end controller  -
- * \*************************/
+ /*************************\
+ * - front-end controller  -*
+ \*************************/
 class app
 {
-    protected $controller = "HomeController";
-    protected $action = "index";
-    protected $param = [];
+    protected string $controller = "HomeController";
+    protected string $action = "index";
+    protected array $param = [];
 
     public function __construct()
     {
@@ -15,11 +15,11 @@ class app
         $this->render();
     }
 
-    /****************************************************\
+     /****************************************************\
      * -  extract controller and method and all parameters  -
      * -                    @return void                    -
-     * \****************************************************/
-    private function prepareURL()
+     \****************************************************/
+    private function prepareURL(): void
     {
         $url = $_SERVER['REQUEST_URI'];
         if (!empty($url)) {
@@ -35,7 +35,7 @@ class app
         }
     }
 
-    private function render()
+    private function render(): void
     {
         if (class_exists($this->controller)) {
             $controller = new $this->controller;

@@ -7,8 +7,8 @@ class HomeController
      */
     public function index(): void
     {
-        echo "<img width=500px src='" . url('Home/image/3') . "' />";
-        View::load('users/Home');
+//        echo "<img width=500px src='" . url('Home/image/3') . "' />";
+//        View::load('users/Home');
     }
 
     /**
@@ -58,10 +58,16 @@ class HomeController
         $image .= ";charset=utf8;base64,";
         $image .= base64_encode($data['image']);
 
-        header('Access-Control-Allow-Origin: *');
+        header('Expires: 0');
+        header('Pragma: public');
         header("Content-Type: {$data['type']}");
+        header('Access-Control-Allow-Origin: *');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Description: File Transfer');
         header("Content-Disposition: Inline; filename={$data['name']}");
-
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+        ob_clean();
+        flush();
         readfile($image);
     }
 }

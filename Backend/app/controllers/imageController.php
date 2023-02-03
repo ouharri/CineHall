@@ -13,28 +13,32 @@ class imageController
     /**
      * @throws Exception
      */
-    public function getOne($id): void
+    public function get($id): void
     {
         $image = $this->image;
 
-        // get image data
+        // get data image
         $data = $image->getRow($id);
 
-        // Headers
+        // header
+        header('Expires: 0');
+        header('Pragma: public');
         header("Content-Type: {$data['type']}");
         header('Access-Control-Allow-Origin: *');
-        header('Access-Control-Allow-Method: none');
+        header('Content-Transfer-Encoding: binary');
+        header('Content-Description: File Transfer');
         header("Content-Disposition: Inline; filename={$data['name']}");
-        header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
+        header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
 
-        //set image file
-        $image = "data:";
-        $image .= $data['type'];
-        $image .= ";charset=utf8;base64,";
-        $image .= base64_encode($data['image']);
+        $file = "data:";
+        $file .= $data['type'];
+        $file .= ";charset=utf8;base64,";
+        $file .= base64_encode($data['image']);
 
-        //output;
-        readfile($image);
+        ob_clean();
+        flush();
+
+        readfile($file);
     }
 
 }

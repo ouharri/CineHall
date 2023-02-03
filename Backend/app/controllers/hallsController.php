@@ -201,7 +201,6 @@ class hallsController
 
                     // update image
                     if ( $image->update($id_img,$img) ) {
-
                         // update data
                         if ($halls->update($id,$data)) {
                             $image->commit();

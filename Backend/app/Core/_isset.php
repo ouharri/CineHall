@@ -26,6 +26,14 @@ class _isset
         return true;
     }
 
+    public static function delete($_DELETE,...$data): bool
+    {
+        foreach ($data as $key){
+            if( !array_key_exists($key, $_DELETE) ) return false;
+        }
+        return true;
+    }
+
     public static function file(...$data): bool
     {
         foreach ($data as $key){

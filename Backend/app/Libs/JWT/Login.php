@@ -2,7 +2,7 @@
 
 class Login
 {
-    public static function JWT()
+    public static function JWT(): void
     {
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json');

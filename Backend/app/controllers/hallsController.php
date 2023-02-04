@@ -148,10 +148,7 @@ class hallsController
             );
         }
     }
-//parse_str(file_get_contents("php://input"), $_PUT);
-//debug($_FILES);
 
-//if (_isset::put($_PUT, 'libel', 'description', 'movie')) {
     /**
      * @throws Exception
      */
@@ -162,7 +159,7 @@ class hallsController
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            if ( _isset::post('id') ) {
+            if (_isset::post('id')) {
 
                 $halls = $this->halls;
                 $image = $this->image;
@@ -175,36 +172,103 @@ class hallsController
                 header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
                 http_response_code(200);
 
-                $data = array();
-                $id = (int)$_POST['id'];
+                $id = $_POST['id'];
 
-                $data = _isset::post('libel') ? array_merge($data, ['libel' => $_POST['libel']]) : $data;
+                $data = _isset::post('libel') ? array_merge([], ['libel' => $_POST['libel']]) : [];
                 $data = _isset::post('movie') ? array_merge($data, ['movie' => $_POST['movie']]) : $data;
                 $data = _isset::post('description') ? array_merge($data, ['description' => $_POST['description']]) : $data;
 
-                if ( _isset::file('image') && _empty::file('image') ) {
+                $flag = _isset::post('libel');
+                $flag = _isset::post('movie') || $flag;
+                $flag = _isset::post('description') || $flag;
 
-                    // start transaction
-                    $halls->startTransaction();
-                    $image->startTransaction();
+                $isset_img = _isset::file('image') && _empty::file('image');
 
-                    // Get images data
-                    $img = array(
-                        'name' => $_FILES["image"]["name"],
-                        'type' => $_FILES["image"]["type"],
-                        'image' => file_get_contents($_FILES["image"]["tmp_name"])
-                    );
+                if ($flag || $isset_img) {
 
-                    $tmp = $halls->getRow($id)['image'];
-                    $arr = explode('/', $tmp);
-                    $id_img = (int)end($arr);
+                    if ($flag && $isset_img) {
+                        // start transaction
+                        $halls->startTransaction();
+                        $image->startTransaction();
 
-                    // update image
-                    if ( $image->update($id_img,$img) ) {
+                        // Get images data
+                        $img = array(
+                            'name' => $_FILES["image"]["name"],
+                            'type' => $_FILES["image"]["type"],
+                            'image' => file_get_contents($_FILES["image"]["tmp_name"])
+                        );
+
+                        $tmp = $halls->getRow($id)['image'];
+                        $arr = explode('/', $tmp);
+                        $id_img = (int)end($arr);
+
+                        // update image
+                        if ($image->update($id_img, $img)) {
+                            // update data
+                            if ($halls->update($id, $data)) {
+                                $image->commit();
+                                $halls->commit();
+                                http_response_code(201);
+                                echo json_encode(
+                                    array(
+                                        'message' => 'halls Created',
+                                        'status' => $_SERVER['REDIRECT_STATUS']
+                                    )
+                                );
+                            } else {
+                                $image->rollback();
+                                $halls->rollback();
+                                http_response_code(500);
+                                echo json_encode(
+                                    array(
+                                        'message' => 'halls Not Created',
+                                        'status' => $_SERVER['REDIRECT_STATUS']
+                                    )
+                                );
+                            }
+                        } else {
+                            $image->rollback();
+                            http_response_code(415);
+                            echo json_encode(
+                                array(
+                                    'message' => 'halls Not updated ( error in update image )',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        }
+                    } else if ($isset_img) {
+                        // Get images data
+                        $img = array(
+                            'name' => $_FILES["image"]["name"],
+                            'type' => $_FILES["image"]["type"],
+                            'image' => file_get_contents($_FILES["image"]["tmp_name"])
+                        );
+
+                        $tmp = $halls->getRow($id)['image'];
+                        $arr = explode('/', $tmp);
+                        $id_img = (int)end($arr);
+
+                        // update image
+                        if ($image->update($id_img, $img)) {
+                            http_response_code(201);
+                            echo json_encode(
+                                array(
+                                    'message' => 'image updated successfully',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        } else {
+                            http_response_code(415);
+                            echo json_encode(
+                                array(
+                                    'message' => 'image Not updated',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        }
+                    } else {
                         // update data
-                        if ($halls->update($id,$data)) {
-                            $image->commit();
-                            $halls->commit();
+                        if ($halls->update($id, $data)) {
                             http_response_code(201);
                             echo json_encode(
                                 array(
@@ -213,8 +277,6 @@ class hallsController
                                 )
                             );
                         } else {
-                            $image->rollback();
-                            $halls->rollback();
                             http_response_code(500);
                             echo json_encode(
                                 array(
@@ -223,41 +285,21 @@ class hallsController
                                 )
                             );
                         }
-                    } else {
-                        $image->rollback();
-                        http_response_code(415);
-                        echo json_encode(
-                            array(
-                                'message' => 'halls Not Created',
-                                'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
                     }
                 } else {
-                    // update data
-                    if ($halls->update($id,$data)) {
-                        http_response_code(201);
-                        echo json_encode(
-                            array(
-                                'message' => 'halls Created',
-                                'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
-                    } else {
-                        http_response_code(500);
-                        echo json_encode(
-                            array(
-                                'message' => 'halls Not Created',
-                                'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
-                    }
+                    http_response_code(401);
+                    echo json_encode(
+                        array(
+                            'message' => 'Error ( No data for update )',
+                            'status' => 401
+                        )
+                    );
                 }
             } else {
                 http_response_code(401);
                 echo json_encode(
                     array(
-                        'message' => 'Error',
+                        'message' => 'Error  ( No item for update )',
                         'status' => 401
                     )
                 );
@@ -273,14 +315,13 @@ class hallsController
         }
     }
 
-        /**
-         * @throws Exception
-         */
-        public
-        function delet(): void
-        {
-            $halls = $this->halls;
-            $image = $this->image;
+    /**
+     * @throws Exception
+     */
+    public function delete(): void
+    {
+        // On interdit toute méthode qui n'est pas DELETE
+        if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
             // Headers
             header('Access-Control-Allow-Origin: *');
@@ -288,27 +329,75 @@ class hallsController
             header('Access-Control-Allow-Methods: DELETE');
             header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 
-            // Get raw posted data
-            $data = json_decode(file_get_contents("php://input"));
+            // $data = json_decode(file_get_contents("php://input"));
+            parse_str(file_get_contents("php://input"), $_DELETE);
 
-            // Set ID to UPDATE
-            $id = $data->id;
+            if (_isset::delete($_DELETE, 'id')) {
 
-            // Delete halls
-            if ($halls->delete($id)) {
-                echo json_encode(
-                    array(
-                        'message' => 'Category deleted',
-                        'status' => $_SERVER['REDIRECT_STATUS']
-                    )
-                );
+                $halls = $this->halls;
+                $image = $this->image;
+
+                // Set ID to UPDATE
+                $id = $_DELETE['id'];
+
+                // start transaction
+                $halls->startTransaction();
+                $image->startTransaction();
+
+                $tmp = $halls->getRow($id)['image'];
+                $arr = explode('/', $tmp);
+                $id_img = (int)end($arr);
+
+                // Delete halls
+                if ($image->delete($id_img)) {
+                    if ($halls->delete($id)) {
+                        $image->commit();
+                        $halls->commit();
+                        http_response_code(201);
+                        echo json_encode(
+                            array(
+                                'message' => 'halls deleted successfully',
+                                'status' => $_SERVER['REDIRECT_STATUS']
+                            )
+                        );
+                    } else {
+                        $image->rollback();
+                        $halls->rollback();
+                        http_response_code(500);
+                        echo json_encode(
+                            array(
+                                'message' => 'halls Not deleted',
+                                'status' => $_SERVER['REDIRECT_STATUS']
+                            )
+                        );
+                    }
+                } else {
+                    $image->rollback();
+                    http_response_code(415);
+                    echo json_encode(
+                        array(
+                            'message' => 'halls Not deleted ( error in delet image )',
+                            'status' => $_SERVER['REDIRECT_STATUS']
+                        )
+                    );
+                }
             } else {
+                http_response_code(401);
                 echo json_encode(
                     array(
-                        'message' => 'Category not deleted',
-                        'status' => $_SERVER['REDIRECT_STATUS']
+                        'message' => 'Error  ( No item for delete )',
+                        'status' => 401
                     )
                 );
             }
+        } else {
+            http_response_code(405);
+            echo json_encode(
+                array(
+                    'message' => 'Méthode non autorisée',
+                    'status' => 405
+                )
+            );
         }
     }
+}

@@ -16,3 +16,7 @@ const DBNAME = "cinehall";
 \****************************************************/
 
 const SECRET = '0u1arri&çzmliNYcodE!';
+
+
+$_DELETE = [];
+$_PUT = [];

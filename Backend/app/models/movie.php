@@ -12,6 +12,6 @@ class movie extends DB
     public function __construct()
     {
         $this->_connect();
-        $this->_table('images');
+        $this->_table('movie');
     }
 }

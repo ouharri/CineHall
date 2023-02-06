@@ -41,5 +41,4 @@ class _isset
         }
         return true;
     }
-
 }

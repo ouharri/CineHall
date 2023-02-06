@@ -12,13 +12,14 @@ class hallsController
         $this->image = new image();
     }
 
-    /**
+    /** get one hall
+     * @param $id
+     * @return void
      * @throws Exception
      */
     public function getOne($id): void
     {
         $halls = $this->halls;
-        $image = $this->image;
 
         // Headers
         header('Access-Control-Allow-Origin:*');
@@ -33,20 +34,21 @@ class hallsController
         echo json_encode($data);
     }
 
+
     /**
+     * get all halls
+     * @return void
      * @throws Exception
      */
     public function getAll(): void
     {
         $halls = $this->halls;
-        $image = $this->image;
 
         // Headers
         header("Access-Control-Allow-Origin:*");
         header("Content-Type: application/json");
         header("Access-Control-Allow-Method: none");
         header("Access-Control-Allow-Headers: Authorization, Content-Type");
-//        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation");
 
         // get data
         $data = $halls->getAll();
@@ -56,62 +58,78 @@ class hallsController
     }
 
     /**
+     * insert hall
+     * @return void
      * @throws Exception
      */
     public function insert(): void
     {
         // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//            debug($_FILES,$_POST);
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            if (_isset::post('libel', 'description', 'movie')) {
+            if (_isset::post('libel', 'description', 'nbrPlace')) {
 
-                $halls = $this->halls;
-                $image = $this->image;
+                if (_isset::file('image') && _empty::file('image')) {
 
-                // Headers
-                header("Access-Control-Max-Age: 3600");
-                header('Access-Control-Allow-Origin: *');
-                header("Content-Type: application/json; charset=UTF-8");
-                header("Access-Control-Allow-Methods: OPTIONS,GET,POST,PUT,DELETE");
-                header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
-                http_response_code(200);
+                    $halls = $this->halls;
+                    $image = $this->image;
 
-                // start transaction
-                $halls->startTransaction();
-                $image->startTransaction();
+                    // Headers
+                    header("Access-Control-Max-Age: 3600");
+                    header('Access-Control-Allow-Origin: *');
+                    header("Content-Type: application/json; charset=UTF-8");
+                    header("Access-Control-Allow-Methods: POST");
+                    header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
+                    http_response_code(200);
 
-                // Get images posted data
-                $data = array(
-                    'name' => $_FILES["img"]["name"],
-                    'type' => $_FILES["img"]["type"],
-                    'image' => file_get_contents($_FILES["img"]["tmp_name"])
-                );
-                // insert image
-                if ($image->insert($data)) {
-                    // Get posted data
+                    // start transaction
+                    $halls->startTransaction();
+                    $image->startTransaction();
+
+                    _validate::post();
+                    // Get images posted data
                     $data = array(
-                        'libel' => $_POST['libel'],
-                        'description' => $_POST['description'],
-                        'movie' => $_POST['movie'],
-                        'image' => BURL . 'image/get/' . $image->getInsertId()
+                        'name' => _validate::_string($_FILES["image"]["name"]),
+                        'type' => _validate::_string($_FILES["image"]["type"]),
+                        'image' => file_get_contents(_validate::_string($_FILES["image"]["tmp_name"]))
                     );
-                    // insert data
-                    if ($halls->insert($data)) {
-                        $image->commit();
-                        $halls->commit();
-                        http_response_code(201);
-                        echo json_encode(
-                            array(
-                                'message' => 'halls Created',
-                                'status' => $_SERVER['REDIRECT_STATUS']
-                            )
+                    // insert image
+                    if ($image->insert($data)) {
+                        // Get posted data
+                        $data = array(
+                            'libel' => $_POST['libel'],
+                            'nbrPlace' => $_POST['nbrPlace'],
+                            'description' => $_POST['description'],
+                            'image' => BURL . 'image/get/' . $image->getInsertId()
                         );
+                        // insert data
+                        if ($halls->insert($data)) {
+                            $image->commit();
+                            $halls->commit();
+                            http_response_code(201);
+                            echo json_encode(
+                                array(
+                                    'message' => 'halls Created',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        } else {
+                            $image->rollback();
+                            $halls->rollback();
+                            http_response_code(500);
+                            echo json_encode(
+                                array(
+                                    'message' => 'halls Not Created',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        }
                     } else {
                         $image->rollback();
-                        $halls->rollback();
-                        http_response_code(500);
+                        http_response_code(415);
                         echo json_encode(
                             array(
                                 'message' => 'halls Not Created',
@@ -120,12 +138,11 @@ class hallsController
                         );
                     }
                 } else {
-                    $image->rollback();
-                    http_response_code(415);
+                    http_response_code(510);
                     echo json_encode(
                         array(
-                            'message' => 'halls Not Created',
-                            'status' => $_SERVER['REDIRECT_STATUS']
+                            'message' => 'movie Not Created ( Image no exist )',
+                            'status' => 504
                         )
                     );
                 }
@@ -150,6 +167,8 @@ class hallsController
     }
 
     /**
+     * update hall
+     * @return void
      * @throws Exception
      */
     public function update(): void
@@ -159,7 +178,7 @@ class hallsController
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            if (_isset::post('id')) {
+            if (_isset::post('id') && _empty::post($_POST, 'id')) {
 
                 $halls = $this->halls;
                 $image = $this->image;
@@ -172,52 +191,114 @@ class hallsController
                 header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
                 http_response_code(200);
 
+                _validate::post();
                 $id = $_POST['id'];
 
-                $data = _isset::post('libel') ? array_merge([], ['libel' => $_POST['libel']]) : [];
-                $data = _isset::post('movie') ? array_merge($data, ['movie' => $_POST['movie']]) : $data;
-                $data = _isset::post('description') ? array_merge($data, ['description' => $_POST['description']]) : $data;
+                if ($halls->exists($id)) {
 
-                $flag = _isset::post('libel');
-                $flag = _isset::post('movie') || $flag;
-                $flag = _isset::post('description') || $flag;
+                    $data = _isset::post('libel') ? array_merge([], ['libel' => $_POST['libel']]) : [];
+                    $data = _isset::post('nbrPlace') ? array_merge($data, ['nbrPlace' => $_POST['nbrPlace']]) : $data;
+                    $data = _isset::post('description') ? array_merge($data, ['description' => $_POST['description']]) : $data;
 
-                $isset_img = _isset::file('image') && _empty::file('image');
+                    $flag = _isset::post('libel');
+                    $flag = _isset::post('nbrPlace') || $flag;
+                    $flag = _isset::post('description') || $flag;
 
-                if ($flag || $isset_img) {
+                    $isset_img = _isset::file('image') && _empty::file('image');
 
-                    if ($flag && $isset_img) {
-                        // start transaction
-                        $halls->startTransaction();
-                        $image->startTransaction();
+                    if ($flag || $isset_img) {
 
-                        // Get images data
-                        $img = array(
-                            'name' => $_FILES["image"]["name"],
-                            'type' => $_FILES["image"]["type"],
-                            'image' => file_get_contents($_FILES["image"]["tmp_name"])
-                        );
+                        if ($flag && $isset_img) {
+                            // start transaction
+                            $halls->startTransaction();
+                            $image->startTransaction();
 
-                        $tmp = $halls->getRow($id)['image'];
-                        $arr = explode('/', $tmp);
-                        $id_img = (int)end($arr);
+                            // Get images data
+                            $img = array(
+                                'name' => $_FILES["image"]["name"],
+                                'type' => $_FILES["image"]["type"],
+                                'image' => file_get_contents(_validate::_string($_FILES["image"]["tmp_name"]))
+                            );
 
-                        // update image
-                        if ($image->update($id_img, $img)) {
-                            // update data
-                            if ($halls->update($id, $data)) {
-                                $image->commit();
-                                $halls->commit();
+                            $tmp = $halls->getRow($id)['image'];
+                            $arr = explode('/', $tmp);
+                            $id_img = (int)end($arr);
+
+                            // update image
+                            if ($image->update($id_img, $img)) {
+                                // update data
+                                if ($halls->update($id, $data)) {
+                                    $image->commit();
+                                    $halls->commit();
+                                    http_response_code(201);
+                                    echo json_encode(
+                                        array(
+                                            'message' => 'halls Created',
+                                            'status' => $_SERVER['REDIRECT_STATUS']
+                                        )
+                                    );
+                                } else {
+                                    $image->rollback();
+                                    $halls->rollback();
+                                    http_response_code(500);
+                                    echo json_encode(
+                                        array(
+                                            'message' => 'halls Not Created',
+                                            'status' => $_SERVER['REDIRECT_STATUS']
+                                        )
+                                    );
+                                }
+                            } else {
+                                $image->rollback();
+                                http_response_code(415);
+                                echo json_encode(
+                                    array(
+                                        'message' => 'halls Not updated ( error in update image )',
+                                        'status' => $_SERVER['REDIRECT_STATUS']
+                                    )
+                                );
+                            }
+                        } else if ($isset_img) {
+                            // Get images data
+                            $img = array(
+                                'name' => $_FILES["image"]["name"],
+                                'type' => $_FILES["image"]["type"],
+                                'image' => file_get_contents($_FILES["image"]["tmp_name"])
+                            );
+
+                            $tmp = $halls->getRow($id)['image'];
+                            $arr = explode('/', $tmp);
+                            $id_img = (int)end($arr);
+
+                            // update image
+                            if ($image->update($id_img, $img)) {
                                 http_response_code(201);
                                 echo json_encode(
                                     array(
-                                        'message' => 'halls Created',
+                                        'message' => 'image updated successfully',
                                         'status' => $_SERVER['REDIRECT_STATUS']
                                     )
                                 );
                             } else {
-                                $image->rollback();
-                                $halls->rollback();
+                                http_response_code(415);
+                                echo json_encode(
+                                    array(
+                                        'message' => 'image Not updated',
+                                        'status' => $_SERVER['REDIRECT_STATUS']
+                                    )
+                                );
+                            }
+                        } else {
+                            // update data
+                            if ($halls->update($id, $data)) {
+                                http_response_code(201);
+                                echo json_encode(
+                                    array(
+                                        'message' => 'halls updated successfully',
+                                        'status' => $_SERVER['REDIRECT_STATUS']
+                                    )
+                                );
+                            } else {
                                 http_response_code(500);
                                 echo json_encode(
                                     array(
@@ -226,71 +307,21 @@ class hallsController
                                     )
                                 );
                             }
-                        } else {
-                            $image->rollback();
-                            http_response_code(415);
-                            echo json_encode(
-                                array(
-                                    'message' => 'halls Not updated ( error in update image )',
-                                    'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
-                        }
-                    } else if ($isset_img) {
-                        // Get images data
-                        $img = array(
-                            'name' => $_FILES["image"]["name"],
-                            'type' => $_FILES["image"]["type"],
-                            'image' => file_get_contents($_FILES["image"]["tmp_name"])
-                        );
-
-                        $tmp = $halls->getRow($id)['image'];
-                        $arr = explode('/', $tmp);
-                        $id_img = (int)end($arr);
-
-                        // update image
-                        if ($image->update($id_img, $img)) {
-                            http_response_code(201);
-                            echo json_encode(
-                                array(
-                                    'message' => 'image updated successfully',
-                                    'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
-                        } else {
-                            http_response_code(415);
-                            echo json_encode(
-                                array(
-                                    'message' => 'image Not updated',
-                                    'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
                         }
                     } else {
-                        // update data
-                        if ($halls->update($id, $data)) {
-                            http_response_code(201);
-                            echo json_encode(
-                                array(
-                                    'message' => 'halls Created',
-                                    'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
-                        } else {
-                            http_response_code(500);
-                            echo json_encode(
-                                array(
-                                    'message' => 'halls Not Created',
-                                    'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
-                        }
+                        http_response_code(401);
+                        echo json_encode(
+                            array(
+                                'message' => 'Error ( No data for update )',
+                                'status' => 401
+                            )
+                        );
                     }
                 } else {
                     http_response_code(401);
                     echo json_encode(
                         array(
-                            'message' => 'Error ( No data for update )',
+                            'message' => 'Error  ( halls not exist )',
                             'status' => 401
                         )
                     );
@@ -316,6 +347,8 @@ class hallsController
     }
 
     /**
+     * delete hall
+     * @return void
      * @throws Exception
      */
     public function delete(): void
@@ -329,55 +362,66 @@ class hallsController
             header('Access-Control-Allow-Methods: DELETE');
             header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 
-            // $data = json_decode(file_get_contents("php://input"));
-            parse_str(file_get_contents("php://input"), $_DELETE);
+            $_DELETE = (array)json_decode(file_get_contents("php://input"));
 
-            if (_isset::delete($_DELETE, 'id')) {
+            if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
 
                 $halls = $this->halls;
                 $image = $this->image;
 
-                // Set ID to UPDATE
+                _validate::arr($_DELETE);
+
                 $id = $_DELETE['id'];
 
-                // start transaction
-                $halls->startTransaction();
-                $image->startTransaction();
+                if ($halls->exists($id)) {
 
-                $tmp = $halls->getRow($id)['image'];
-                $arr = explode('/', $tmp);
-                $id_img = (int)end($arr);
+                    // start transaction
+                    $halls->startTransaction();
+                    $image->startTransaction();
 
-                // Delete halls
-                if ($image->delete($id_img)) {
-                    if ($halls->delete($id)) {
-                        $image->commit();
-                        $halls->commit();
-                        http_response_code(201);
-                        echo json_encode(
-                            array(
-                                'message' => 'halls deleted successfully',
-                                'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                    $tmp = $halls->getRow($id)['image'];
+                    $arr = explode('/', $tmp);
+                    $id_img = (int)end($arr);
+
+                    // Delete halls
+                    if ($image->delete($id_img)) {
+                        if ($halls->delete($id)) {
+                            $image->commit();
+                            $halls->commit();
+                            http_response_code(201);
+                            echo json_encode(
+                                array(
+                                    'message' => 'halls deleted successfully',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        } else {
+                            $image->rollback();
+                            $halls->rollback();
+                            http_response_code(500);
+                            echo json_encode(
+                                array(
+                                    'message' => 'halls Not deleted',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        }
                     } else {
                         $image->rollback();
-                        $halls->rollback();
-                        http_response_code(500);
+                        http_response_code(415);
                         echo json_encode(
                             array(
-                                'message' => 'halls Not deleted',
+                                'message' => 'halls Not deleted ( error in delet image )',
                                 'status' => $_SERVER['REDIRECT_STATUS']
                             )
                         );
                     }
                 } else {
-                    $image->rollback();
-                    http_response_code(415);
+                    http_response_code(401);
                     echo json_encode(
                         array(
-                            'message' => 'halls Not deleted ( error in delet image )',
-                            'status' => $_SERVER['REDIRECT_STATUS']
+                            'message' => 'Error  ( halls not exist )',
+                            'status' => 401
                         )
                     );
                 }

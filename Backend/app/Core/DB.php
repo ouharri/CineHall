@@ -1,11 +1,12 @@
 <?php
+
 class DB
 {
     protected MysqliDb $db;
     protected string $table;
 
-
     /**
+     * @return MysqliDb
      * @throws Exception
      */
     public function _connect(): MysqliDb
@@ -22,6 +23,7 @@ class DB
 
 
     /**
+     * @return bool tue if data inserted successfully
      * @throws Exception
      */
     public function insert($data): bool
@@ -29,7 +31,9 @@ class DB
         return $this->db->insert($this->table, $data);
     }
 
+
     /**
+     * @return bool tue if row deleted successfully
      * @throws Exception
      */
     public function delete($id): bool
@@ -38,7 +42,9 @@ class DB
         return $db->delete($this->table);
     }
 
+
     /**
+     * @return MysqliDb|array|string
      * @throws Exception
      */
     public function getAll(): MysqliDb|array|string
@@ -46,7 +52,10 @@ class DB
         return $this->db->get($this->table);
     }
 
+
     /**
+     * @param $id
+     * @return array|string|null
      * @throws Exception
      */
     public function getRow($id): array|string|null
@@ -55,7 +64,11 @@ class DB
         return $db->getOne($this->table);
     }
 
+
     /**
+     * @param $id
+     * @param $data
+     * @return bool tue if row updated successfully
      * @throws Exception
      */
     public function update($id, $data): bool
@@ -64,7 +77,9 @@ class DB
         return $db->update($this->table, $data);
     }
 
+
     /**
+     * @return int number for Last inserted id
      * @throws Exception
      */
     public function getInsertId(): int
@@ -72,7 +87,25 @@ class DB
         return $this->db->getInsertId();
     }
 
+
     /**
+     * @return bool true if table exist
+     * @throws Exception
+     */
+    public function exists($id, $row = 'id', $s = '='): bool
+    {
+        return (bool)$this->db->rawQuery("SELECT EXISTS(
+                                                       SELECT * FROM 
+                                                          {$this->table} 
+                                                       WHERE 
+                                                           `{$row}` {$s} '{$id}'
+                                                       ) as rep;
+                                        ")[0]['rep'];
+
+    }
+
+    /**
+     * @return void
      * @throws Exception
      */
     public function startTransaction(): void
@@ -81,6 +114,7 @@ class DB
     }
 
     /**
+     * @return bool
      * @throws Exception
      */
     public function rollback(): bool
@@ -89,6 +123,7 @@ class DB
     }
 
     /**
+     * @return bool
      * @throws Exception
      */
     public function commit(): bool

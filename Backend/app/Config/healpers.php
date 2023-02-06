@@ -12,12 +12,16 @@ function redirect($page): void
     header('location: ' . BURL . $page);
 }
 
-#[NoReturn] function debug($var): void
+#[NoReturn] function debug(...$var): void
 {
     echo '<pre>';
     {
-        var_dump($var);
+        foreach ($var as $v) {
+            echo '<br>';
+            var_dump($v);
+            echo '<br>';
+        }
+        echo '</pre>';
     }
-    echo '</pre>';
     die();
 }

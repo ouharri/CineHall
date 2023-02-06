@@ -6,7 +6,7 @@ class Login
     {
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json');
-        header("Access-Control-Allow-Headers: *");
+        header("Access-Control-Allow-Headers:  Content-Type, Authorization, X-Auth-Token, Origin ");
         header("Access-Control-Allow-Methods: *");
         http_response_code(200);
 

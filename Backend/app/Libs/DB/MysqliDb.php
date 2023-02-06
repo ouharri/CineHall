@@ -2297,7 +2297,7 @@ class MysqliDb
      * @uses mysqli->autocommit(true);
      * @uses mysqli->rollback();
      */
-    public function rollback()
+    public function rollback(): bool
     {
         $result = $this->mysqli()->rollback();
         $this->_transaction_in_progress = false;

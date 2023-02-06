@@ -41,6 +41,7 @@ class JWT
         return $base64Header . '.' . $base64Payload . '.' . $signature;
     }
 
+
     /**
      * Vérification du token
      * @param string $token Token à vérifier
@@ -59,6 +60,7 @@ class JWT
         return $token === $verifToken;
     }
 
+
     /**
      * Récupère le header
      * @param string $token Token
@@ -72,6 +74,7 @@ class JWT
         // On décode le header
         return json_decode(base64_decode($array[0]), true);
     }
+
 
     /**
      * Retourne le payload
@@ -87,6 +90,7 @@ class JWT
         return json_decode(base64_decode($array[1]), true);
     }
 
+
     /**
      * Vérification de l'expiration
      * @param string $token Token à vérifier
@@ -100,6 +104,7 @@ class JWT
 
         return $payload['exp'] < $now->getTimestamp();
     }
+
 
     /**
      * Vérification de la validité du token

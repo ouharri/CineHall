@@ -2,21 +2,22 @@
 
 class reservationController
 {
-    private image $image;
     private reservation $reservation;
 
     public function __construct()
     {
-        $this->image = new image();
+        Login::JWT();
         $this->reservation = new reservation();
     }
 
     /**
+     * get one reservation
+     * @param $id
+     * @return void
      * @throws Exception
      */
-    public function getOne($id): void
+    public function get($id): void
     {
-        $image = $this->image;
         $reservation = $this->reservation;
 
         // Headers
@@ -32,12 +33,14 @@ class reservationController
         echo json_encode($data);
     }
 
+
     /**
+     * get all reservation
+     * @return void
      * @throws Exception
      */
     public function getAll(): void
     {
-        $image = $this->image;
         $reservation = $this->reservation;
 
         // Headers
@@ -53,112 +56,159 @@ class reservationController
         echo json_encode($data);
     }
 
+
     /**
+     * insert a new reservation
+     * @return void
      * @throws Exception
      */
     public function insert(): void
     {
-        $image = $this->image;
-        $reservation = $this->reservation;
+        // On interdit toute méthode qui n'est pas POST
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-        // Headers
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json');
-        header('Access-Control-Allow-Methods: POST');
-        header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
+            $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-        // Get raw posted data
-        $data = (array)json_decode(file_get_contents("php://input"));
+            if (_isset::post('seat', 'event')) {
 
-        // insert data
-        if ($reservation->insert($data)) {
-            echo json_encode(
-                array(
-                    'message' => 'halls Created',
-                    'status' => $_SERVER['REDIRECT_STATUS']
-                )
-            );
+                $reservation = $this->reservation;
+
+                // Headers
+                header("Access-Control-Max-Age: 3600");
+                header('Access-Control-Allow-Origin: *');
+                header("Content-Type: application/json; charset=UTF-8");
+                header("Access-Control-Allow-Methods: POST");
+                header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
+                http_response_code(200);
+
+                _validate::post();
+
+                if (!$reservation->exists($_POST['seat'], 'seat')) {
+
+                    // Get posted data
+                    $data = array(
+                        'user' => 1,
+                        'event' => $_POST['event'],
+                        'seat' => $_POST['seat']
+                    );
+                    // insert data
+                    if ($reservation->insert($data)) {
+                        http_response_code(201);
+                        echo json_encode(
+                            array(
+                                'message' => 'reservation Created',
+                                'status' => $_SERVER['REDIRECT_STATUS']
+                            )
+                        );
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(
+                            array(
+                                'message' => 'reservation Not Created',
+                                'status' => $_SERVER['REDIRECT_STATUS']
+                            )
+                        );
+                    }
+                } else {
+                    http_response_code(510);
+                    echo json_encode(
+                        array(
+                            'message' => 'reservation Not Created ( seat already reserved )',
+                            'status' => 504
+                        )
+                    );
+                }
+            } else {
+                http_response_code(510);
+                echo json_encode(
+                    array(
+                        'message' => 'reservation Not Created (error in data)',
+                        'status' => 504
+                    )
+                );
+            }
         } else {
+            http_response_code(405);
             echo json_encode(
                 array(
-                    'message' => 'halls Not Created',
-                    'status' => $_SERVER['REDIRECT_STATUS']
+                    'message' => 'Méthode non autorisée',
+                    'status' => 405
                 )
             );
         }
     }
 
-    /**
-     * @throws Exception
-     */
-    public function update(): void
-    {
-        $image = $this->image;
-        $reservation = $this->reservation;
-
-        // Headers
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json');
-        header('Access-Control-Allow-Methods: PUT');
-        header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
-
-        // Get raw posted data
-        $data = json_decode(file_get_contents("php://input"));
-
-        // Set ID to UPDATE
-        $id = $data->id;
-
-        // Update halls
-        if ($reservation->update($id, $data)) {
-            echo json_encode(
-                array(
-                    'message' => 'halls Updated',
-                    'status' => $_SERVER['REDIRECT_STATUS']??''
-                )
-            );
-        } else {
-            echo json_encode(
-                array(
-                    'message' => 'halls not updated',
-                    'status' => $_SERVER['REDIRECT_STATUS']??''
-                )
-            );
-        }
-    }
 
     /**
+     * delet reservation
+     * @return void
      * @throws Exception
      */
-    public function delet(): void
+    public function delete(): void
     {
-        $image = $this->image;
-        $reservation = $this->reservation;
+        // On interdit toute méthode qui n'est pas DELETE
+        if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
-        // Headers
-        header('Access-Control-Allow-Origin: *');
-        header('Content-Type: application/json');
-        header('Access-Control-Allow-Methods: DELETE');
-        header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
+            // Headers
+            header('Access-Control-Allow-Origin: *');
+            header('Content-Type: application/json');
+            header('Access-Control-Allow-Methods: DELETE');
+            header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 
-        // Get raw posted data
-        $data = json_decode(file_get_contents("php://input"));
+            $_DELETE = (array)json_decode(file_get_contents("php://input"));
 
-        // Set ID to delet
-        $id = $data->id;
+            if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
+                
+                $reservation = $this->reservation;
 
-        // Delete halls
-        if ($reservation->delete($id)) {
-            echo json_encode(
-                array(
-                    'message' => 'movie deleted',
-                    'status' => $_SERVER['REDIRECT_STATUS']??''
-                )
-            );
+                _validate::arr($_DELETE);
+
+                $id = $_DELETE['id'];
+
+                if ($reservation->exists($id)) {
+
+                    // Delete reservation
+                    if ($reservation->delete($id)) {
+                        http_response_code(201);
+                        echo json_encode(
+                            array(
+                                'message' => 'reservation deleted successfully',
+                                'status' => $_SERVER['REDIRECT_STATUS']
+                            )
+                        );
+                    } else {
+                        http_response_code(500);
+                        echo json_encode(
+                            array(
+                                'message' => 'reservation Not deleted',
+                                'status' => $_SERVER['REDIRECT_STATUS']
+                            )
+                        );
+                    }
+                } else {
+                    http_response_code(401);
+                    echo json_encode(
+                        array(
+                            'message' => 'Error  ( reservation not exist )',
+                            'status' => 401
+                        )
+                    );
+                }
+            } else {
+                http_response_code(401);
+                echo json_encode(
+                    array(
+                        'message' => 'Error  ( No item for delete )',
+                        'status' => 401
+                    )
+                );
+            }
         } else {
+            http_response_code(405);
             echo json_encode(
                 array(
-                    'message' => 'movie not deleted',
-                    'status' => $_SERVER['REDIRECT_STATUS']??''
+                    'message' => 'Méthode non autorisée',
+                    'status' => 405
                 )
             );
         }

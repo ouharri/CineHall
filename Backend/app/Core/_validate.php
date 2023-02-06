@@ -1,6 +1,6 @@
 <?php
 
-class validate
+class _validate
 {
     public static function _string($data)
     {
@@ -20,7 +20,14 @@ class validate
         $injection_patterns = array("--", ";", "\"", "'", " drop ", " union ", " select ", " update ", " delete ");
         foreach ($injection_patterns as $pattern) {
             if (stripos($data, $pattern) !== false) {
-                die("Invalid input");
+                http_response_code(405);
+                echo json_encode(
+                    array(
+                        'message' => 'Invalid input ( not white me ! )',
+                        'status' => 405
+                    )
+                );
+                exit();
             }
         }
         return $data;
@@ -37,6 +44,20 @@ class validate
         } else {
             // Return false if the input is invalid
             return false;
+        }
+    }
+
+    static function post(): void
+    {
+        foreach ($_POST as $key => $value){
+            $_POST[$key] = _validate::_string($value);
+        }
+    }
+
+    static function arr($array): void
+    {
+        foreach ($array as $key => $value){
+            $array[$key] = _validate::_string($value);
         }
     }
 }

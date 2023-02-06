@@ -66,7 +66,6 @@ class hallsController
     {
         // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-//            debug($_FILES,$_POST);
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 

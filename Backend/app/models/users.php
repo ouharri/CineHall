@@ -16,7 +16,7 @@ class users extends DB
     public function __construct()
     {
         $this->_connect();
-        $this->_table('images');
+        $this->_table('users');
     }
 
     /**
@@ -75,13 +75,19 @@ class users extends DB
         return $db->update($this->table, $data);
     }
 
-    public function setAdmin($id)
+    /**
+     * @throws Exception
+     */
+    public function setAdmin($id): bool
     {
         $db = $this->db->where('id', $id);
         return $db->update($this->table, ['is_admin' => true]);
     }
 
-    public function setClient($id)
+    /**
+     * @throws Exception
+     */
+    public function setClient($id): bool
     {
         $db = $this->db->where('id', $id);
         return $db->update($this->table, ['is_admin' => false]);

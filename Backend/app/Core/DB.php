@@ -58,9 +58,9 @@ class DB
      * @return array|string|null
      * @throws Exception
      */
-    public function getRow($id): array|string|null
+    public function getRow($id,$row = 'id'): array|string|null
     {
-        $db = $this->db->where('id', $id);
+        $db = $this->db->where($row, $id);
         return $db->getOne($this->table);
     }
 
@@ -71,9 +71,9 @@ class DB
      * @return bool tue if row updated successfully
      * @throws Exception
      */
-    public function update($id, $data): bool
+    public function update($id, $data,$by = 'id'): bool
     {
-        $db = $this->db->where('id', $id);
+        $db = $this->db->where($by, $id);
         return $db->update($this->table, $data);
     }
 

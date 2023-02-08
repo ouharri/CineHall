@@ -1,6 +1,7 @@
 {
-    "require": {
-        "mpdf/mpdf": "^8.1",
-        "phpmailer/phpmailer": "^6.7"
-    }
+  "require": {
+    "mpdf/mpdf": "^8.1",
+    "phpmailer/phpmailer": "^6.7",
+    "ircmaxell/password-compat": "^1.0"
+  }
 }

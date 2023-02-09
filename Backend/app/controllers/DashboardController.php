@@ -2,9 +2,9 @@
 
 use JetBrains\PhpStorm\NoReturn;
 use Mpdf\MpdfException;
+use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\SMTP;
-use PHPMailer\PHPMailer\Exception;
 
 class DashboardController
 {
@@ -14,33 +14,6 @@ class DashboardController
     {
         redirect::admin();
         $this->PreviewUrl = $_SERVER['HTTP_REFERER'] ?? url();
-    }
-
-    /**
-     * @throws Exception|\Exception
-     */
-    public function index(): void
-    {
-        $data = [];
-        $users = new users();
-        $products = new product();
-        $data['products'] = $products->getRecent();
-        $data['users'] = $users->getRecent();
-        $data['total'] = $products->getTotal();
-        $data['max'] = $products->getMax();
-        $data['min'] = $products->getMin();
-        $data['avg'] = round($products->getavg(), 2);
-        for ($i = 0; $i < count($data['users']); $i++) {
-            $imgdata = $data['users'][$i]['img'];
-            $f = finfo_open();
-            $mime_type = finfo_buffer($f, $imgdata, FILEINFO_MIME_TYPE);
-            if ($mime_type != 'text/plain') {
-                $data['users'][$i]['img'] = "data:{$mime_type};charset=utf8;base64," . base64_encode($data['users'][$i]['img']);
-            } else {
-                $data['users'][$i]['img'] = "data:image/svg+xml;utf8," . addslashes(htmlentities(base64_decode($data['users'][$i]['img'])));
-            }
-        }
-        View::load('dashboard/home', $data);
     }
 
     public function P404(): void
@@ -155,7 +128,6 @@ class DashboardController
         redirect('dashboard/category');
         exit();
     }
-
 
     /**
      * @throws Exception|\Exception
@@ -293,7 +265,6 @@ class DashboardController
         exit();
     }
 
-
     /**
      * @throws Exception|\Exception
      */
@@ -313,28 +284,6 @@ class DashboardController
             redirect('dashboard/P404');
         }
     }
-
-    /**
-     * @throws Exception|\Exception
-     */
-    public function search(): void
-    {
-        if ($_POST['send']) {
-            $key = $_POST['value'];
-            $product = new product();
-            $category = new category();
-            $data = $product->search($key);
-            for ($i = 0; $i < count($data); $i++) {
-                $data[$i]['category'] = $category->getRow($data[$i]['category'])['libel'];
-                $data[$i]['img'] = "data:image/jpg;charset=utf8;base64," . base64_encode($data[$i]['img']);
-            }
-            header('Content-Type: application/json');
-            echo json_encode($data);
-        } else {
-            redirect('404');
-        }
-    }
-
 
     public function users(): void
     {
@@ -400,6 +349,33 @@ class DashboardController
     /**
      * @throws Exception|\Exception
      */
+    public function index(): void
+    {
+        $data = [];
+        $users = new users();
+        $products = new product();
+        $data['products'] = $products->getRecent();
+        $data['users'] = $users->getRecent();
+        $data['total'] = $products->getTotal();
+        $data['max'] = $products->getMax();
+        $data['min'] = $products->getMin();
+        $data['avg'] = round($products->getavg(), 2);
+        for ($i = 0; $i < count($data['users']); $i++) {
+            $imgdata = $data['users'][$i]['img'];
+            $f = finfo_open();
+            $mime_type = finfo_buffer($f, $imgdata, FILEINFO_MIME_TYPE);
+            if ($mime_type != 'text/plain') {
+                $data['users'][$i]['img'] = "data:{$mime_type};charset=utf8;base64," . base64_encode($data['users'][$i]['img']);
+            } else {
+                $data['users'][$i]['img'] = "data:image/svg+xml;utf8," . addslashes(htmlentities(base64_decode($data['users'][$i]['img'])));
+            }
+        }
+        View::load('dashboard/home', $data);
+    }
+
+    /**
+     * @throws Exception|\Exception
+     */
     #[NoReturn] public function deletUser($id): void
     {
         $users = new users();
@@ -423,7 +399,6 @@ class DashboardController
         }
         redirect('dashboard/users');
     }
-
 
     public function help(): void
     {
@@ -638,6 +613,27 @@ class DashboardController
             echo json_encode($data);
         } else {
             redirect('dashboard/P404');
+        }
+    }
+
+    /**
+     * @throws Exception|\Exception
+     */
+    public function search(): void
+    {
+        if ($_POST['send']) {
+            $key = $_POST['value'];
+            $product = new product();
+            $category = new category();
+            $data = $product->search($key);
+            for ($i = 0; $i < count($data); $i++) {
+                $data[$i]['category'] = $category->getRow($data[$i]['category'])['libel'];
+                $data[$i]['img'] = "data:image/jpg;charset=utf8;base64," . base64_encode($data[$i]['img']);
+            }
+            header('Content-Type: application/json');
+            echo json_encode($data);
+        } else {
+            redirect('404');
         }
     }
 

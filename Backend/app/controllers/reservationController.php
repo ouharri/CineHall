@@ -158,7 +158,7 @@ class reservationController
             $_DELETE = (array)json_decode(file_get_contents("php://input"));
 
             if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
-                
+
                 $reservation = $this->reservation;
 
                 _validate::arr($_DELETE);

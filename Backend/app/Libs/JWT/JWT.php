@@ -4,6 +4,52 @@
 class JWT
 {
     /**
+     * Vérification du token
+     * @param string $token Token à vérifier
+     * @param string $secret Clé secrète
+     * @return bool Vérifié ou non
+     */
+    public function check(string $token, string $secret): bool
+    {
+        // On récupère le header et le payload
+        $header = $this->getHeader($token);
+        $payload = $this->getPayload($token);
+
+        // On génère un token de vérification
+        $verifToken = $this->generate($header, $payload, $secret, 0);
+
+        return $token === $verifToken;
+    }
+
+    /**
+     * Récupère le header
+     * @param string $token Token
+     * @return array Header
+     */
+    public function getHeader(string $token): array
+    {
+        // Démontage token
+        $array = explode('.', $token);
+
+        // On décode le header
+        return json_decode(base64_decode($array[0]), true);
+    }
+
+    /**
+     * Retourne le payload
+     * @param string $token Token
+     * @return array Payload
+     */
+    public function getPayload(string $token): array
+    {
+        // Démontage token
+        $array = explode('.', $token);
+
+        // On décode le payload
+        return json_decode(base64_decode($array[1]), true);
+    }
+
+    /**
      * Génération JWT
      * @param array $header Header du token
      * @param array $payload Payload du Token
@@ -40,56 +86,6 @@ class JWT
         // On crée le token
         return $base64Header . '.' . $base64Payload . '.' . $signature;
     }
-
-
-    /**
-     * Vérification du token
-     * @param string $token Token à vérifier
-     * @param string $secret Clé secrète
-     * @return bool Vérifié ou non
-     */
-    public function check(string $token, string $secret): bool
-    {
-        // On récupère le header et le payload
-        $header = $this->getHeader($token);
-        $payload = $this->getPayload($token);
-
-        // On génère un token de vérification
-        $verifToken = $this->generate($header, $payload, $secret, 0);
-
-        return $token === $verifToken;
-    }
-
-
-    /**
-     * Récupère le header
-     * @param string $token Token
-     * @return array Header
-     */
-    public function getHeader(string $token): array
-    {
-        // Démontage token
-        $array = explode('.', $token);
-
-        // On décode le header
-        return json_decode(base64_decode($array[0]), true);
-    }
-
-
-    /**
-     * Retourne le payload
-     * @param string $token Token
-     * @return array Payload
-     */
-    public function getPayload(string $token): array
-    {
-        // Démontage token
-        $array = explode('.', $token);
-
-        // On décode le payload
-        return json_decode(base64_decode($array[1]), true);
-    }
-
 
     /**
      * Vérification de l'expiration

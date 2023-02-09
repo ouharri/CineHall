@@ -2,6 +2,27 @@
 
 class _validate
 {
+    static function _blob($blob): false|string
+    {
+        // Check if the input is not empty and has a valid size
+        if (!empty($blob) && strlen($blob) <= 1000000) {
+            // Remove whitespace from the beginning and end of the input
+            $blob = trim($blob);
+            // Return the escaped input
+            return addslashes($blob);
+        } else {
+            // Return false if the input is invalid
+            return false;
+        }
+    }
+
+    static function post(): void
+    {
+        foreach ($_POST as $key => $value) {
+            $_POST[$key] = _validate::_string($value);
+        }
+    }
+
     public static function _string($data)
     {
         //connect to db
@@ -33,30 +54,9 @@ class _validate
         return $data;
     }
 
-    static function _blob($blob): false|string
-    {
-        // Check if the input is not empty and has a valid size
-        if (!empty($blob) && strlen($blob) <= 1000000) {
-            // Remove whitespace from the beginning and end of the input
-            $blob = trim($blob);
-            // Return the escaped input
-            return addslashes($blob);
-        } else {
-            // Return false if the input is invalid
-            return false;
-        }
-    }
-
-    static function post(): void
-    {
-        foreach ($_POST as $key => $value){
-            $_POST[$key] = _validate::_string($value);
-        }
-    }
-
     static function arr($array): void
     {
-        foreach ($array as $key => $value){
+        foreach ($array as $key => $value) {
             $array[$key] = _validate::_string($value);
         }
     }

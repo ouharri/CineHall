@@ -12,7 +12,7 @@ namespace {
     if (!defined('PASSWORD_BCRYPT')) {
         /**
          * PHPUnit Process isolation caches constants, but not function declarations.
-         * So we need to check if the constants are defined separately from 
+         * So we need to check if the constants are defined separately from
          * the functions to enable supporting process isolation in userland
          * code.
          */
@@ -27,18 +27,19 @@ namespace {
          * Hash the password using the specified algorithm
          *
          * @param string $password The password to hash
-         * @param int    $algo     The algorithm to use (Defined by PASSWORD_* constants)
-         * @param array  $options  The options for the algorithm to use
+         * @param int $algo The algorithm to use (Defined by PASSWORD_* constants)
+         * @param array $options The options for the algorithm to use
          *
          * @return string|false The hashed password, or false on error.
          */
-        function password_hash($password, $algo, array $options = array()) {
+        function password_hash($password, $algo, array $options = array())
+        {
             if (!function_exists('crypt')) {
                 trigger_error("Crypt must be loaded for password_hash to function", E_USER_WARNING);
                 return null;
             }
             if (is_null($password) || is_int($password)) {
-                $password = (string) $password;
+                $password = (string)$password;
             }
             if (!is_string($password)) {
                 trigger_error("password_hash(): Password must be a string", E_USER_WARNING);
@@ -79,11 +80,11 @@ namespace {
                     case 'integer':
                     case 'double':
                     case 'string':
-                        $salt = (string) $options['salt'];
+                        $salt = (string)$options['salt'];
                         break;
                     case 'object':
                         if (method_exists($options['salt'], '__tostring')) {
-                            $salt = (string) $options['salt'];
+                            $salt = (string)$options['salt'];
                             break;
                         }
                     case 'array':
@@ -177,7 +178,8 @@ namespace {
          *
          * @return array The array of information about the hash.
          */
-        function password_get_info($hash) {
+        function password_get_info($hash)
+        {
             $return = array(
                 'algo' => 0,
                 'algoName' => 'unknown',
@@ -197,13 +199,14 @@ namespace {
          *
          * If the answer is true, after validating the password using password_verify, rehash it.
          *
-         * @param string $hash    The hash to test
-         * @param int    $algo    The algorithm used for new password hashes
-         * @param array  $options The options array passed to password_hash
+         * @param string $hash The hash to test
+         * @param int $algo The algorithm used for new password hashes
+         * @param array $options The options array passed to password_hash
          *
          * @return boolean True if the password needs to be rehashed.
          */
-        function password_needs_rehash($hash, $algo, array $options = array()) {
+        function password_needs_rehash($hash, $algo, array $options = array())
+        {
             $info = password_get_info($hash);
             if ($info['algo'] != $algo) {
                 return true;
@@ -223,11 +226,12 @@ namespace {
          * Verify a password against a hash using a timing attack resistant approach
          *
          * @param string $password The password to verify
-         * @param string $hash     The hash to verify against
+         * @param string $hash The hash to verify against
          *
          * @return boolean If the password matches the hash
          */
-        function password_verify($password, $hash) {
+        function password_verify($password, $hash)
+        {
             if (!function_exists('crypt')) {
                 trigger_error("Crypt must be loaded for password_verify to function", E_USER_WARNING);
                 return false;
@@ -261,10 +265,11 @@ namespace PasswordCompat\binary {
          *
          * @param string $binary_string The input string
          *
-         * @internal
          * @return int The number of bytes
+         * @internal
          */
-        function _strlen($binary_string) {
+        function _strlen($binary_string)
+        {
             if (function_exists('mb_strlen')) {
                 return mb_strlen($binary_string, '8bit');
             }
@@ -274,16 +279,17 @@ namespace PasswordCompat\binary {
         /**
          * Get a substring based on byte limits
          *
+         * @param string $binary_string The input string
+         * @param int $start
+         * @param int $length
+         *
+         * @return string The substring
+         * @internal
          * @see _strlen()
          *
-         * @param string $binary_string The input string
-         * @param int    $start
-         * @param int    $length
-         *
-         * @internal
-         * @return string The substring
          */
-        function _substr($binary_string, $start, $length) {
+        function _substr($binary_string, $start, $length)
+        {
             if (function_exists('mb_substr')) {
                 return mb_substr($binary_string, $start, $length, '8bit');
             }
@@ -295,7 +301,8 @@ namespace PasswordCompat\binary {
          *
          * @return boolean the check result
          */
-        function check() {
+        function check()
+        {
             static $pass = NULL;
 
             if (is_null($pass)) {

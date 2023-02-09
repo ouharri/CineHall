@@ -10,6 +10,9 @@
 
 namespace setasign\Fpdi\PdfParser\Filter;
 
+use function extension_loaded;
+use function gzuncompress;
+
 /**
  * Class for handling zlib/deflate encoded data
  */
@@ -26,7 +29,7 @@ class Flate implements FilterInterface
     {
         if ($this->extensionLoaded()) {
             $oData = $data;
-            $data = (($data !== '') ? @\gzuncompress($data) : '');
+            $data = (($data !== '') ? @gzuncompress($data) : '');
             if ($data === false) {
                 // let's try if the checksum is CRC32
                 $fh = fopen('php://temp', 'w+b');
@@ -81,6 +84,6 @@ class Flate implements FilterInterface
      */
     protected function extensionLoaded()
     {
-        return \extension_loaded('zlib');
+        return extension_loaded('zlib');
     }
 }

@@ -4,6 +4,7 @@ namespace Mpdf\Writer;
 
 use Mpdf\Fonts\FontCache;
 use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 use Mpdf\Strict;
 use Mpdf\TTFontFile;
 
@@ -13,17 +14,17 @@ class FontWriter
     use Strict;
 
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     private $mpdf;
 
     /**
-     * @var \Mpdf\Writer\BaseWriter
+     * @var BaseWriter
      */
     private $writer;
 
     /**
-     * @var \Mpdf\Fonts\FontCache
+     * @var FontCache
      */
     private $fontCache;
 
@@ -138,7 +139,7 @@ class FontWriter
                 $this->mpdf->fonts[$k]['n'] = $this->mpdf->n + 1;
 
                 if ($this->mpdf->PDFA || $this->mpdf->PDFX) {
-                    throw new \Mpdf\MpdfException('Core fonts are not allowed in PDF/A1-b or PDFX/1-a files (Times, Helvetica, Courier etc.)');
+                    throw new MpdfException('Core fonts are not allowed in PDF/A1-b or PDFX/1-a files (Times, Helvetica, Courier etc.)');
                 }
 
                 $this->writer->object();
@@ -435,7 +436,7 @@ class FontWriter
                     unset($ttf);
                 }
             } else {
-                throw new \Mpdf\MpdfException(sprintf('Unsupported font type: %s (%s)', $type, $name));
+                throw new MpdfException(sprintf('Unsupported font type: %s (%s)', $type, $name));
             }
         }
     }

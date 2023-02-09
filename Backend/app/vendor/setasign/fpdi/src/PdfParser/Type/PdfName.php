@@ -12,6 +12,7 @@ namespace setasign\Fpdi\PdfParser\Type;
 
 use setasign\Fpdi\PdfParser\StreamReader;
 use setasign\Fpdi\PdfParser\Tokenizer;
+use function strspn;
 
 /**
  * Class representing a PDF name object
@@ -28,7 +29,7 @@ class PdfName extends PdfType
     public static function parse(Tokenizer $tokenizer, StreamReader $streamReader)
     {
         $v = new self();
-        if (\strspn($streamReader->getByte(), "\x00\x09\x0A\x0C\x0D\x20()<>[]{}/%") === 0) {
+        if (strspn($streamReader->getByte(), "\x00\x09\x0A\x0C\x0D\x20()<>[]{}/%") === 0) {
             $v->value = (string)$tokenizer->getNextToken();
             return $v;
         }

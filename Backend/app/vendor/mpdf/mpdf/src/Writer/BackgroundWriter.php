@@ -3,6 +3,7 @@
 namespace Mpdf\Writer;
 
 use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 use Mpdf\Strict;
 
 final class BackgroundWriter
@@ -11,12 +12,12 @@ final class BackgroundWriter
     use Strict;
 
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     private $mpdf;
 
     /**
-     * @var \Mpdf\Writer\BaseWriter
+     * @var BaseWriter
      */
     private $writer;
 
@@ -121,7 +122,7 @@ final class BackgroundWriter
             }
 
             if (!$img_obj) {
-                throw new \Mpdf\MpdfException('Problem: Image object not found for background pattern ' . $img['i']);
+                throw new MpdfException('Problem: Image object not found for background pattern ' . $img['i']);
             }
 
             $this->writer->object();

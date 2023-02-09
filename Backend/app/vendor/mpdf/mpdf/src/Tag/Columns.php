@@ -38,7 +38,7 @@ class Columns extends Tag
 
     /**
      * @param string $tag
-     * @return \Mpdf\Tag\Tag
+     * @return Tag
      */
     private function getTagInstance($tag)
     {

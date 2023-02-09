@@ -35,7 +35,7 @@ class usersController
         $data = $user->getRow($token, 'token');
 
         //output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
 
@@ -102,7 +102,7 @@ class usersController
                         'user' => $token,
                         'firstName' => $data['firstName'],
                         'lastName' => $data['lastName'],
-                        'roles' => $data['role'] == 'client' ?
+                        'roles' => $data['role'] === 'client' ?
                             [
                                 'ROLE_USER'
                             ] : [
@@ -121,8 +121,8 @@ class usersController
                             'token' => $authentication,
                             'message' => 'connected successfully',
                             'status' => $_SERVER['REDIRECT_STATUS']
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
 
                 } else {
                     http_response_code(510);
@@ -131,8 +131,8 @@ class usersController
                             'success' => false,
                             'message' => 'this account is not exist',
                             'status' => 504
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
 
             } else {
@@ -142,8 +142,8 @@ class usersController
                         'success' => false,
                         'message' => 'no token',
                         'status' => 504
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -152,8 +152,8 @@ class usersController
                     'success' => false,
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
@@ -240,8 +240,8 @@ class usersController
                                     'token' => $token,
                                     'message' => "registered successfully <br> We've send your token on your email address.",
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         } else {
                             $user->rollback();
                             http_response_code(500);
@@ -250,8 +250,8 @@ class usersController
                                     'success' => false,
                                     'message' => $message ?? 'error in registered',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         }
                     } else {
                         http_response_code(500);
@@ -260,8 +260,8 @@ class usersController
                                 'success' => false,
                                 'message' => 'error in registered',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(510);
@@ -270,8 +270,8 @@ class usersController
                             'success' => false,
                             'message' => 'this email is already exists',
                             'status' => 504
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(510);
@@ -280,8 +280,8 @@ class usersController
                         'success' => false,
                         'message' => 'account Not Created something went wrong (error in data)',
                         'status' => 504
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -290,15 +290,15 @@ class usersController
                     'success' => false,
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
     /**
      * @throws Exception|\Exception
      */
-    public function forgotPassword(): void
+    public function forgotToken(): void
     {
         // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -371,8 +371,8 @@ class usersController
                                     'token' => $token,
                                     'message' => "account successfully recovered <br> We've send your token on your email address.",
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         } else {
                             $user->rollback();
                             http_response_code(500);
@@ -381,8 +381,8 @@ class usersController
                                     'success' => false,
                                     'message' => $message ?? 'error in recovered account',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         }
                     } else {
                         http_response_code(500);
@@ -391,8 +391,8 @@ class usersController
                                 'success' => false,
                                 'message' => 'error in recovered account',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(510);
@@ -401,8 +401,8 @@ class usersController
                             'success' => false,
                             'message' => 'this email is not exist',
                             'status' => 504
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(510);
@@ -411,8 +411,8 @@ class usersController
                         'success' => false,
                         'message' => 'no email',
                         'status' => 504
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -421,8 +421,8 @@ class usersController
                     'success' => false,
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 }

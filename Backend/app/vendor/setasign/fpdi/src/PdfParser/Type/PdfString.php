@@ -11,6 +11,11 @@
 namespace setasign\Fpdi\PdfParser\Type;
 
 use setasign\Fpdi\PdfParser\StreamReader;
+use function chr;
+use function octdec;
+use function ord;
+use function strlen;
+use function substr;
 
 /**
  * Class representing a PDF string object
@@ -29,7 +34,7 @@ class PdfString extends PdfType
         $openBrackets = 1;
         do {
             $buffer = $streamReader->getBuffer(false);
-            for ($length = \strlen($buffer); $openBrackets !== 0 && $pos < $length; $pos++) {
+            for ($length = strlen($buffer); $openBrackets !== 0 && $pos < $length; $pos++) {
                 switch ($buffer[$pos]) {
                     case '(':
                         $openBrackets++;
@@ -43,7 +48,7 @@ class PdfString extends PdfType
             }
         } while ($openBrackets !== 0 && $streamReader->increaseLength());
 
-        $result = \substr($buffer, $startPos, $openBrackets + $pos - $startPos - 1);
+        $result = substr($buffer, $startPos, $openBrackets + $pos - $startPos - 1);
         $streamReader->setOffset($pos);
 
         $v = new self();
@@ -88,7 +93,7 @@ class PdfString extends PdfType
     {
         $out = '';
         /** @noinspection ForeachInvariantsInspection */
-        for ($count = 0, $n = \strlen($s); $count < $n; $count++) {
+        for ($count = 0, $n = strlen($s); $count < $n; $count++) {
             if ($s[$count] !== '\\') {
                 $out .= $s[$count];
             } else {
@@ -134,7 +139,7 @@ class PdfString extends PdfType
                         break;
 
                     default:
-                        $actualChar = \ord($s[$count]);
+                        $actualChar = ord($s[$count]);
                         // ascii 48 = number 0
                         // ascii 57 = number 9
                         if ($actualChar >= 48 && $actualChar <= 57) {
@@ -143,8 +148,8 @@ class PdfString extends PdfType
                             /** @noinspection NotOptimalIfConditionsInspection */
                             if (
                                 $count + 1 < $n
-                                && \ord($s[$count + 1]) >= 48
-                                && \ord($s[$count + 1]) <= 57
+                                && ord($s[$count + 1]) >= 48
+                                && ord($s[$count + 1]) <= 57
                             ) {
                                 $count++;
                                 $oct .= $s[$count];
@@ -152,14 +157,14 @@ class PdfString extends PdfType
                                 /** @noinspection NotOptimalIfConditionsInspection */
                                 if (
                                     $count + 1 < $n
-                                    && \ord($s[$count + 1]) >= 48
-                                    && \ord($s[$count + 1]) <= 57
+                                    && ord($s[$count + 1]) >= 48
+                                    && ord($s[$count + 1]) <= 57
                                 ) {
                                     $oct .= $s[++$count];
                                 }
                             }
 
-                            $out .= \chr(\octdec($oct));
+                            $out .= chr(octdec($oct));
                         } else {
                             // If the character is not one of those defined, the backslash is ignored
                             $out .= $s[$count];

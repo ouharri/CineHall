@@ -19,23 +19,23 @@ class CssManager
     var $cell_border_dominance_R;
     var $cell_border_dominance_T;
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     private $mpdf;
     /**
-     * @var \Mpdf\Cache
+     * @var Cache
      */
     private $cache;
     /**
-     * @var \Mpdf\SizeConverter
+     * @var SizeConverter
      */
     private $sizeConverter;
     /**
-     * @var \Mpdf\Color\ColorConverter
+     * @var ColorConverter
      */
     private $colorConverter;
     /**
-     * @var \Mpdf\AssetFetcher
+     * @var AssetFetcher
      */
     private $assetFetcher;
 

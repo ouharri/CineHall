@@ -12,66 +12,66 @@ class Tag
     use Strict;
 
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     private $mpdf;
 
     /**
-     * @var \Mpdf\Cache
+     * @var Cache
      */
     private $cache;
 
     /**
-     * @var \Mpdf\CssManager
+     * @var CssManager
      */
     private $cssManager;
 
     /**
-     * @var \Mpdf\Form
+     * @var Form
      */
     private $form;
 
     /**
-     * @var \Mpdf\Otl
+     * @var Otl
      */
     private $otl;
 
     /**
-     * @var \Mpdf\TableOfContents
+     * @var TableOfContents
      */
     private $tableOfContents;
 
     /**
-     * @var \Mpdf\SizeConverter
+     * @var SizeConverter
      */
     private $sizeConverter;
 
     /**
-     * @var \Mpdf\Color\ColorConverter
+     * @var ColorConverter
      */
     private $colorConverter;
 
     /**
-     * @var \Mpdf\Image\ImageProcessor
+     * @var ImageProcessor
      */
     private $imageProcessor;
 
     /**
-     * @var \Mpdf\Language\LanguageToFontInterface
+     * @var LanguageToFontInterface
      */
     private $languageToFont;
 
     /**
-     * @param \Mpdf\Mpdf $mpdf
-     * @param \Mpdf\Cache $cache
-     * @param \Mpdf\CssManager $cssManager
-     * @param \Mpdf\Form $form
-     * @param \Mpdf\Otl $otl
-     * @param \Mpdf\TableOfContents $tableOfContents
-     * @param \Mpdf\SizeConverter $sizeConverter
-     * @param \Mpdf\Color\ColorConverter $colorConverter
-     * @param \Mpdf\Image\ImageProcessor $imageProcessor
-     * @param \Mpdf\Language\LanguageToFontInterface $languageToFont
+     * @param Mpdf $mpdf
+     * @param Cache $cache
+     * @param CssManager $cssManager
+     * @param Form $form
+     * @param Otl $otl
+     * @param TableOfContents $tableOfContents
+     * @param SizeConverter $sizeConverter
+     * @param ColorConverter $colorConverter
+     * @param ImageProcessor $imageProcessor
+     * @param LanguageToFontInterface $languageToFont
      */
     public function __construct(
         Mpdf                    $mpdf,
@@ -179,7 +179,7 @@ class Tag
 
     /**
      * @param string $tag The tag name
-     * @return \Mpdf\Tag\Tag
+     * @return Tag\Tag
      */
     private function getTagInstance($tag)
     {

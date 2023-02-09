@@ -4,38 +4,40 @@ namespace Mpdf\Writer;
 
 use Mpdf\Form;
 use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 use Mpdf\Pdf\Protection;
 use Mpdf\Strict;
 use Mpdf\Utils\PdfDate;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class MetadataWriter implements \Psr\Log\LoggerAwareInterface
+class MetadataWriter implements LoggerAwareInterface
 {
 
     use Strict;
 
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     private $mpdf;
 
     /**
-     * @var \Mpdf\Writer\BaseWriter
+     * @var BaseWriter
      */
     private $writer;
 
     /**
-     * @var \Mpdf\Form
+     * @var Form
      */
     private $form;
 
     /**
-     * @var \Mpdf\Pdf\Protection
+     * @var Protection
      */
     private $protection;
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     private $logger;
 
@@ -122,7 +124,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
         elseif ($this->mpdf->PDFA) {
 
             if (strpos($this->mpdf->PDFAversion, '-') === false) {
-                throw new \Mpdf\MpdfException(sprintf('PDFA version (%s) is not valid. (Use: 1-B, 3-B, etc.)', $this->mpdf->PDFAversion));
+                throw new MpdfException(sprintf('PDFA version (%s) is not valid. (Use: 1-B, 3-B, etc.)', $this->mpdf->PDFAversion));
             }
 
             list($part, $conformance) = explode('-', strtoupper($this->mpdf->PDFAversion));
@@ -248,7 +250,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 
         if ($this->mpdf->ICCProfile) {
             if (!file_exists($this->mpdf->ICCProfile)) {
-                throw new \Mpdf\MpdfException(sprintf('Unable to find ICC profile "%s"', $this->mpdf->ICCProfile));
+                throw new MpdfException(sprintf('Unable to find ICC profile "%s"', $this->mpdf->ICCProfile));
             }
             $s = file_get_contents($this->mpdf->ICCProfile);
         } else {
@@ -279,7 +281,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
     public function writeAssociatedFiles() // _putAssociatedFiles
     {
         if (!function_exists('gzcompress')) {
-            throw new \Mpdf\MpdfException('ext-zlib is required for compression of associated files');
+            throw new MpdfException('ext-zlib is required for compression of associated files');
         }
 
         // for each file, we create the spec object + the stream object
@@ -311,7 +313,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
             }
 
             if (!$fileContent) {
-                throw new \Mpdf\MpdfException(sprintf('Cannot access associated file - %s', $file['path']));
+                throw new MpdfException(sprintf('Cannot access associated file - %s', $file['path']));
             }
 
             $filestream = gzcompress($fileContent);
@@ -732,7 +734,7 @@ class MetadataWriter implements \Psr\Log\LoggerAwareInterface
 
                             $file = @file_get_contents($pl['opt']['file']);
                             if (!$file) {
-                                throw new \Mpdf\MpdfException('mPDF Error: Cannot access file attachment - ' . $pl['opt']['file']);
+                                throw new MpdfException('mPDF Error: Cannot access file attachment - ' . $pl['opt']['file']);
                             }
 
                             $filestream = gzcompress($file);

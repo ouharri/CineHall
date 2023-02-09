@@ -29,7 +29,7 @@ class eventController
         $data = $event->getRow($id);
 
         //output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
 
@@ -51,7 +51,7 @@ class eventController
         $data = $event->getAll();
 
         // output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
 
@@ -95,16 +95,16 @@ class eventController
                             array(
                                 'message' => 'event Created',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     } else {
                         http_response_code(500);
                         echo json_encode(
                             array(
                                 'message' => 'event Not Created',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(510);
@@ -112,8 +112,8 @@ class eventController
                         array(
                             'message' => "event is not create ( halls {$_POST['hall']} is plein in {$_POST['date']} )",
                             'status' => 504
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(510);
@@ -121,8 +121,8 @@ class eventController
                     array(
                         'message' => 'event Not Created (error in data)',
                         'status' => 504
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -130,8 +130,8 @@ class eventController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
@@ -186,16 +186,16 @@ class eventController
                                     array(
                                         'message' => 'event updated successfully',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             } else {
                                 http_response_code(500);
                                 echo json_encode(
                                     array(
                                         'message' => 'event Not updated',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             }
                         } else {
                             http_response_code(510);
@@ -203,8 +203,8 @@ class eventController
                                 array(
                                     'message' => "event is not updated ( halls {$idHall} is plein in {$dateEvent} )",
                                     'status' => 504
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         }
                     } else {
                         http_response_code(401);
@@ -212,8 +212,8 @@ class eventController
                             array(
                                 'message' => 'Error ( No data for update )',
                                 'status' => 401
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(401);
@@ -221,8 +221,8 @@ class eventController
                         array(
                             'message' => 'Error  ( event not exist )',
                             'status' => 401
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(401);
@@ -230,8 +230,8 @@ class eventController
                     array(
                         'message' => 'Error  ( No item for update )',
                         'status' => 401
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -239,8 +239,8 @@ class eventController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
@@ -260,7 +260,7 @@ class eventController
             header('Access-Control-Allow-Methods: DELETE');
             header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 
-            $_DELETE = (array)json_decode(file_get_contents("php://input"));
+            $_DELETE = (array)json_decode(file_get_contents("php://input"), false, 512, JSON_THROW_ON_ERROR);
 
             if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
                 $event = $this->event;
@@ -277,16 +277,16 @@ class eventController
                             array(
                                 'message' => 'event deleted successfully',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     } else {
                         http_response_code(500);
                         echo json_encode(
                             array(
                                 'message' => 'event Not deleted',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(401);
@@ -294,8 +294,8 @@ class eventController
                         array(
                             'message' => 'Error  ( event not exist )',
                             'status' => 401
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(401);
@@ -303,8 +303,8 @@ class eventController
                     array(
                         'message' => 'Error  ( No item for delete )',
                         'status' => 401
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -312,8 +312,8 @@ class eventController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 }

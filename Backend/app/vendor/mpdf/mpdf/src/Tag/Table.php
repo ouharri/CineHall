@@ -4,6 +4,7 @@ namespace Mpdf\Tag;
 
 use Mpdf\Css\Border;
 use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 
 class Table extends Tag
 {
@@ -867,7 +868,7 @@ class Table extends Tag
 
         if ($this->mpdf->table[1][1]['overflow'] === 'visible') {
             if ($maxrowheight > $fullpage) {
-                throw new \Mpdf\MpdfException('mPDF Warning: A Table row is greater than available height. You cannot use CSS overflow:visible');
+                throw new MpdfException('mPDF Warning: A Table row is greater than available height. You cannot use CSS overflow:visible');
             }
             if ($maxfirstrowheight > $remainingpage) {
                 $this->mpdf->AddPage($this->mpdf->CurOrientation);

@@ -6,7 +6,7 @@ namespace Mpdf\Barcode;
  * POSTNET and PLANET barcodes.
  * Used by U.S. Postal Service for automated mail sorting
  */
-class Postnet extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\BarcodeInterface
+class Postnet extends AbstractBarcode implements BarcodeInterface
 {
 
     /**

@@ -31,7 +31,7 @@ class hallsController
         $data = $halls->getRow($id);
 
         //output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
 
@@ -54,7 +54,7 @@ class hallsController
         $data = $halls->getAll();
 
         // output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -113,8 +113,8 @@ class hallsController
                                 array(
                                     'message' => 'halls Created',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         } else {
                             $image->rollback();
                             $halls->rollback();
@@ -123,8 +123,8 @@ class hallsController
                                 array(
                                     'message' => 'halls Not Created',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         }
                     } else {
                         $image->rollback();
@@ -133,8 +133,8 @@ class hallsController
                             array(
                                 'message' => 'halls Not Created',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(510);
@@ -142,8 +142,8 @@ class hallsController
                         array(
                             'message' => 'movie Not Created ( Image no exist )',
                             'status' => 504
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(510);
@@ -151,8 +151,8 @@ class hallsController
                     array(
                         'message' => 'halls Not Created something went wrong (error in data)',
                         'status' => 504
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -160,8 +160,8 @@ class hallsController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
@@ -234,8 +234,8 @@ class hallsController
                                         array(
                                             'message' => 'halls Created',
                                             'status' => $_SERVER['REDIRECT_STATUS']
-                                        )
-                                    );
+                                        ),
+                                        JSON_THROW_ON_ERROR);
                                 } else {
                                     $image->rollback();
                                     $halls->rollback();
@@ -244,8 +244,8 @@ class hallsController
                                         array(
                                             'message' => 'halls Not Created',
                                             'status' => $_SERVER['REDIRECT_STATUS']
-                                        )
-                                    );
+                                        ),
+                                        JSON_THROW_ON_ERROR);
                                 }
                             } else {
                                 $image->rollback();
@@ -254,8 +254,8 @@ class hallsController
                                     array(
                                         'message' => 'halls Not updated ( error in update image )',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             }
                         } else if ($isset_img) {
                             // Get images data
@@ -276,16 +276,16 @@ class hallsController
                                     array(
                                         'message' => 'image updated successfully',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             } else {
                                 http_response_code(415);
                                 echo json_encode(
                                     array(
                                         'message' => 'image Not updated',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             }
                         } else {
                             // update data
@@ -295,16 +295,16 @@ class hallsController
                                     array(
                                         'message' => 'halls updated successfully',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             } else {
                                 http_response_code(500);
                                 echo json_encode(
                                     array(
                                         'message' => 'halls Not Created',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             }
                         }
                     } else {
@@ -313,8 +313,8 @@ class hallsController
                             array(
                                 'message' => 'Error ( No data for update )',
                                 'status' => 401
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(401);
@@ -322,8 +322,8 @@ class hallsController
                         array(
                             'message' => 'Error  ( halls not exist )',
                             'status' => 401
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(401);
@@ -331,8 +331,8 @@ class hallsController
                     array(
                         'message' => 'Error  ( No item for update )',
                         'status' => 401
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -340,8 +340,8 @@ class hallsController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
@@ -361,7 +361,7 @@ class hallsController
             header('Access-Control-Allow-Methods: DELETE');
             header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 
-            $_DELETE = (array)json_decode(file_get_contents("php://input"));
+            $_DELETE = (array)json_decode(file_get_contents("php://input"), false, 512, JSON_THROW_ON_ERROR);
 
             if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
 
@@ -392,8 +392,8 @@ class hallsController
                                 array(
                                     'message' => 'halls deleted successfully',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         } else {
                             $image->rollback();
                             $halls->rollback();
@@ -402,8 +402,8 @@ class hallsController
                                 array(
                                     'message' => 'halls Not deleted',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         }
                     } else {
                         $image->rollback();
@@ -412,8 +412,8 @@ class hallsController
                             array(
                                 'message' => 'halls Not deleted ( error in delet image )',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(401);
@@ -421,8 +421,8 @@ class hallsController
                         array(
                             'message' => 'Error  ( halls not exist )',
                             'status' => 401
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(401);
@@ -430,8 +430,8 @@ class hallsController
                     array(
                         'message' => 'Error  ( No item for delete )',
                         'status' => 401
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -439,8 +439,8 @@ class hallsController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 }

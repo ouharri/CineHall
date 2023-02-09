@@ -8,7 +8,7 @@ if (file_exists($dist . '/random_compat.phar')) {
 }
 $phar = new Phar(
     $dist . '/random_compat.phar',
-    FilesystemIterator::CURRENT_AS_FILEINFO | \FilesystemIterator::KEY_AS_FILENAME,
+    FilesystemIterator::CURRENT_AS_FILEINFO | FilesystemIterator::KEY_AS_FILENAME,
     'random_compat.phar'
 );
 rename(

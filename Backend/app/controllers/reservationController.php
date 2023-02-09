@@ -30,7 +30,7 @@ class reservationController
         $data = $reservation->getRow($id);
 
         //output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
 
@@ -53,7 +53,7 @@ class reservationController
         $data = $reservation->getAll();
 
         // output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
 
@@ -98,16 +98,16 @@ class reservationController
                             array(
                                 'message' => 'reservation Created',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     } else {
                         http_response_code(500);
                         echo json_encode(
                             array(
                                 'message' => 'reservation Not Created',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(510);
@@ -115,8 +115,8 @@ class reservationController
                         array(
                             'message' => 'reservation Not Created ( seat already reserved )',
                             'status' => 504
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(510);
@@ -124,8 +124,8 @@ class reservationController
                     array(
                         'message' => 'reservation Not Created (error in data)',
                         'status' => 504
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -133,8 +133,8 @@ class reservationController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
@@ -155,7 +155,7 @@ class reservationController
             header('Access-Control-Allow-Methods: DELETE');
             header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 
-            $_DELETE = (array)json_decode(file_get_contents("php://input"));
+            $_DELETE = (array)json_decode(file_get_contents("php://input"), false, 512, JSON_THROW_ON_ERROR);
 
             if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
 
@@ -174,16 +174,16 @@ class reservationController
                             array(
                                 'message' => 'reservation deleted successfully',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     } else {
                         http_response_code(500);
                         echo json_encode(
                             array(
                                 'message' => 'reservation Not deleted',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(401);
@@ -191,8 +191,8 @@ class reservationController
                         array(
                             'message' => 'Error  ( reservation not exist )',
                             'status' => 401
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(401);
@@ -200,8 +200,8 @@ class reservationController
                     array(
                         'message' => 'Error  ( No item for delete )',
                         'status' => 401
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -209,8 +209,8 @@ class reservationController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 }

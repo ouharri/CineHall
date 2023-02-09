@@ -1,6 +1,8 @@
 <?php
 
 use JetBrains\PhpStorm\NoReturn;
+use Mpdf\HTMLParserMode;
+use Mpdf\Mpdf;
 use Mpdf\MpdfException;
 use PHPMailer\PHPMailer\Exception;
 use PHPMailer\PHPMailer\PHPMailer;
@@ -447,7 +449,7 @@ class DashboardController
      */
     public function receiptPdf(): void
     {
-        $mpdf = new \Mpdf\Mpdf([
+        $mpdf = new Mpdf([
             'default_font_size' => 8,
             'margin_left' => 15,
             'margin_right' => 15,
@@ -478,7 +480,7 @@ class DashboardController
             PRODUCT;
         }
         $stylesheet = file_get_contents(url('css/print.css'));
-        $mpdf->WriteHTML($stylesheet, \Mpdf\HTMLParserMode::HEADER_CSS);
+        $mpdf->WriteHTML($stylesheet, HTMLParserMode::HEADER_CSS);
         $received = <<<HTML
         <html lang="en">
             <body style="padding: 20px">
@@ -541,7 +543,7 @@ class DashboardController
             </body>
         </html>
         HTML;
-        $mpdf->WriteHTML($received, \Mpdf\HTMLParserMode::HTML_BODY);
+        $mpdf->WriteHTML($received, HTMLParserMode::HTML_BODY);
         $mpdf->Output('product.pdf', 'D');
     }
 

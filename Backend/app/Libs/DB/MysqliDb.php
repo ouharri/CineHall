@@ -138,7 +138,7 @@ class MysqliDb
      * @var string
      */
     protected $_tableLockMethod = "READ";
-/**
+    /**
      * Dynamic array that holds a combination of where condition/table data value types and parameter references
      *
      * @var array

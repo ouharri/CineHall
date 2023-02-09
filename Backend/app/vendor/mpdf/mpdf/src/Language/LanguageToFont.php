@@ -2,7 +2,7 @@
 
 namespace Mpdf\Language;
 
-class LanguageToFont implements \Mpdf\Language\LanguageToFontInterface
+class LanguageToFont implements LanguageToFontInterface
 {
 
     public function getLanguageOptions($llcc, $adobeCJK)

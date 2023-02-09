@@ -2,7 +2,9 @@
 
 namespace Mpdf\Http\Exception;
 
-class NetworkException extends \Mpdf\MpdfException
+use Mpdf\MpdfException;
+
+class NetworkException extends MpdfException
 {
 
 }

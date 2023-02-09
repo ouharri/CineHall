@@ -2,7 +2,9 @@
 
 namespace Http\Message;
 
+use InvalidArgumentException;
 use Psr\Http\Message\StreamInterface;
+use RuntimeException;
 
 /**
  * Factory for PSR-7 Stream.
@@ -18,8 +20,8 @@ interface StreamFactory
      *
      * @return StreamInterface
      *
-     * @throws \InvalidArgumentException If the stream body is invalid.
-     * @throws \RuntimeException         If creating the stream from $body fails.
+     * @throws InvalidArgumentException If the stream body is invalid.
+     * @throws RuntimeException         If creating the stream from $body fails.
      */
     public function createStream($body = null);
 }

@@ -2,6 +2,7 @@
 
 namespace Mpdf\Shaper;
 
+use Mpdf\MpdfException;
 use Mpdf\Ucdn;
 
 class Indic
@@ -92,19 +93,19 @@ class Indic
     const NON_INDIC_CLUSTER = 4;
     const BASE_POS_FIRST = 0;
     const BASE_POS_LAST = 1;
-const REPH_POS_DEFAULT = 10;
-const REPH_POS_AFTER_MAIN = 5;
-const REPH_POS_BEFORE_SUB = 7;
-const REPH_POS_AFTER_SUB = 9;
-const REPH_POS_BEFORE_POST = 10;
-const REPH_POS_AFTER_POST = 12;
+    const REPH_POS_DEFAULT = 10;
+    const REPH_POS_AFTER_MAIN = 5;
+    const REPH_POS_BEFORE_SUB = 7;
+    const REPH_POS_AFTER_SUB = 9;
+    const REPH_POS_BEFORE_POST = 10;
+    const REPH_POS_AFTER_POST = 12;
 
     /* Rules from:
      * https://www.microsoft.com/typography/otfntdev/devanot/shaping.aspx */
-const REPH_MODE_IMPLICIT = 0;
-const REPH_MODE_EXPLICIT = 1;
-const REPH_MODE_VIS_REPHA = 2;
-const REPH_MODE_LOG_REPHA = 3;
+    const REPH_MODE_IMPLICIT = 0;
+    const REPH_MODE_EXPLICIT = 1;
+    const REPH_MODE_VIS_REPHA = 2;
+    const REPH_MODE_LOG_REPHA = 3;
     public static $indic_category_char = [
         'x',
         'C',
@@ -710,12 +711,12 @@ const REPH_MODE_LOG_REPHA = 3;
         return $side;
     } // POS_BEFORE_POST,
 
-        public static function MATRA_POS_LEFT($u)
+    public static function MATRA_POS_LEFT($u)
     {
         return self::POS_PRE_M;
     } // POS_AFTER_MAIN,
 
-        public static function MATRA_POS_RIGHT($u)
+    public static function MATRA_POS_RIGHT($u)
     {
         return
             (self::IS_DEVA($u) ? self::POS_AFTER_SUB :
@@ -1090,7 +1091,7 @@ const REPH_MODE_LOG_REPHA = 3;
         // I am not sue how this code below got in here, since $idx should now be > count($info) and thus invalid.
         // In case I am missing something(!) I'll leave a warning here for now:
         if (isset($info[$idx])) {
-            throw new \Mpdf\MpdfException('Unexpected error occurred in Indic processing');
+            throw new MpdfException('Unexpected error occurred in Indic processing');
         }
         // In case of final bloken cluster...
         //$syllable = $info[$idx]['syllable'];

@@ -2,7 +2,9 @@
 
 namespace Mpdf\Exception;
 
-class FontException extends \Mpdf\MpdfException
+use Mpdf\MpdfException;
+
+class FontException extends MpdfException
 {
 
 }

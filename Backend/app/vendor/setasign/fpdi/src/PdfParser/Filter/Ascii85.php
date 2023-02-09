@@ -10,6 +10,11 @@
 
 namespace setasign\Fpdi\PdfParser\Filter;
 
+use function chr;
+use function ord;
+use function preg_replace;
+use function strlen;
+
 /**
  * Class for handling ASCII base-85 encoded data
  */
@@ -28,26 +33,26 @@ class Ascii85 implements FilterInterface
         $state = 0;
         $chn = null;
 
-        $data = \preg_replace('/\s/', '', $data);
+        $data = preg_replace('/\s/', '', $data);
 
-        $l = \strlen($data);
+        $l = strlen($data);
 
         /** @noinspection ForeachInvariantsInspection */
         for ($k = 0; $k < $l; ++$k) {
-            $ch = \ord($data[$k]) & 0xff;
+            $ch = ord($data[$k]) & 0xff;
 
             //Start <~
-            if ($k === 0 && $ch === 60 && isset($data[$k + 1]) && (\ord($data[$k + 1]) & 0xFF) === 126) {
+            if ($k === 0 && $ch === 60 && isset($data[$k + 1]) && (ord($data[$k + 1]) & 0xFF) === 126) {
                 $k++;
                 continue;
             }
             //End ~>
-            if ($ch === 126 && isset($data[$k + 1]) && (\ord($data[$k + 1]) & 0xFF) === 62) {
+            if ($ch === 126 && isset($data[$k + 1]) && (ord($data[$k + 1]) & 0xFF) === 62) {
                 break;
             }
 
             if ($ch === 122 /* z */ && $state === 0) {
-                $out .= \chr(0) . \chr(0) . \chr(0) . \chr(0);
+                $out .= chr(0) . chr(0) . chr(0) . chr(0);
                 continue;
             }
 
@@ -69,10 +74,10 @@ class Ascii85 implements FilterInterface
                     $r = (int)($r * 85 + $chn[$j]);
                 }
 
-                $out .= \chr($r >> 24)
-                    . \chr($r >> 16)
-                    . \chr($r >> 8)
-                    . \chr($r);
+                $out .= chr($r >> 24)
+                    . chr($r >> 16)
+                    . chr($r >> 8)
+                    . chr($r);
             }
         }
 
@@ -85,16 +90,16 @@ class Ascii85 implements FilterInterface
 
         if ($state === 2) {
             $r = $chn[0] * 85 * 85 * 85 * 85 + ($chn[1] + 1) * 85 * 85 * 85;
-            $out .= \chr($r >> 24);
+            $out .= chr($r >> 24);
         } elseif ($state === 3) {
             $r = $chn[0] * 85 * 85 * 85 * 85 + $chn[1] * 85 * 85 * 85 + ($chn[2] + 1) * 85 * 85;
-            $out .= \chr($r >> 24);
-            $out .= \chr($r >> 16);
+            $out .= chr($r >> 24);
+            $out .= chr($r >> 16);
         } elseif ($state === 4) {
             $r = $chn[0] * 85 * 85 * 85 * 85 + $chn[1] * 85 * 85 * 85 + $chn[2] * 85 * 85 + ($chn[3] + 1) * 85;
-            $out .= \chr($r >> 24);
-            $out .= \chr($r >> 16);
-            $out .= \chr($r >> 8);
+            $out .= chr($r >> 24);
+            $out .= chr($r >> 16);
+            $out .= chr($r >> 8);
         }
 
         return $out;

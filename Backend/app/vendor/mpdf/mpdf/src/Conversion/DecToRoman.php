@@ -2,6 +2,10 @@
 
 namespace Mpdf\Conversion;
 
+use InvalidArgumentException;
+use OutOfBoundsException;
+use OutOfRangeException;
+
 /**
  * @link https://github.com/JeroenDeDauw/RomanNumbers
  * @license GNU GPL v2+
@@ -31,18 +35,18 @@ class DecToRoman
     private function ensureNumberIsAnInteger($number)
     {
         if (!is_int($number)) {
-            throw new \InvalidArgumentException('Can only translate integers to roman');
+            throw new InvalidArgumentException('Can only translate integers to roman');
         }
     }
 
     private function ensureNumberIsWithinBounds($number)
     {
         if ($number < 1) {
-            throw new \OutOfRangeException('Numbers under one cannot be translated to roman');
+            throw new OutOfRangeException('Numbers under one cannot be translated to roman');
         }
 
         if ($number > $this->getUpperBound()) {
-            throw new \OutOfBoundsException('The provided number is to big to be fully translated to roman');
+            throw new OutOfBoundsException('The provided number is to big to be fully translated to roman');
         }
     }
 

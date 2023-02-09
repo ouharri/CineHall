@@ -2,10 +2,15 @@
 
 namespace Mpdf\Http;
 
+use Exception;
+use InvalidArgumentException;
+use Psr\Http\Message\StreamInterface;
+use RuntimeException;
+
 /**
  * @link nyholm/psr7
  */
-class Stream implements \Psr\Http\Message\StreamInterface
+class Stream implements StreamInterface
 {
     /** @var array Hash of readable and writable stream types */
     private static $readWriteHash = [
@@ -76,7 +81,7 @@ class Stream implements \Psr\Http\Message\StreamInterface
     public static function createFromResource($resource)
     {
         if (!is_resource($resource)) {
-            throw new \InvalidArgumentException('Stream must be a resource');
+            throw new InvalidArgumentException('Stream must be a resource');
         }
 
         $obj = new self();
@@ -108,7 +113,7 @@ class Stream implements \Psr\Http\Message\StreamInterface
     public function write($string)
     {
         if (!$this->writable) {
-            throw new \RuntimeException('Cannot write to a non-writable stream');
+            throw new RuntimeException('Cannot write to a non-writable stream');
         }
 
         // We can't know the size after writing anything
@@ -116,7 +121,7 @@ class Stream implements \Psr\Http\Message\StreamInterface
         $result = fwrite($this->stream, $string);
 
         if ($result === false) {
-            throw new \RuntimeException('Unable to write to stream');
+            throw new RuntimeException('Unable to write to stream');
         }
 
         return $result;
@@ -125,11 +130,11 @@ class Stream implements \Psr\Http\Message\StreamInterface
     public function seek($offset, $whence = SEEK_SET)
     {
         if (!$this->seekable) {
-            throw new \RuntimeException('Stream is not seekable');
+            throw new RuntimeException('Stream is not seekable');
         }
 
         if (fseek($this->stream, $offset, $whence) === -1) {
-            throw new \RuntimeException('Unable to seek to stream position ' . $offset . ' with whence ' . var_export($whence, true));
+            throw new RuntimeException('Unable to seek to stream position ' . $offset . ' with whence ' . var_export($whence, true));
         }
     }
 
@@ -173,7 +178,7 @@ class Stream implements \Psr\Http\Message\StreamInterface
             }
 
             return $this->getContents();
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             return '';
         }
     }
@@ -186,13 +191,13 @@ class Stream implements \Psr\Http\Message\StreamInterface
     public function getContents()
     {
         if (!isset($this->stream)) {
-            throw new \RuntimeException('Unable to read stream contents');
+            throw new RuntimeException('Unable to read stream contents');
         }
 
         $contents = stream_get_contents($this->stream);
 
         if ($contents === false) {
-            throw new \RuntimeException('Unable to read stream contents');
+            throw new RuntimeException('Unable to read stream contents');
         }
 
         return $contents;
@@ -226,7 +231,7 @@ class Stream implements \Psr\Http\Message\StreamInterface
         $result = ftell($this->stream);
 
         if ($result === false) {
-            throw new \RuntimeException('Unable to determine stream position');
+            throw new RuntimeException('Unable to determine stream position');
         }
 
         return $result;
@@ -255,7 +260,7 @@ class Stream implements \Psr\Http\Message\StreamInterface
     public function read($length)
     {
         if (!$this->readable) {
-            throw new \RuntimeException('Cannot read from non-readable stream');
+            throw new RuntimeException('Cannot read from non-readable stream');
         }
 
         return fread($this->stream, $length);

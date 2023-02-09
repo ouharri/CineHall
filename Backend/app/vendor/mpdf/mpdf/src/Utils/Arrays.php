@@ -2,6 +2,8 @@
 
 namespace Mpdf\Utils;
 
+use InvalidArgumentException;
+
 class Arrays
 {
 
@@ -12,7 +14,7 @@ class Arrays
         }
 
         if (func_num_args() < 3) {
-            throw new \InvalidArgumentException(sprintf('Array does not contain key "%s"', $key));
+            throw new InvalidArgumentException(sprintf('Array does not contain key "%s"', $key));
         }
 
         return $default;

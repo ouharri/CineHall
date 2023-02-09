@@ -2,6 +2,8 @@
 
 namespace Mpdf\Http;
 
+use InvalidArgumentException;
+use Psr\Http\Message\RequestInterface;
 use Psr\Http\Message\StreamInterface;
 use Psr\Http\Message\UriInterface;
 
@@ -10,7 +12,7 @@ use Psr\Http\Message\UriInterface;
  *
  * @link https://github.com/Nyholm/psr7/blob/master/src/Uri.php
  */
-class Request implements \Psr\Http\Message\RequestInterface
+class Request implements RequestInterface
 {
 
     /** @var string */
@@ -156,7 +158,7 @@ class Request implements \Psr\Http\Message\RequestInterface
     public function withRequestTarget($requestTarget)
     {
         if (preg_match('#\s#', $requestTarget)) {
-            throw new \InvalidArgumentException('Invalid request target provided; cannot contain whitespace');
+            throw new InvalidArgumentException('Invalid request target provided; cannot contain whitespace');
         }
 
         $new = clone $this;

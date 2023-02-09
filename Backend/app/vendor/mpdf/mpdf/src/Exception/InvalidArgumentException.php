@@ -2,7 +2,9 @@
 
 namespace Mpdf\Exception;
 
-class InvalidArgumentException extends \Mpdf\MpdfException
+use Mpdf\MpdfException;
+
+class InvalidArgumentException extends MpdfException
 {
 
 }

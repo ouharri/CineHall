@@ -5,6 +5,7 @@ namespace Mpdf;
 use Mpdf\Color\ColorConverter;
 use Mpdf\Color\ColorModeConverter;
 use Mpdf\Color\ColorSpaceRestrictor;
+use Mpdf\Container\ContainerInterface;
 use Mpdf\File\LocalContentLoader;
 use Mpdf\Fonts\FontCache;
 use Mpdf\Fonts\FontFileFinder;
@@ -26,12 +27,13 @@ use Mpdf\Writer\OptionalContentWriter;
 use Mpdf\Writer\PageWriter;
 use Mpdf\Writer\ResourceWriter;
 use Psr\Log\LoggerInterface;
+use function function_exists;
 
 class ServiceFactory
 {
 
     /**
-     * @var \Mpdf\Container\ContainerInterface|null
+     * @var ContainerInterface|null
      */
     private $container;
 
@@ -72,7 +74,7 @@ class ServiceFactory
 
         if ($this->container && $this->container->has('httpClient')) {
             $httpClient = $this->container->get('httpClient');
-        } elseif (\function_exists('curl_init')) {
+        } elseif (function_exists('curl_init')) {
             $httpClient = new CurlHttpClient($mpdf, $logger);
         } else {
             $httpClient = new SocketHttpClient($logger);

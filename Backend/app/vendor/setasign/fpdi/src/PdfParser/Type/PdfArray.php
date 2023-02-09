@@ -12,6 +12,8 @@ namespace setasign\Fpdi\PdfParser\Type;
 
 use setasign\Fpdi\PdfParser\PdfParser;
 use setasign\Fpdi\PdfParser\Tokenizer;
+use function count;
+use function sprintf;
 
 /**
  * Class representing a PDF array object
@@ -73,9 +75,9 @@ class PdfArray extends PdfType
     {
         $result = PdfType::ensureType(self::class, $array, 'Array value expected.');
 
-        if ($size !== null && \count($array->value) !== $size) {
+        if ($size !== null && count($array->value) !== $size) {
             throw new PdfTypeException(
-                \sprintf('Array with %s entries expected.', $size),
+                sprintf('Array with %s entries expected.', $size),
                 PdfTypeException::INVALID_DATA_SIZE
             );
         }

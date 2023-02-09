@@ -4,70 +4,71 @@ namespace Mpdf\Writer;
 
 use Mpdf\Mpdf;
 use Mpdf\Strict;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-final class ResourceWriter implements \Psr\Log\LoggerAwareInterface
+final class ResourceWriter implements LoggerAwareInterface
 {
 
     use Strict;
 
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     private $mpdf;
 
     /**
-     * @var \Mpdf\Writer\BaseWriter
+     * @var BaseWriter
      */
     private $writer;
 
     /**
-     * @var \Mpdf\Writer\ColorWriter
+     * @var ColorWriter
      */
     private $colorWriter;
 
     /**
-     * @var \Mpdf\Writer\FontWriter
+     * @var FontWriter
      */
     private $fontWriter;
 
     /**
-     * @var \Mpdf\Writer\ImageWriter
+     * @var ImageWriter
      */
     private $imageWriter;
 
     /**
-     * @var \Mpdf\Writer\FormWriter
+     * @var FormWriter
      */
     private $formWriter;
 
     /**
-     * @var \Mpdf\Writer\OptionalContentWriter
+     * @var OptionalContentWriter
      */
     private $optionalContentWriter;
 
     /**
-     * @var \Mpdf\Writer\BackgroundWriter
+     * @var BackgroundWriter
      */
     private $backgroundWriter;
 
     /**
-     * @var \Mpdf\Writer\BookmarkWriter
+     * @var BookmarkWriter
      */
     private $bookmarkWriter;
 
     /**
-     * @var \Mpdf\Writer\MetadataWriter
+     * @var MetadataWriter
      */
     private $metadataWriter;
 
     /**
-     * @var \Mpdf\Writer\JavaScriptWriter
+     * @var JavaScriptWriter
      */
     private $javaScriptWriter;
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     private $logger;
 
@@ -246,7 +247,7 @@ final class ResourceWriter implements \Psr\Log\LoggerAwareInterface
     }
 
     /**
-     * @param \Psr\Log\LoggerInterface $logger
+     * @param LoggerInterface $logger
      *
      * @return void
      */

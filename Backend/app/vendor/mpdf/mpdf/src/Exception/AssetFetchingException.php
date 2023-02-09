@@ -2,7 +2,9 @@
 
 namespace Mpdf\Exception;
 
-class AssetFetchingException extends \Mpdf\MpdfException
+use Mpdf\MpdfException;
+
+class AssetFetchingException extends MpdfException
 {
 
 }

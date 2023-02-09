@@ -2,7 +2,9 @@
 
 namespace Mpdf\Http\Exception;
 
-class RequestException extends \Mpdf\MpdfException
+use Mpdf\MpdfException;
+
+class RequestException extends MpdfException
 {
 
 }

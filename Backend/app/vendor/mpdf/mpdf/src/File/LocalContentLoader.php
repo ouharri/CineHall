@@ -2,7 +2,7 @@
 
 namespace Mpdf\File;
 
-class LocalContentLoader implements \Mpdf\File\LocalContentLoaderInterface
+class LocalContentLoader implements LocalContentLoaderInterface
 {
 
     public function load($path)

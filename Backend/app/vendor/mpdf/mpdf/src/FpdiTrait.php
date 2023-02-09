@@ -4,6 +4,7 @@ namespace Mpdf;
 
 use setasign\Fpdi\PdfParser\CrossReference\CrossReferenceException;
 use setasign\Fpdi\PdfParser\Filter\AsciiHex;
+use setasign\Fpdi\PdfParser\PdfParserException;
 use setasign\Fpdi\PdfParser\Type\PdfArray;
 use setasign\Fpdi\PdfParser\Type\PdfDictionary;
 use setasign\Fpdi\PdfParser\Type\PdfHexString;
@@ -18,6 +19,10 @@ use setasign\Fpdi\PdfParser\Type\PdfType;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
 use setasign\Fpdi\PdfReader\DataStructure\Rectangle;
 use setasign\Fpdi\PdfReader\PageBoundaries;
+use function array_keys;
+use function array_pop;
+use function strlen;
+use function version_compare;
 
 /**
  * @mixin Mpdf
@@ -183,7 +188,7 @@ trait FpdiTrait
      * @return array
      * @throws CrossReferenceException
      * @throws PdfTypeException
-     * @throws \setasign\Fpdi\PdfParser\PdfParserException
+     * @throws PdfParserException
      */
     public function getImportedExternalPageLinks($pageNumber)
     {
@@ -240,7 +245,7 @@ trait FpdiTrait
     /**
      * @throws CrossReferenceException
      * @throws PdfTypeException
-     * @throws \setasign\Fpdi\PdfParser\PdfParserException
+     * @throws PdfParserException
      */
     public function writeImportedPagesAndResolvedObjects()
     {
@@ -254,11 +259,11 @@ trait FpdiTrait
             $this->_put('endobj');
         }
 
-        foreach (\array_keys($this->readers) as $readerId) {
+        foreach (array_keys($this->readers) as $readerId) {
             $parser = $this->getPdfReader($readerId)->getParser();
             $this->currentReaderId = $readerId;
 
-            while (($objectNumber = \array_pop($this->objectsToCopy[$readerId])) !== null) {
+            while (($objectNumber = array_pop($this->objectsToCopy[$readerId])) !== null) {
                 try {
                     $object = $parser->getIndirectObject($objectNumber);
 
@@ -316,7 +321,7 @@ trait FpdiTrait
             $stream = $value->getStream();
             $stream = $this->protection->rc4($this->protection->objectKey($this->currentObjectNumber), $stream);
             $dictionary = $value->value;
-            $dictionary->value['Length'] = PdfNumeric::create(\strlen($stream));
+            $dictionary->value['Length'] = PdfNumeric::create(strlen($stream));
             $value = PdfStream::create($dictionary, $stream);
 
         } elseif ($value instanceof PdfIndirectObject) {
@@ -382,7 +387,7 @@ trait FpdiTrait
      */
     protected function setMinPdfVersion($pdfVersion)
     {
-        if (\version_compare($pdfVersion, $this->pdf_version, '>')) {
+        if (version_compare($pdfVersion, $this->pdf_version, '>')) {
             $this->pdf_version = $pdfVersion;
         }
     }

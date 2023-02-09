@@ -10,6 +10,8 @@
 
 namespace setasign\Fpdi\PdfReader;
 
+use function in_array;
+
 /**
  * An abstract class for page boundary constants and some helper methods
  */
@@ -89,6 +91,6 @@ abstract class PageBoundaries
      */
     public static function isValidName($name)
     {
-        return \in_array($name, self::$all, true);
+        return in_array($name, self::$all, true);
     }
 }

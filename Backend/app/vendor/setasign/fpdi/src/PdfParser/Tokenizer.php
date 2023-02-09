@@ -10,6 +10,13 @@
 
 namespace setasign\Fpdi\PdfParser;
 
+use function array_pop;
+use function in_array;
+use function strcspn;
+use function strlen;
+use function strspn;
+use function substr;
+
 /**
  * A tokenizer class.
  */
@@ -72,7 +79,7 @@ class Tokenizer
      */
     public function getNextToken()
     {
-        $token = \array_pop($this->stack);
+        $token = array_pop($this->stack);
         if ($token !== null) {
             return $token;
         }
@@ -81,7 +88,7 @@ class Tokenizer
             return false;
         }
 
-        if (\in_array($byte, ["\x20", "\x0A", "\x0D", "\x0C", "\x09", "\x00"], true)) {
+        if (in_array($byte, ["\x20", "\x0A", "\x0D", "\x0C", "\x09", "\x00"], true)) {
             if ($this->leapWhiteSpaces() === false) {
                 return false;
             }
@@ -109,7 +116,7 @@ class Tokenizer
         $bufferOffset = $this->streamReader->getOffset();
         do {
             $lastBuffer = $this->streamReader->getBuffer(false);
-            $pos = \strcspn(
+            $pos = strcspn(
                 $lastBuffer,
                 "\x00\x09\x0A\x0C\x0D\x20()<>[]{}/%",
                 $bufferOffset
@@ -119,12 +126,12 @@ class Tokenizer
             // in the current buffer or increase the buffers length
             $lastBuffer !== false &&
             (
-                $bufferOffset + $pos === \strlen($lastBuffer) &&
+                $bufferOffset + $pos === strlen($lastBuffer) &&
                 $this->streamReader->increaseLength()
             )
         );
 
-        $result = \substr($lastBuffer, $bufferOffset - 1, $pos + 1);
+        $result = substr($lastBuffer, $bufferOffset - 1, $pos + 1);
         $this->streamReader->setOffset($bufferOffset + $pos);
 
         return $result;
@@ -143,7 +150,7 @@ class Tokenizer
             }
 
             $buffer = $this->streamReader->getBuffer(false);
-            $matches = \strspn($buffer, "\x20\x0A\x0C\x0D\x09\x00", $this->streamReader->getOffset());
+            $matches = strspn($buffer, "\x20\x0A\x0C\x0D\x09\x00", $this->streamReader->getOffset());
             if ($matches > 0) {
                 $this->streamReader->addOffset($matches);
             }

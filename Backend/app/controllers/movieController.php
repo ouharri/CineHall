@@ -32,7 +32,7 @@ class movieController
         $data = $movie->getRow($id);
 
         //output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
 
@@ -55,7 +55,7 @@ class movieController
         $data = $movie->getAll();
 
         // output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
 
@@ -116,8 +116,8 @@ class movieController
                                 array(
                                     'message' => 'movie Created',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         } else {
                             $image->rollback();
                             $movie->rollback();
@@ -126,8 +126,8 @@ class movieController
                                 array(
                                     'message' => 'movie Not Created',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         }
                     } else {
                         $image->rollback();
@@ -136,8 +136,8 @@ class movieController
                             array(
                                 'message' => 'movie Not Created',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(510);
@@ -145,8 +145,8 @@ class movieController
                         array(
                             'message' => 'movie Not Created ( Image no exist )',
                             'status' => 504
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(510);
@@ -154,8 +154,8 @@ class movieController
                     array(
                         'message' => 'movie Not Created something went wrong (error in data)',
                         'status' => 504
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -163,8 +163,8 @@ class movieController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
@@ -238,8 +238,8 @@ class movieController
                                         array(
                                             'message' => 'movie Created',
                                             'status' => $_SERVER['REDIRECT_STATUS']
-                                        )
-                                    );
+                                        ),
+                                        JSON_THROW_ON_ERROR);
                                 } else {
                                     $image->rollback();
                                     $movie->rollback();
@@ -248,8 +248,8 @@ class movieController
                                         array(
                                             'message' => 'movie Not Created',
                                             'status' => $_SERVER['REDIRECT_STATUS']
-                                        )
-                                    );
+                                        ),
+                                        JSON_THROW_ON_ERROR);
                                 }
                             } else {
                                 $image->rollback();
@@ -258,8 +258,8 @@ class movieController
                                     array(
                                         'message' => 'movie Not updated ( error in update image )',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             }
                         } else if ($isset_img) {
                             // Get images data
@@ -280,16 +280,16 @@ class movieController
                                     array(
                                         'message' => 'image updated successfully',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             } else {
                                 http_response_code(415);
                                 echo json_encode(
                                     array(
                                         'message' => 'image Not updated',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             }
                         } else {
                             // update data
@@ -299,16 +299,16 @@ class movieController
                                     array(
                                         'message' => 'movie updated successfully',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             } else {
                                 http_response_code(500);
                                 echo json_encode(
                                     array(
                                         'message' => 'movie Not Created',
                                         'status' => $_SERVER['REDIRECT_STATUS']
-                                    )
-                                );
+                                    ),
+                                    JSON_THROW_ON_ERROR);
                             }
                         }
                     } else {
@@ -317,8 +317,8 @@ class movieController
                             array(
                                 'message' => 'Error ( No data for update )',
                                 'status' => 401
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(401);
@@ -326,8 +326,8 @@ class movieController
                         array(
                             'message' => 'Error  ( movie not exist )',
                             'status' => 401
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(401);
@@ -335,8 +335,8 @@ class movieController
                     array(
                         'message' => 'Error  ( No item for update )',
                         'status' => 401
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -344,8 +344,8 @@ class movieController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 
@@ -366,7 +366,7 @@ class movieController
             header('Access-Control-Allow-Methods: DELETE');
             header('Access-Control-Allow-Headers: Access-Control-Allow-Headers, Content-Type, Access-Control-Allow-Methods, Authorization,X-Requested-With');
 
-            $_DELETE = (array)json_decode(file_get_contents("php://input"));
+            $_DELETE = (array)json_decode(file_get_contents("php://input"), false, 512, JSON_THROW_ON_ERROR);
 
             if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
 
@@ -397,8 +397,8 @@ class movieController
                                 array(
                                     'message' => 'movie deleted successfully',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         } else {
                             $image->rollback();
                             $movie->rollback();
@@ -407,8 +407,8 @@ class movieController
                                 array(
                                     'message' => 'movie Not deleted',
                                     'status' => $_SERVER['REDIRECT_STATUS']
-                                )
-                            );
+                                ),
+                                JSON_THROW_ON_ERROR);
                         }
                     } else {
                         $image->rollback();
@@ -417,8 +417,8 @@ class movieController
                             array(
                                 'message' => 'movie Not deleted ( error in delet image )',
                                 'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                            ),
+                            JSON_THROW_ON_ERROR);
                     }
                 } else {
                     http_response_code(401);
@@ -426,8 +426,8 @@ class movieController
                         array(
                             'message' => 'Error  ( movie not exist )',
                             'status' => 401
-                        )
-                    );
+                        ),
+                        JSON_THROW_ON_ERROR);
                 }
             } else {
                 http_response_code(401);
@@ -435,8 +435,8 @@ class movieController
                     array(
                         'message' => 'Error  ( No item for delete )',
                         'status' => 401
-                    )
-                );
+                    ),
+                    JSON_THROW_ON_ERROR);
             }
         } else {
             http_response_code(405);
@@ -444,8 +444,8 @@ class movieController
                 array(
                     'message' => 'Méthode non autorisée',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 }

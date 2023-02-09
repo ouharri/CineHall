@@ -2,12 +2,22 @@
 
 namespace Mpdf\Http;
 
+use InvalidArgumentException;
+use Psr\Http\Message\UriInterface;
+use function is_string;
+use function ltrim;
+use function parse_url;
+use function preg_replace_callback;
+use function rawurlencode;
+use function sprintf;
+use function strtr;
+
 /**
  * PSR-7 URI implementation ported from nyholm/psr7 and adapted for PHP 5.6
  *
  * @link https://github.com/Nyholm/psr7/blob/master/src/Uri.php
  */
-final class Uri implements \Psr\Http\Message\UriInterface
+final class Uri implements UriInterface
 {
     const CHAR_UNRESERVED = 'a-zA-Z0-9_\-\.~';
     const CHAR_SUB_DELIMS = '!\$&\'\(\)\*\+,;=';
@@ -36,14 +46,14 @@ final class Uri implements \Psr\Http\Message\UriInterface
     public function __construct($uri = '')
     {
         if ('' !== $uri) {
-            if (false === $parts = \parse_url($uri)) {
-                throw new \InvalidArgumentException(\sprintf('Unable to parse URI: "%s"', $uri));
+            if (false === $parts = parse_url($uri)) {
+                throw new InvalidArgumentException(sprintf('Unable to parse URI: "%s"', $uri));
             }
 
             // Apply parse_url parts to a URI.
-            $this->scheme = isset($parts['scheme']) ? \strtr($parts['scheme'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') : '';
+            $this->scheme = isset($parts['scheme']) ? strtr($parts['scheme'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') : '';
             $this->userInfo = isset($parts['user']) ? $parts['user'] : '';
-            $this->host = isset($parts['host']) ? \strtr($parts['host'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') : '';
+            $this->host = isset($parts['host']) ? strtr($parts['host'], 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz') : '';
             $this->port = isset($parts['port']) ? $this->filterPort($parts['port']) : null;
             $this->path = isset($parts['path']) ? $this->filterPath($parts['path']) : '';
             $this->query = isset($parts['query']) ? $this->filterQueryAndFragment($parts['query']) : '';
@@ -62,7 +72,7 @@ final class Uri implements \Psr\Http\Message\UriInterface
 
         $port = (int)$port;
         if (0 > $port || 0xffff < $port) {
-            throw new \InvalidArgumentException(\sprintf('Invalid port: %d. Must be between 0 and 65535', $port));
+            throw new InvalidArgumentException(sprintf('Invalid port: %d. Must be between 0 and 65535', $port));
         }
 
         return self::isNonStandardPort($this->scheme, $port) ? $port : null;
@@ -78,25 +88,25 @@ final class Uri implements \Psr\Http\Message\UriInterface
 
     private function filterPath($path)
     {
-        if (!\is_string($path)) {
-            throw new \InvalidArgumentException('Path must be a string');
+        if (!is_string($path)) {
+            throw new InvalidArgumentException('Path must be a string');
         }
 
-        return \preg_replace_callback('/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMS . '%:@\/]++|%(?![A-Fa-f0-9]{2}))/', [__CLASS__, 'rawurlencodeMatchZero'], $path);
+        return preg_replace_callback('/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMS . '%:@\/]++|%(?![A-Fa-f0-9]{2}))/', [__CLASS__, 'rawurlencodeMatchZero'], $path);
     }
 
     private function filterQueryAndFragment($str)
     {
-        if (!\is_string($str)) {
-            throw new \InvalidArgumentException('Query and fragment must be a string');
+        if (!is_string($str)) {
+            throw new InvalidArgumentException('Query and fragment must be a string');
         }
 
-        return \preg_replace_callback('/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMS . '%:@\/\?]++|%(?![A-Fa-f0-9]{2}))/', [__CLASS__, 'rawurlencodeMatchZero'], $str);
+        return preg_replace_callback('/(?:[^' . self::CHAR_UNRESERVED . self::CHAR_SUB_DELIMS . '%:@\/\?]++|%(?![A-Fa-f0-9]{2}))/', [__CLASS__, 'rawurlencodeMatchZero'], $str);
     }
 
     private static function rawurlencodeMatchZero(array $match)
     {
-        return \rawurlencode($match[0]);
+        return rawurlencode($match[0]);
     }
 
     public function __toString()
@@ -128,7 +138,7 @@ final class Uri implements \Psr\Http\Message\UriInterface
                 if ('' === $authority) {
                     // If the path is starting with more than one "/" and no authority is present, the
                     // starting slashes MUST be reduced to one.
-                    $path = '/' . \ltrim($path, '/');
+                    $path = '/' . ltrim($path, '/');
                 }
             }
 
@@ -201,11 +211,11 @@ final class Uri implements \Psr\Http\Message\UriInterface
 
     public function withScheme($scheme)
     {
-        if (!\is_string($scheme)) {
-            throw new \InvalidArgumentException('Scheme must be a string');
+        if (!is_string($scheme)) {
+            throw new InvalidArgumentException('Scheme must be a string');
         }
 
-        if ($this->scheme === $scheme = \strtr($scheme, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')) {
+        if ($this->scheme === $scheme = strtr($scheme, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')) {
             return $this;
         }
 
@@ -235,11 +245,11 @@ final class Uri implements \Psr\Http\Message\UriInterface
 
     public function withHost($host)
     {
-        if (!\is_string($host)) {
-            throw new \InvalidArgumentException('Host must be a string');
+        if (!is_string($host)) {
+            throw new InvalidArgumentException('Host must be a string');
         }
 
-        if ($this->host === $host = \strtr($host, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')) {
+        if ($this->host === $host = strtr($host, 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz')) {
             return $this;
         }
 

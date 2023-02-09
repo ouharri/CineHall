@@ -2,14 +2,18 @@
 
 namespace Mpdf;
 
+use InvalidArgumentException;
+use Mpdf\Exception\AssetFetchingException;
 use Mpdf\File\LocalContentLoaderInterface;
 use Mpdf\File\StreamWrapperChecker;
 use Mpdf\Http\ClientInterface;
 use Mpdf\Http\Request;
+use Mpdf\Http\Response;
 use Mpdf\Log\Context as LogContext;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class AssetFetcher implements \Psr\Log\LoggerAwareInterface
+class AssetFetcher implements LoggerAwareInterface
 {
 
     private $mpdf;
@@ -38,11 +42,11 @@ class AssetFetcher implements \Psr\Log\LoggerAwareInterface
         $wrapperChecker = new StreamWrapperChecker($this->mpdf);
 
         if ($wrapperChecker->hasBlacklistedStreamWrapper($path)) {
-            throw new \Mpdf\Exception\AssetFetchingException('File contains an invalid stream. Only ' . implode(', ', $wrapperChecker->getWhitelistedStreamWrappers()) . ' streams are allowed.');
+            throw new AssetFetchingException('File contains an invalid stream. Only ' . implode(', ', $wrapperChecker->getWhitelistedStreamWrappers()) . ' streams are allowed.');
         }
 
         if ($originalSrc && $wrapperChecker->hasBlacklistedStreamWrapper($originalSrc)) {
-            throw new \Mpdf\Exception\AssetFetchingException('File contains an invalid stream. Only ' . implode(', ', $wrapperChecker->getWhitelistedStreamWrappers()) . ' streams are allowed.');
+            throw new AssetFetchingException('File contains an invalid stream. Only ' . implode(', ', $wrapperChecker->getWhitelistedStreamWrappers()) . ' streams are allowed.');
         }
 
         $this->mpdf->GetFullPath($path);
@@ -87,14 +91,14 @@ class AssetFetcher implements \Psr\Log\LoggerAwareInterface
 
             $this->logger->debug(sprintf('Fetching remote content of file "%s"', $path), ['context' => LogContext::REMOTE_CONTENT]);
 
-            /** @var \Mpdf\Http\Response $response */
+            /** @var Response $response */
             $response = $this->http->sendRequest(new Request('GET', $path));
 
             if ($response->getStatusCode() !== 200) {
 
                 $message = sprintf('Non-OK HTTP response "%s" on fetching remote content "%s" because of an error', $response->getStatusCode(), $path);
                 if ($this->mpdf->debug) {
-                    throw new \Mpdf\MpdfException($message);
+                    throw new MpdfException($message);
                 }
 
                 $this->logger->info($message);
@@ -104,10 +108,10 @@ class AssetFetcher implements \Psr\Log\LoggerAwareInterface
 
             $data = $response->getBody()->getContents();
 
-        } catch (\InvalidArgumentException $e) {
+        } catch (InvalidArgumentException $e) {
             $message = sprintf('Unable to fetch remote content "%s" because of an error "%s"', $path, $e->getMessage());
             if ($this->mpdf->debug) {
-                throw new \Mpdf\MpdfException($message, 0, E_ERROR, null, null, $e);
+                throw new MpdfException($message, 0, E_ERROR, null, null, $e);
             }
 
             $this->logger->warning($message);

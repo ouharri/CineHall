@@ -25,10 +25,10 @@ class imageController
             // header
             header('Expires: 0');
             header('Pragma: public');
-            header("Content-Type: {$data['type']}; charset=UTF-8");
             header('Access-Control-Allow-Origin: *');
             header('Content-Transfer-Encoding: binary');
             header('Content-Description: File Transfer');
+            header("Content-Type: {$data['type']}; charset=UTF-8");
             header("Content-Disposition: Inline; filename={$data['name']}");
             header('Cache-Control: must-re_validate, post-check=0, pre-check=0');
 
@@ -48,8 +48,8 @@ class imageController
                 array(
                     'message' => 'image non disponible',
                     'status' => 405
-                )
-            );
+                ),
+                JSON_THROW_ON_ERROR);
         }
     }
 }

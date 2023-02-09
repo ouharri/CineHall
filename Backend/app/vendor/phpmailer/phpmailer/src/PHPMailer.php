@@ -21,6 +21,17 @@
 
 namespace PHPMailer\PHPMailer;
 
+use Psr\Log\LoggerInterface;
+use const IDNA_CHECK_BIDI;
+use const IDNA_CHECK_CONTEXTJ;
+use const IDNA_DEFAULT;
+use const IDNA_NONTRANSITIONAL_TO_ASCII;
+use const IDNA_USE_STD3_RULES;
+use const INTL_IDNA_VARIANT_2003;
+use const INTL_IDNA_VARIANT_UTS46;
+use const PHP_MAJOR_VERSION;
+use const PHP_VERSION_ID;
+
 /**
  * PHPMailer - PHP email creation and transport class.
  *
@@ -434,7 +445,7 @@ class PHPMailer
      *
      * @see SMTP::$Debugoutput
      *
-     * @var string|callable|\Psr\Log\LoggerInterface
+     * @var string|callable|LoggerInterface
      */
     public $Debugoutput = 'echo';
     /**
@@ -1134,6 +1145,65 @@ class PHPMailer
     }
 
     /**
+     * Output debugging info via a user-defined method.
+     * Only generates output if debug output is enabled.
+     *
+     * @param string $str
+     * @see PHPMailer::$SMTPDebug
+     *
+     * @see PHPMailer::$Debugoutput
+     */
+    protected function edebug($str)
+    {
+        if ($this->SMTPDebug <= 0) {
+            return;
+        }
+        //Is this a PSR-3 logger?
+        if ($this->Debugoutput instanceof LoggerInterface) {
+            $this->Debugoutput->debug($str);
+
+            return;
+        }
+        //Avoid clash with built-in function names
+        if (is_callable($this->Debugoutput) && !in_array($this->Debugoutput, ['error_log', 'html', 'echo'])) {
+            call_user_func($this->Debugoutput, $str, $this->SMTPDebug);
+
+            return;
+        }
+        switch ($this->Debugoutput) {
+            case 'error_log':
+                //Don't output, just log
+                /** @noinspection ForgottenDebugOutputInspection */
+                error_log($str);
+                break;
+            case 'html':
+                //Cleans up output a bit for a better looking, HTML-safe output
+                echo htmlentities(
+                    preg_replace('/[\r\n]+/', '', $str),
+                    ENT_QUOTES,
+                    'UTF-8'
+                ), "<br>\n";
+                break;
+            case 'echo':
+            default:
+                //Normalize line breaks
+                $str = preg_replace('/\r\n|\r/m', "\n", $str);
+                echo gmdate('Y-m-d H:i:s'),
+                "\t",
+                    //Trim trailing space
+                trim(
+                //Indent for readability, except for trailing break
+                    str_replace(
+                        "\n",
+                        "\n                   \t                  ",
+                        trim($str)
+                    )
+                ),
+                "\n";
+        }
+    }
+
+    /**
      * Tells whether IDNs (Internationalized Domain Names) are supported or not. This requires the
      * `intl` and `mbstring` PHP extensions.
      *
@@ -1142,6 +1212,18 @@ class PHPMailer
     public static function idnSupported()
     {
         return function_exists('idn_to_ascii') && function_exists('mb_convert_encoding');
+    }
+
+    /**
+     * Does a string contain any 8-bit chars (in any charset)?
+     *
+     * @param string $text
+     *
+     * @return bool
+     */
+    public function has8bitChars($text)
+    {
+        return (bool)preg_match('/[\x80-\xFF]/', $text);
     }
 
     /**
@@ -1234,6 +1316,91 @@ class PHPMailer
     }
 
     /**
+     * Check that a string looks like an email address.
+     * Validation patterns supported:
+     * * `auto` Pick best pattern automatically;
+     * * `pcre8` Use the squiloople.com pattern, requires PCRE > 8.0;
+     * * `pcre` Use old PCRE implementation;
+     * * `php` Use PHP built-in FILTER_VALIDATE_EMAIL;
+     * * `html5` Use the pattern given by the HTML5 spec for 'email' type form input elements.
+     * * `noregex` Don't use a regex: super fast, really dumb.
+     * Alternatively you may pass in a callable to inject your own validator, for example:
+     *
+     * ```php
+     * PHPMailer::validateAddress('user@example.com', function($address) {
+     *     return (strpos($address, '@') !== false);
+     * });
+     * ```
+     *
+     * You can also set the PHPMailer::$validator static to a callable, allowing built-in methods to use your validator.
+     *
+     * @param string $address The email address to check
+     * @param string|callable $patternselect Which pattern to use
+     *
+     * @return bool
+     */
+    public static function validateAddress($address, $patternselect = null)
+    {
+        if (null === $patternselect) {
+            $patternselect = static::$validator;
+        }
+        //Don't allow strings as callables, see SECURITY.md and CVE-2021-3603
+        if (is_callable($patternselect) && !is_string($patternselect)) {
+            return call_user_func($patternselect, $address);
+        }
+        //Reject line breaks in addresses; it's valid RFC5322, but not RFC5321
+        if (strpos($address, "\n") !== false || strpos($address, "\r") !== false) {
+            return false;
+        }
+        switch ($patternselect) {
+            case 'pcre': //Kept for BC
+            case 'pcre8':
+                /*
+                 * A more complex and more permissive version of the RFC5322 regex on which FILTER_VALIDATE_EMAIL
+                 * is based.
+                 * In addition to the addresses allowed by filter_var, also permits:
+                 *  * dotless domains: `a@b`
+                 *  * comments: `1234 @ local(blah) .machine .example`
+                 *  * quoted elements: `'"test blah"@example.org'`
+                 *  * numeric TLDs: `a@b.123`
+                 *  * unbracketed IPv4 literals: `a@192.168.0.1`
+                 *  * IPv6 literals: 'first.last@[IPv6:a1::]'
+                 * Not all of these will necessarily work for sending!
+                 *
+                 * @see       http://squiloople.com/2009/12/20/email-address-validation/
+                 * @copyright 2009-2010 Michael Rushton
+                 * Feel free to use and redistribute this code. But please keep this copyright notice.
+                 */
+                return (bool)preg_match(
+                    '/^(?!(?>(?1)"?(?>\\\[ -~]|[^"])"?(?1)){255,})(?!(?>(?1)"?(?>\\\[ -~]|[^"])"?(?1)){65,}@)' .
+                    '((?>(?>(?>((?>(?>(?>\x0D\x0A)?[\t ])+|(?>[\t ]*\x0D\x0A)?[\t ]+)?)(\((?>(?2)' .
+                    '(?>[\x01-\x08\x0B\x0C\x0E-\'*-\[\]-\x7F]|\\\[\x00-\x7F]|(?3)))*(?2)\)))+(?2))|(?2))?)' .
+                    '([!#-\'*+\/-9=?^-~-]+|"(?>(?2)(?>[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\x7F]))*' .
+                    '(?2)")(?>(?1)\.(?1)(?4))*(?1)@(?!(?1)[a-z0-9-]{64,})(?1)(?>([a-z0-9](?>[a-z0-9-]*[a-z0-9])?)' .
+                    '(?>(?1)\.(?!(?1)[a-z0-9-]{64,})(?1)(?5)){0,126}|\[(?:(?>IPv6:(?>([a-f0-9]{1,4})(?>:(?6)){7}' .
+                    '|(?!(?:.*[a-f0-9][:\]]){8,})((?6)(?>:(?6)){0,6})?::(?7)?))|(?>(?>IPv6:(?>(?6)(?>:(?6)){5}:' .
+                    '|(?!(?:.*[a-f0-9]:){6,})(?8)?::(?>((?6)(?>:(?6)){0,4}):)?))?(25[0-5]|2[0-4][0-9]|1[0-9]{2}' .
+                    '|[1-9]?[0-9])(?>\.(?9)){3}))\])(?1)$/isD',
+                    $address
+                );
+            case 'html5':
+                /*
+                 * This is the pattern used in the HTML5 spec for validation of 'email' type form input elements.
+                 *
+                 * @see https://html.spec.whatwg.org/#e-mail-state-(type=email)
+                 */
+                return (bool)preg_match(
+                    '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}' .
+                    '[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/sD',
+                    $address
+                );
+            case 'php':
+            default:
+                return filter_var($address, FILTER_VALIDATE_EMAIL) !== false;
+        }
+    }
+
+    /**
      * Return the Message-ID header of the last email.
      * Technically this is the value from the last time the headers were created,
      * but it's also the message ID of the last sent message except in
@@ -1284,7 +1451,7 @@ class PHPMailer
     {
         if (
             'smtp' === $this->Mailer
-            || ('mail' === $this->Mailer && (\PHP_VERSION_ID >= 80000 || stripos(PHP_OS, 'WIN') === 0))
+            || ('mail' === $this->Mailer && (PHP_VERSION_ID >= 80000 || stripos(PHP_OS, 'WIN') === 0))
         ) {
             //SMTP mandates RFC-compliant line endings
             //and it's also used with mail() on Windows
@@ -1296,8 +1463,8 @@ class PHPMailer
         //Check for buggy PHP versions that add a header with an incorrect line break
         if (
             'mail' === $this->Mailer
-            && ((\PHP_VERSION_ID >= 70000 && \PHP_VERSION_ID < 70017)
-                || (\PHP_VERSION_ID >= 70100 && \PHP_VERSION_ID < 70103))
+            && ((PHP_VERSION_ID >= 70000 && PHP_VERSION_ID < 70017)
+                || (PHP_VERSION_ID >= 70100 && PHP_VERSION_ID < 70103))
             && ini_get('mail.add_x_header') === '1'
             && stripos(PHP_OS, 'WIN') === 0
         ) {
@@ -1441,13 +1608,13 @@ class PHPMailer
                     //Use the current punycode standard (appeared in PHP 7.2)
                     $punycode = idn_to_ascii(
                         $domain,
-                        \IDNA_DEFAULT | \IDNA_USE_STD3_RULES | \IDNA_CHECK_BIDI |
-                        \IDNA_CHECK_CONTEXTJ | \IDNA_NONTRANSITIONAL_TO_ASCII,
-                        \INTL_IDNA_VARIANT_UTS46
+                        IDNA_DEFAULT | IDNA_USE_STD3_RULES | IDNA_CHECK_BIDI |
+                        IDNA_CHECK_CONTEXTJ | IDNA_NONTRANSITIONAL_TO_ASCII,
+                        INTL_IDNA_VARIANT_UTS46
                     );
                 } elseif (defined('INTL_IDNA_VARIANT_2003')) {
                     //Fall back to this old, deprecated/removed encoding
-                    $punycode = idn_to_ascii($domain, $errorcode, \INTL_IDNA_VARIANT_2003);
+                    $punycode = idn_to_ascii($domain, $errorcode, INTL_IDNA_VARIANT_2003);
                 } else {
                     //Fall back to a default we don't know about
                     $punycode = idn_to_ascii($domain, $errorcode);
@@ -1954,6 +2121,181 @@ class PHPMailer
     }
 
     /**
+     * Word-wrap message.
+     * For use with mailers that do not automatically perform wrapping
+     * and for quoted-printable encoded messages.
+     * Original written by philippe.
+     *
+     * @param string $message The message to wrap
+     * @param int $length The line length to wrap to
+     * @param bool $qp_mode Whether to run in Quoted-Printable mode
+     *
+     * @return string
+     */
+    public function wrapText($message, $length, $qp_mode = false)
+    {
+        if ($qp_mode) {
+            $soft_break = sprintf(' =%s', static::$LE);
+        } else {
+            $soft_break = static::$LE;
+        }
+        //If utf-8 encoding is used, we will need to make sure we don't
+        //split multibyte characters when we wrap
+        $is_utf8 = static::CHARSET_UTF8 === strtolower($this->CharSet);
+        $lelen = strlen(static::$LE);
+        $crlflen = strlen(static::$LE);
+
+        $message = static::normalizeBreaks($message);
+        //Remove a trailing line break
+        if (substr($message, -$lelen) === static::$LE) {
+            $message = substr($message, 0, -$lelen);
+        }
+
+        //Split message into lines
+        $lines = explode(static::$LE, $message);
+        //Message will be rebuilt in here
+        $message = '';
+        foreach ($lines as $line) {
+            $words = explode(' ', $line);
+            $buf = '';
+            $firstword = true;
+            foreach ($words as $word) {
+                if ($qp_mode && (strlen($word) > $length)) {
+                    $space_left = $length - strlen($buf) - $crlflen;
+                    if (!$firstword) {
+                        if ($space_left > 20) {
+                            $len = $space_left;
+                            if ($is_utf8) {
+                                $len = $this->utf8CharBoundary($word, $len);
+                            } elseif ('=' === substr($word, $len - 1, 1)) {
+                                --$len;
+                            } elseif ('=' === substr($word, $len - 2, 1)) {
+                                $len -= 2;
+                            }
+                            $part = substr($word, 0, $len);
+                            $word = substr($word, $len);
+                            $buf .= ' ' . $part;
+                            $message .= $buf . sprintf('=%s', static::$LE);
+                        } else {
+                            $message .= $buf . $soft_break;
+                        }
+                        $buf = '';
+                    }
+                    while ($word !== '') {
+                        if ($length <= 0) {
+                            break;
+                        }
+                        $len = $length;
+                        if ($is_utf8) {
+                            $len = $this->utf8CharBoundary($word, $len);
+                        } elseif ('=' === substr($word, $len - 1, 1)) {
+                            --$len;
+                        } elseif ('=' === substr($word, $len - 2, 1)) {
+                            $len -= 2;
+                        }
+                        $part = substr($word, 0, $len);
+                        $word = (string)substr($word, $len);
+
+                        if ($word !== '') {
+                            $message .= $part . sprintf('=%s', static::$LE);
+                        } else {
+                            $buf = $part;
+                        }
+                    }
+                } else {
+                    $buf_o = $buf;
+                    if (!$firstword) {
+                        $buf .= ' ';
+                    }
+                    $buf .= $word;
+
+                    if ('' !== $buf_o && strlen($buf) > $length) {
+                        $message .= $buf_o . $soft_break;
+                        $buf = $word;
+                    }
+                }
+                $firstword = false;
+            }
+            $message .= $buf . static::$LE;
+        }
+
+        return $message;
+    }
+
+    /**
+     * Normalize line breaks in a string.
+     * Converts UNIX LF, Mac CR and Windows CRLF line breaks into a single line break format.
+     * Defaults to CRLF (for message bodies) and preserves consecutive breaks.
+     *
+     * @param string $text
+     * @param string $breaktype What kind of line break to use; defaults to static::$LE
+     *
+     * @return string
+     */
+    public static function normalizeBreaks($text, $breaktype = null)
+    {
+        if (null === $breaktype) {
+            $breaktype = static::$LE;
+        }
+        //Normalise to \n
+        $text = str_replace([self::CRLF, "\r"], "\n", $text);
+        //Now convert LE as needed
+        if ("\n" !== $breaktype) {
+            $text = str_replace("\n", $breaktype, $text);
+        }
+
+        return $text;
+    }
+
+    /**
+     * Find the last character boundary prior to $maxLength in a utf-8
+     * quoted-printable encoded string.
+     * Original written by Colin Brown.
+     *
+     * @param string $encodedText utf-8 QP text
+     * @param int $maxLength Find the last character boundary prior to this length
+     *
+     * @return int
+     */
+    public function utf8CharBoundary($encodedText, $maxLength)
+    {
+        $foundSplitPos = false;
+        $lookBack = 3;
+        while (!$foundSplitPos) {
+            $lastChunk = substr($encodedText, $maxLength - $lookBack, $lookBack);
+            $encodedCharPos = strpos($lastChunk, '=');
+            if (false !== $encodedCharPos) {
+                //Found start of encoded character byte within $lookBack block.
+                //Check the encoded byte value (the 2 chars after the '=')
+                $hex = substr($encodedText, $maxLength - $lookBack + $encodedCharPos + 1, 2);
+                $dec = hexdec($hex);
+                if ($dec < 128) {
+                    //Single byte character.
+                    //If the encoded char was found at pos 0, it will fit
+                    //otherwise reduce maxLength to start of the encoded char
+                    if ($encodedCharPos > 0) {
+                        $maxLength -= $lookBack - $encodedCharPos;
+                    }
+                    $foundSplitPos = true;
+                } elseif ($dec >= 192) {
+                    //First byte of a multi byte character
+                    //Reduce maxLength to split at start of character
+                    $maxLength -= $lookBack - $encodedCharPos;
+                    $foundSplitPos = true;
+                } elseif ($dec < 192) {
+                    //Middle byte of a multi byte character, look further back
+                    $lookBack += 3;
+                }
+            } else {
+                //No encoded character found
+                $foundSplitPos = true;
+            }
+        }
+
+        return $maxLength;
+    }
+
+    /**
      * Detect if a string contains a line longer than the maximum line length
      * allowed by RFC 2822 section 2.1.1.
      *
@@ -2192,6 +2534,225 @@ class PHPMailer
 
         //Return the string untouched, it doesn't need quoting
         return $str;
+    }
+
+    /**
+     * Encode a header value (not including its label) optimally.
+     * Picks shortest of Q, B, or none. Result includes folding if needed.
+     * See RFC822 definitions for phrase, comment and text positions.
+     *
+     * @param string $str The header value to encode
+     * @param string $position What context the string will be used in
+     *
+     * @return string
+     */
+    public function encodeHeader($str, $position = 'text')
+    {
+        $matchcount = 0;
+        switch (strtolower($position)) {
+            case 'phrase':
+                if (!preg_match('/[\200-\377]/', $str)) {
+                    //Can't use addslashes as we don't know the value of magic_quotes_sybase
+                    $encoded = addcslashes($str, "\0..\37\177\\\"");
+                    if (($str === $encoded) && !preg_match('/[^A-Za-z0-9!#$%&\'*+\/=?^_`{|}~ -]/', $str)) {
+                        return $encoded;
+                    }
+
+                    return "\"$encoded\"";
+                }
+                $matchcount = preg_match_all('/[^\040\041\043-\133\135-\176]/', $str, $matches);
+                break;
+            /* @noinspection PhpMissingBreakStatementInspection */
+            case 'comment':
+                $matchcount = preg_match_all('/[()"]/', $str, $matches);
+            //fallthrough
+            case 'text':
+            default:
+                $matchcount += preg_match_all('/[\000-\010\013\014\016-\037\177-\377]/', $str, $matches);
+                break;
+        }
+
+        if ($this->has8bitChars($str)) {
+            $charset = $this->CharSet;
+        } else {
+            $charset = static::CHARSET_ASCII;
+        }
+
+        //Q/B encoding adds 8 chars and the charset ("` =?<charset>?[QB]?<content>?=`").
+        $overhead = 8 + strlen($charset);
+
+        if ('mail' === $this->Mailer) {
+            $maxlen = static::MAIL_MAX_LINE_LENGTH - $overhead;
+        } else {
+            $maxlen = static::MAX_LINE_LENGTH - $overhead;
+        }
+
+        //Select the encoding that produces the shortest output and/or prevents corruption.
+        if ($matchcount > strlen($str) / 3) {
+            //More than 1/3 of the content needs encoding, use B-encode.
+            $encoding = 'B';
+        } elseif ($matchcount > 0) {
+            //Less than 1/3 of the content needs encoding, use Q-encode.
+            $encoding = 'Q';
+        } elseif (strlen($str) > $maxlen) {
+            //No encoding needed, but value exceeds max line length, use Q-encode to prevent corruption.
+            $encoding = 'Q';
+        } else {
+            //No reformatting needed
+            $encoding = false;
+        }
+
+        switch ($encoding) {
+            case 'B':
+                if ($this->hasMultiBytes($str)) {
+                    //Use a custom function which correctly encodes and wraps long
+                    //multibyte strings without breaking lines within a character
+                    $encoded = $this->base64EncodeWrapMB($str, "\n");
+                } else {
+                    $encoded = base64_encode($str);
+                    $maxlen -= $maxlen % 4;
+                    $encoded = trim(chunk_split($encoded, $maxlen, "\n"));
+                }
+                $encoded = preg_replace('/^(.*)$/m', ' =?' . $charset . "?$encoding?\\1?=", $encoded);
+                break;
+            case 'Q':
+                $encoded = $this->encodeQ($str, $position);
+                $encoded = $this->wrapText($encoded, $maxlen, true);
+                $encoded = str_replace('=' . static::$LE, "\n", trim($encoded));
+                $encoded = preg_replace('/^(.*)$/m', ' =?' . $charset . "?$encoding?\\1?=", $encoded);
+                break;
+            default:
+                return $str;
+        }
+
+        return trim(static::normalizeBreaks($encoded));
+    }
+
+    /**
+     * Check if a string contains multi-byte characters.
+     *
+     * @param string $str multi-byte text to wrap encode
+     *
+     * @return bool
+     */
+    public function hasMultiBytes($str)
+    {
+        if (function_exists('mb_strlen')) {
+            return strlen($str) > mb_strlen($str, $this->CharSet);
+        }
+
+        //Assume no multibytes (we can't handle without mbstring functions anyway)
+        return false;
+    }
+
+    /**
+     * Encode and wrap long multibyte strings for mail headers
+     * without breaking lines within a character.
+     * Adapted from a function by paravoid.
+     *
+     * @see http://www.php.net/manual/en/function.mb-encode-mimeheader.php#60283
+     *
+     * @param string $str multi-byte text to wrap encode
+     * @param string $linebreak string to use as linefeed/end-of-line
+     *
+     * @return string
+     */
+    public function base64EncodeWrapMB($str, $linebreak = null)
+    {
+        $start = '=?' . $this->CharSet . '?B?';
+        $end = '?=';
+        $encoded = '';
+        if (null === $linebreak) {
+            $linebreak = static::$LE;
+        }
+
+        $mb_length = mb_strlen($str, $this->CharSet);
+        //Each line must have length <= 75, including $start and $end
+        $length = 75 - strlen($start) - strlen($end);
+        //Average multi-byte ratio
+        $ratio = $mb_length / strlen($str);
+        //Base64 has a 4:3 ratio
+        $avgLength = floor($length * $ratio * .75);
+
+        $offset = 0;
+        for ($i = 0; $i < $mb_length; $i += $offset) {
+            $lookBack = 0;
+            do {
+                $offset = $avgLength - $lookBack;
+                $chunk = mb_substr($str, $i, $offset, $this->CharSet);
+                $chunk = base64_encode($chunk);
+                ++$lookBack;
+            } while (strlen($chunk) > $length);
+            $encoded .= $chunk . $linebreak;
+        }
+
+        //Chomp the last linefeed
+        return substr($encoded, 0, -strlen($linebreak));
+    }
+
+    /**
+     * Encode a string using Q encoding.
+     *
+     * @see http://tools.ietf.org/html/rfc2047#section-4.2
+     *
+     * @param string $str the text to encode
+     * @param string $position Where the text is going to be used, see the RFC for what that means
+     *
+     * @return string
+     */
+    public function encodeQ($str, $position = 'text')
+    {
+        //There should not be any EOL in the string
+        $pattern = '';
+        $encoded = str_replace(["\r", "\n"], '', $str);
+        switch (strtolower($position)) {
+            case 'phrase':
+                //RFC 2047 section 5.3
+                $pattern = '^A-Za-z0-9!*+\/ -';
+                break;
+            /*
+             * RFC 2047 section 5.2.
+             * Build $pattern without including delimiters and []
+             */
+            /* @noinspection PhpMissingBreakStatementInspection */
+            case 'comment':
+                $pattern = '\(\)"';
+            /* Intentional fall through */
+            case 'text':
+            default:
+                //RFC 2047 section 5.1
+                //Replace every high ascii, control, =, ? and _ characters
+                $pattern = '\000-\011\013\014\016-\037\075\077\137\177-\377' . $pattern;
+                break;
+        }
+        $matches = [];
+        if (preg_match_all("/[{$pattern}]/", $encoded, $matches)) {
+            //If the string contains an '=', make sure it's the first thing we replace
+            //so as to avoid double-encoding
+            $eqkey = array_search('=', $matches[0], true);
+            if (false !== $eqkey) {
+                unset($matches[0][$eqkey]);
+                array_unshift($matches[0], '=');
+            }
+            foreach (array_unique($matches[0]) as $char) {
+                $encoded = str_replace($char, '=' . sprintf('%02X', ord($char)), $encoded);
+            }
+        }
+        //Replace spaces with _ (more readable than =20)
+        //RFC 2047 section 4.2(2)
+        return str_replace(' ', '_', $encoded);
+    }
+
+    /**
+     * Strip newlines to prevent header injection.
+     *
+     * @param string $str
+     *
+     * @return string
+     */
+    public function secureHeader($str)
+    {
+        return trim(str_replace(["\r", "\n"], '', $str));
     }
 
     /**
@@ -2736,13 +3297,13 @@ class PHPMailer
             $privKey = openssl_pkey_get_private($privKeyStr);
         }
         if (openssl_sign($signHeader, $signature, $privKey, 'sha256WithRSAEncryption')) {
-            if (\PHP_MAJOR_VERSION < 8) {
+            if (PHP_MAJOR_VERSION < 8) {
                 openssl_pkey_free($privKey);
             }
 
             return base64_encode($signature);
         }
-        if (\PHP_MAJOR_VERSION < 8) {
+        if (PHP_MAJOR_VERSION < 8) {
             openssl_pkey_free($privKey);
         }
 
@@ -3077,7 +3638,7 @@ class PHPMailer
      *
      * @see  PHPMailer::setSMTPInstance() to use a different class.
      *
-     * @uses \PHPMailer\PHPMailer\SMTP
+     * @uses SMTP
      *
      */
     protected function smtpSend($header, $body)
@@ -3162,7 +3723,7 @@ class PHPMailer
      * @return bool
      * @throws Exception
      *
-     * @uses \PHPMailer\PHPMailer\SMTP
+     * @uses SMTP
      *
      */
     public function smtpConnect($options = null)
@@ -3459,471 +4020,6 @@ class PHPMailer
         }
         $this->edebug('Result: ' . ($result ? 'true' : 'false'));
         return $result;
-    }
-
-    /**
-     * Strip newlines to prevent header injection.
-     *
-     * @param string $str
-     *
-     * @return string
-     */
-    public function secureHeader($str)
-    {
-        return trim(str_replace(["\r", "\n"], '', $str));
-    }
-
-    /**
-     * Encode a header value (not including its label) optimally.
-     * Picks shortest of Q, B, or none. Result includes folding if needed.
-     * See RFC822 definitions for phrase, comment and text positions.
-     *
-     * @param string $str The header value to encode
-     * @param string $position What context the string will be used in
-     *
-     * @return string
-     */
-    public function encodeHeader($str, $position = 'text')
-    {
-        $matchcount = 0;
-        switch (strtolower($position)) {
-            case 'phrase':
-                if (!preg_match('/[\200-\377]/', $str)) {
-                    //Can't use addslashes as we don't know the value of magic_quotes_sybase
-                    $encoded = addcslashes($str, "\0..\37\177\\\"");
-                    if (($str === $encoded) && !preg_match('/[^A-Za-z0-9!#$%&\'*+\/=?^_`{|}~ -]/', $str)) {
-                        return $encoded;
-                    }
-
-                    return "\"$encoded\"";
-                }
-                $matchcount = preg_match_all('/[^\040\041\043-\133\135-\176]/', $str, $matches);
-                break;
-            /* @noinspection PhpMissingBreakStatementInspection */
-            case 'comment':
-                $matchcount = preg_match_all('/[()"]/', $str, $matches);
-            //fallthrough
-            case 'text':
-            default:
-                $matchcount += preg_match_all('/[\000-\010\013\014\016-\037\177-\377]/', $str, $matches);
-                break;
-        }
-
-        if ($this->has8bitChars($str)) {
-            $charset = $this->CharSet;
-        } else {
-            $charset = static::CHARSET_ASCII;
-        }
-
-        //Q/B encoding adds 8 chars and the charset ("` =?<charset>?[QB]?<content>?=`").
-        $overhead = 8 + strlen($charset);
-
-        if ('mail' === $this->Mailer) {
-            $maxlen = static::MAIL_MAX_LINE_LENGTH - $overhead;
-        } else {
-            $maxlen = static::MAX_LINE_LENGTH - $overhead;
-        }
-
-        //Select the encoding that produces the shortest output and/or prevents corruption.
-        if ($matchcount > strlen($str) / 3) {
-            //More than 1/3 of the content needs encoding, use B-encode.
-            $encoding = 'B';
-        } elseif ($matchcount > 0) {
-            //Less than 1/3 of the content needs encoding, use Q-encode.
-            $encoding = 'Q';
-        } elseif (strlen($str) > $maxlen) {
-            //No encoding needed, but value exceeds max line length, use Q-encode to prevent corruption.
-            $encoding = 'Q';
-        } else {
-            //No reformatting needed
-            $encoding = false;
-        }
-
-        switch ($encoding) {
-            case 'B':
-                if ($this->hasMultiBytes($str)) {
-                    //Use a custom function which correctly encodes and wraps long
-                    //multibyte strings without breaking lines within a character
-                    $encoded = $this->base64EncodeWrapMB($str, "\n");
-                } else {
-                    $encoded = base64_encode($str);
-                    $maxlen -= $maxlen % 4;
-                    $encoded = trim(chunk_split($encoded, $maxlen, "\n"));
-                }
-                $encoded = preg_replace('/^(.*)$/m', ' =?' . $charset . "?$encoding?\\1?=", $encoded);
-                break;
-            case 'Q':
-                $encoded = $this->encodeQ($str, $position);
-                $encoded = $this->wrapText($encoded, $maxlen, true);
-                $encoded = str_replace('=' . static::$LE, "\n", trim($encoded));
-                $encoded = preg_replace('/^(.*)$/m', ' =?' . $charset . "?$encoding?\\1?=", $encoded);
-                break;
-            default:
-                return $str;
-        }
-
-        return trim(static::normalizeBreaks($encoded));
-    }
-
-    /**
-     * Does a string contain any 8-bit chars (in any charset)?
-     *
-     * @param string $text
-     *
-     * @return bool
-     */
-    public function has8bitChars($text)
-    {
-        return (bool)preg_match('/[\x80-\xFF]/', $text);
-    }
-
-    /**
-     * Check if a string contains multi-byte characters.
-     *
-     * @param string $str multi-byte text to wrap encode
-     *
-     * @return bool
-     */
-    public function hasMultiBytes($str)
-    {
-        if (function_exists('mb_strlen')) {
-            return strlen($str) > mb_strlen($str, $this->CharSet);
-        }
-
-        //Assume no multibytes (we can't handle without mbstring functions anyway)
-        return false;
-    }
-
-    /**
-     * Encode and wrap long multibyte strings for mail headers
-     * without breaking lines within a character.
-     * Adapted from a function by paravoid.
-     *
-     * @see http://www.php.net/manual/en/function.mb-encode-mimeheader.php#60283
-     *
-     * @param string $str multi-byte text to wrap encode
-     * @param string $linebreak string to use as linefeed/end-of-line
-     *
-     * @return string
-     */
-    public function base64EncodeWrapMB($str, $linebreak = null)
-    {
-        $start = '=?' . $this->CharSet . '?B?';
-        $end = '?=';
-        $encoded = '';
-        if (null === $linebreak) {
-            $linebreak = static::$LE;
-        }
-
-        $mb_length = mb_strlen($str, $this->CharSet);
-        //Each line must have length <= 75, including $start and $end
-        $length = 75 - strlen($start) - strlen($end);
-        //Average multi-byte ratio
-        $ratio = $mb_length / strlen($str);
-        //Base64 has a 4:3 ratio
-        $avgLength = floor($length * $ratio * .75);
-
-        $offset = 0;
-        for ($i = 0; $i < $mb_length; $i += $offset) {
-            $lookBack = 0;
-            do {
-                $offset = $avgLength - $lookBack;
-                $chunk = mb_substr($str, $i, $offset, $this->CharSet);
-                $chunk = base64_encode($chunk);
-                ++$lookBack;
-            } while (strlen($chunk) > $length);
-            $encoded .= $chunk . $linebreak;
-        }
-
-        //Chomp the last linefeed
-        return substr($encoded, 0, -strlen($linebreak));
-    }
-
-    /**
-     * Encode a string using Q encoding.
-     *
-     * @see http://tools.ietf.org/html/rfc2047#section-4.2
-     *
-     * @param string $str the text to encode
-     * @param string $position Where the text is going to be used, see the RFC for what that means
-     *
-     * @return string
-     */
-    public function encodeQ($str, $position = 'text')
-    {
-        //There should not be any EOL in the string
-        $pattern = '';
-        $encoded = str_replace(["\r", "\n"], '', $str);
-        switch (strtolower($position)) {
-            case 'phrase':
-                //RFC 2047 section 5.3
-                $pattern = '^A-Za-z0-9!*+\/ -';
-                break;
-            /*
-             * RFC 2047 section 5.2.
-             * Build $pattern without including delimiters and []
-             */
-            /* @noinspection PhpMissingBreakStatementInspection */
-            case 'comment':
-                $pattern = '\(\)"';
-            /* Intentional fall through */
-            case 'text':
-            default:
-                //RFC 2047 section 5.1
-                //Replace every high ascii, control, =, ? and _ characters
-                $pattern = '\000-\011\013\014\016-\037\075\077\137\177-\377' . $pattern;
-                break;
-        }
-        $matches = [];
-        if (preg_match_all("/[{$pattern}]/", $encoded, $matches)) {
-            //If the string contains an '=', make sure it's the first thing we replace
-            //so as to avoid double-encoding
-            $eqkey = array_search('=', $matches[0], true);
-            if (false !== $eqkey) {
-                unset($matches[0][$eqkey]);
-                array_unshift($matches[0], '=');
-            }
-            foreach (array_unique($matches[0]) as $char) {
-                $encoded = str_replace($char, '=' . sprintf('%02X', ord($char)), $encoded);
-            }
-        }
-        //Replace spaces with _ (more readable than =20)
-        //RFC 2047 section 4.2(2)
-        return str_replace(' ', '_', $encoded);
-    }
-
-    /**
-     * Word-wrap message.
-     * For use with mailers that do not automatically perform wrapping
-     * and for quoted-printable encoded messages.
-     * Original written by philippe.
-     *
-     * @param string $message The message to wrap
-     * @param int $length The line length to wrap to
-     * @param bool $qp_mode Whether to run in Quoted-Printable mode
-     *
-     * @return string
-     */
-    public function wrapText($message, $length, $qp_mode = false)
-    {
-        if ($qp_mode) {
-            $soft_break = sprintf(' =%s', static::$LE);
-        } else {
-            $soft_break = static::$LE;
-        }
-        //If utf-8 encoding is used, we will need to make sure we don't
-        //split multibyte characters when we wrap
-        $is_utf8 = static::CHARSET_UTF8 === strtolower($this->CharSet);
-        $lelen = strlen(static::$LE);
-        $crlflen = strlen(static::$LE);
-
-        $message = static::normalizeBreaks($message);
-        //Remove a trailing line break
-        if (substr($message, -$lelen) === static::$LE) {
-            $message = substr($message, 0, -$lelen);
-        }
-
-        //Split message into lines
-        $lines = explode(static::$LE, $message);
-        //Message will be rebuilt in here
-        $message = '';
-        foreach ($lines as $line) {
-            $words = explode(' ', $line);
-            $buf = '';
-            $firstword = true;
-            foreach ($words as $word) {
-                if ($qp_mode && (strlen($word) > $length)) {
-                    $space_left = $length - strlen($buf) - $crlflen;
-                    if (!$firstword) {
-                        if ($space_left > 20) {
-                            $len = $space_left;
-                            if ($is_utf8) {
-                                $len = $this->utf8CharBoundary($word, $len);
-                            } elseif ('=' === substr($word, $len - 1, 1)) {
-                                --$len;
-                            } elseif ('=' === substr($word, $len - 2, 1)) {
-                                $len -= 2;
-                            }
-                            $part = substr($word, 0, $len);
-                            $word = substr($word, $len);
-                            $buf .= ' ' . $part;
-                            $message .= $buf . sprintf('=%s', static::$LE);
-                        } else {
-                            $message .= $buf . $soft_break;
-                        }
-                        $buf = '';
-                    }
-                    while ($word !== '') {
-                        if ($length <= 0) {
-                            break;
-                        }
-                        $len = $length;
-                        if ($is_utf8) {
-                            $len = $this->utf8CharBoundary($word, $len);
-                        } elseif ('=' === substr($word, $len - 1, 1)) {
-                            --$len;
-                        } elseif ('=' === substr($word, $len - 2, 1)) {
-                            $len -= 2;
-                        }
-                        $part = substr($word, 0, $len);
-                        $word = (string)substr($word, $len);
-
-                        if ($word !== '') {
-                            $message .= $part . sprintf('=%s', static::$LE);
-                        } else {
-                            $buf = $part;
-                        }
-                    }
-                } else {
-                    $buf_o = $buf;
-                    if (!$firstword) {
-                        $buf .= ' ';
-                    }
-                    $buf .= $word;
-
-                    if ('' !== $buf_o && strlen($buf) > $length) {
-                        $message .= $buf_o . $soft_break;
-                        $buf = $word;
-                    }
-                }
-                $firstword = false;
-            }
-            $message .= $buf . static::$LE;
-        }
-
-        return $message;
-    }
-
-    /**
-     * Normalize line breaks in a string.
-     * Converts UNIX LF, Mac CR and Windows CRLF line breaks into a single line break format.
-     * Defaults to CRLF (for message bodies) and preserves consecutive breaks.
-     *
-     * @param string $text
-     * @param string $breaktype What kind of line break to use; defaults to static::$LE
-     *
-     * @return string
-     */
-    public static function normalizeBreaks($text, $breaktype = null)
-    {
-        if (null === $breaktype) {
-            $breaktype = static::$LE;
-        }
-        //Normalise to \n
-        $text = str_replace([self::CRLF, "\r"], "\n", $text);
-        //Now convert LE as needed
-        if ("\n" !== $breaktype) {
-            $text = str_replace("\n", $breaktype, $text);
-        }
-
-        return $text;
-    }
-
-    /**
-     * Find the last character boundary prior to $maxLength in a utf-8
-     * quoted-printable encoded string.
-     * Original written by Colin Brown.
-     *
-     * @param string $encodedText utf-8 QP text
-     * @param int $maxLength Find the last character boundary prior to this length
-     *
-     * @return int
-     */
-    public function utf8CharBoundary($encodedText, $maxLength)
-    {
-        $foundSplitPos = false;
-        $lookBack = 3;
-        while (!$foundSplitPos) {
-            $lastChunk = substr($encodedText, $maxLength - $lookBack, $lookBack);
-            $encodedCharPos = strpos($lastChunk, '=');
-            if (false !== $encodedCharPos) {
-                //Found start of encoded character byte within $lookBack block.
-                //Check the encoded byte value (the 2 chars after the '=')
-                $hex = substr($encodedText, $maxLength - $lookBack + $encodedCharPos + 1, 2);
-                $dec = hexdec($hex);
-                if ($dec < 128) {
-                    //Single byte character.
-                    //If the encoded char was found at pos 0, it will fit
-                    //otherwise reduce maxLength to start of the encoded char
-                    if ($encodedCharPos > 0) {
-                        $maxLength -= $lookBack - $encodedCharPos;
-                    }
-                    $foundSplitPos = true;
-                } elseif ($dec >= 192) {
-                    //First byte of a multi byte character
-                    //Reduce maxLength to split at start of character
-                    $maxLength -= $lookBack - $encodedCharPos;
-                    $foundSplitPos = true;
-                } elseif ($dec < 192) {
-                    //Middle byte of a multi byte character, look further back
-                    $lookBack += 3;
-                }
-            } else {
-                //No encoded character found
-                $foundSplitPos = true;
-            }
-        }
-
-        return $maxLength;
-    }
-
-    /**
-     * Output debugging info via a user-defined method.
-     * Only generates output if debug output is enabled.
-     *
-     * @param string $str
-     * @see PHPMailer::$SMTPDebug
-     *
-     * @see PHPMailer::$Debugoutput
-     */
-    protected function edebug($str)
-    {
-        if ($this->SMTPDebug <= 0) {
-            return;
-        }
-        //Is this a PSR-3 logger?
-        if ($this->Debugoutput instanceof \Psr\Log\LoggerInterface) {
-            $this->Debugoutput->debug($str);
-
-            return;
-        }
-        //Avoid clash with built-in function names
-        if (is_callable($this->Debugoutput) && !in_array($this->Debugoutput, ['error_log', 'html', 'echo'])) {
-            call_user_func($this->Debugoutput, $str, $this->SMTPDebug);
-
-            return;
-        }
-        switch ($this->Debugoutput) {
-            case 'error_log':
-                //Don't output, just log
-                /** @noinspection ForgottenDebugOutputInspection */
-                error_log($str);
-                break;
-            case 'html':
-                //Cleans up output a bit for a better looking, HTML-safe output
-                echo htmlentities(
-                    preg_replace('/[\r\n]+/', '', $str),
-                    ENT_QUOTES,
-                    'UTF-8'
-                ), "<br>\n";
-                break;
-            case 'echo':
-            default:
-                //Normalize line breaks
-                $str = preg_replace('/\r\n|\r/m', "\n", $str);
-                echo gmdate('Y-m-d H:i:s'),
-                "\t",
-                    //Trim trailing space
-                trim(
-                //Indent for readability, except for trailing break
-                    str_replace(
-                        "\n",
-                        "\n                   \t                  ",
-                        trim($str)
-                    )
-                ),
-                "\n";
-        }
     }
 
     /**
@@ -4956,90 +5052,5 @@ class PHPMailer
         }
 
         return false;
-    }
-
-    /**
-     * Check that a string looks like an email address.
-     * Validation patterns supported:
-     * * `auto` Pick best pattern automatically;
-     * * `pcre8` Use the squiloople.com pattern, requires PCRE > 8.0;
-     * * `pcre` Use old PCRE implementation;
-     * * `php` Use PHP built-in FILTER_VALIDATE_EMAIL;
-     * * `html5` Use the pattern given by the HTML5 spec for 'email' type form input elements.
-     * * `noregex` Don't use a regex: super fast, really dumb.
-     * Alternatively you may pass in a callable to inject your own validator, for example:
-     *
-     * ```php
-     * PHPMailer::validateAddress('user@example.com', function($address) {
-     *     return (strpos($address, '@') !== false);
-     * });
-     * ```
-     *
-     * You can also set the PHPMailer::$validator static to a callable, allowing built-in methods to use your validator.
-     *
-     * @param string $address The email address to check
-     * @param string|callable $patternselect Which pattern to use
-     *
-     * @return bool
-     */
-    public static function validateAddress($address, $patternselect = null)
-    {
-        if (null === $patternselect) {
-            $patternselect = static::$validator;
-        }
-        //Don't allow strings as callables, see SECURITY.md and CVE-2021-3603
-        if (is_callable($patternselect) && !is_string($patternselect)) {
-            return call_user_func($patternselect, $address);
-        }
-        //Reject line breaks in addresses; it's valid RFC5322, but not RFC5321
-        if (strpos($address, "\n") !== false || strpos($address, "\r") !== false) {
-            return false;
-        }
-        switch ($patternselect) {
-            case 'pcre': //Kept for BC
-            case 'pcre8':
-                /*
-                 * A more complex and more permissive version of the RFC5322 regex on which FILTER_VALIDATE_EMAIL
-                 * is based.
-                 * In addition to the addresses allowed by filter_var, also permits:
-                 *  * dotless domains: `a@b`
-                 *  * comments: `1234 @ local(blah) .machine .example`
-                 *  * quoted elements: `'"test blah"@example.org'`
-                 *  * numeric TLDs: `a@b.123`
-                 *  * unbracketed IPv4 literals: `a@192.168.0.1`
-                 *  * IPv6 literals: 'first.last@[IPv6:a1::]'
-                 * Not all of these will necessarily work for sending!
-                 *
-                 * @see       http://squiloople.com/2009/12/20/email-address-validation/
-                 * @copyright 2009-2010 Michael Rushton
-                 * Feel free to use and redistribute this code. But please keep this copyright notice.
-                 */
-                return (bool)preg_match(
-                    '/^(?!(?>(?1)"?(?>\\\[ -~]|[^"])"?(?1)){255,})(?!(?>(?1)"?(?>\\\[ -~]|[^"])"?(?1)){65,}@)' .
-                    '((?>(?>(?>((?>(?>(?>\x0D\x0A)?[\t ])+|(?>[\t ]*\x0D\x0A)?[\t ]+)?)(\((?>(?2)' .
-                    '(?>[\x01-\x08\x0B\x0C\x0E-\'*-\[\]-\x7F]|\\\[\x00-\x7F]|(?3)))*(?2)\)))+(?2))|(?2))?)' .
-                    '([!#-\'*+\/-9=?^-~-]+|"(?>(?2)(?>[\x01-\x08\x0B\x0C\x0E-!#-\[\]-\x7F]|\\\[\x00-\x7F]))*' .
-                    '(?2)")(?>(?1)\.(?1)(?4))*(?1)@(?!(?1)[a-z0-9-]{64,})(?1)(?>([a-z0-9](?>[a-z0-9-]*[a-z0-9])?)' .
-                    '(?>(?1)\.(?!(?1)[a-z0-9-]{64,})(?1)(?5)){0,126}|\[(?:(?>IPv6:(?>([a-f0-9]{1,4})(?>:(?6)){7}' .
-                    '|(?!(?:.*[a-f0-9][:\]]){8,})((?6)(?>:(?6)){0,6})?::(?7)?))|(?>(?>IPv6:(?>(?6)(?>:(?6)){5}:' .
-                    '|(?!(?:.*[a-f0-9]:){6,})(?8)?::(?>((?6)(?>:(?6)){0,4}):)?))?(25[0-5]|2[0-4][0-9]|1[0-9]{2}' .
-                    '|[1-9]?[0-9])(?>\.(?9)){3}))\])(?1)$/isD',
-                    $address
-                );
-            case 'html5':
-                /*
-                 * This is the pattern used in the HTML5 spec for validation of 'email' type form input elements.
-                 *
-                 * @see https://html.spec.whatwg.org/#e-mail-state-(type=email)
-                 */
-                return (bool)preg_match(
-                    '/^[a-zA-Z0-9.!#$%&\'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}' .
-                    '[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/sD',
-                    $address
-                );
-            case 'php':
-            default:
-                return filter_var($address, FILTER_VALIDATE_EMAIL) !== false;
-        }
     }
 }

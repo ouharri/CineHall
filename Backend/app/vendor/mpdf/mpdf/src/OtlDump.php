@@ -7,6 +7,7 @@ namespace Mpdf;
 // 0x00010000 for Windows
 // Either seems to work for a font embedded in a PDF file
 // when read by Adobe Reader on a Windows PC(!)
+use Mpdf\Exception\FontException;
 use Mpdf\Fonts\GlyphOperator;
 
 if (!defined('_TTF_MAC_HEADER')) {
@@ -178,7 +179,7 @@ class OtlDump
         $this->fh = fopen($file, 'rb');
 
         if (!$this->fh) {
-            throw new \Mpdf\Exception\FontException(sprintf('Unable to open file "%s"', $file));
+            throw new FontException(sprintf('Unable to open file "%s"', $file));
         }
 
         $this->_pos = 0;
@@ -196,21 +197,21 @@ class OtlDump
         $this->panose = [];
 
         if ($version == 0x4F54544F) {
-            throw new \Mpdf\Exception\FontException(sprintf('Fonts with postscript outlines are not supported (%s)', $file));
+            throw new FontException(sprintf('Fonts with postscript outlines are not supported (%s)', $file));
         }
 
         if ($version == 0x74746366 && !$TTCfontID) {
-            throw new \Mpdf\Exception\FontException("TTCfontID for a TrueType Collection has to be defined in ttfontdata configuration key (" . $file . ")");
+            throw new FontException("TTCfontID for a TrueType Collection has to be defined in ttfontdata configuration key (" . $file . ")");
         }
 
         if (!in_array($version, [0x00010000, 0x74727565]) && !$TTCfontID) {
-            throw new \Mpdf\Exception\FontException("Not a TrueType font: version=" . $version);
+            throw new FontException("Not a TrueType font: version=" . $version);
         }
 
         if ($TTCfontID > 0) {
             $this->version = $version = $this->read_ulong(); // TTC Header version now
             if (!in_array($version, [0x00010000, 0x00020000])) {
-                throw new \Mpdf\Exception\FontException("Error parsing TrueType Collection: version=" . $version . " - " . $file);
+                throw new FontException("Error parsing TrueType Collection: version=" . $version . " - " . $file);
             }
             $this->numTTCFonts = $this->read_ulong();
             for ($i = 1; $i <= $this->numTTCFonts; $i++) {
@@ -289,7 +290,7 @@ class OtlDump
                 }
                 $xchecksum = $t['checksum'];
                 if ($xchecksum != $checksum) {
-                    throw new \Mpdf\Exception\FontException(sprintf('TTF file "%s": invalid checksum %s table: %s (expected %s)', $this->filename, dechex($checksum[0]) . dechex($checksum[1]), $t['tag'], dechex($xchecksum[0]) . dechex($xchecksum[1])));
+                    throw new FontException(sprintf('TTF file "%s": invalid checksum %s table: %s (expected %s)', $this->filename, dechex($checksum[0]) . dechex($checksum[1]), $t['tag'], dechex($xchecksum[0]) . dechex($xchecksum[1])));
                 }
             }
         }
@@ -354,7 +355,7 @@ class OtlDump
         $name_offset = $this->seek_table("name");
         $format = $this->read_ushort();
         if ($format != 0 && $format != 1) {
-            throw new \Mpdf\Exception\FontException("Error loading font: Unknown name table format " . $format);
+            throw new FontException("Error loading font: Unknown name table format " . $format);
         }
         $numRecords = $this->read_ushort();
         $string_data_offset = $name_offset + $this->read_ushort();
@@ -376,7 +377,7 @@ class OtlDump
                 $opos = $this->_pos;
                 $this->seek($string_data_offset + $offset);
                 if ($length % 2 != 0) {
-                    throw new \Mpdf\Exception\FontException("Error loading font: PostScript name is UTF-16BE string of odd length");
+                    throw new FontException("Error loading font: PostScript name is UTF-16BE string of odd length");
                 }
                 $length /= 2;
                 $N = '';
@@ -417,14 +418,14 @@ class OtlDump
             }
         }
         if (!$psName) {
-            throw new \Mpdf\Exception\FontException("Error loading font: Could not find PostScript font name: " . $this->filename);
+            throw new FontException("Error loading font: Could not find PostScript font name: " . $this->filename);
         }
         if ($debug) {
             for ($i = 0; $i < count($psName); $i++) {
                 $c = $psName[$i];
                 $oc = ord($c);
                 if ($oc > 126 || strpos(' [](){}<>/%', $c) !== false) {
-                    throw new \Mpdf\Exception\FontException("psName=" . $psName . " contains invalid character " . $c . " ie U+" . ord($c));
+                    throw new FontException("psName=" . $psName . " contains invalid character " . $c . " ie U+" . ord($c));
                 }
             }
         }
@@ -462,14 +463,14 @@ class OtlDump
             $ver_maj = $this->read_ushort();
             $ver_min = $this->read_ushort();
             if ($ver_maj != 1) {
-                throw new \Mpdf\Exception\FontException('Error loading font: Unknown head table version ' . $ver_maj . '.' . $ver_min);
+                throw new FontException('Error loading font: Unknown head table version ' . $ver_maj . '.' . $ver_min);
             }
             $this->fontRevision = $this->read_ushort() . $this->read_ushort();
 
             $this->skip(4);
             $magic = $this->read_ulong();
             if ($magic != 0x5F0F3CF5) {
-                throw new \Mpdf\Exception\FontException('Error loading font: Invalid head table magic ' . $magic);
+                throw new FontException('Error loading font: Invalid head table magic ' . $magic);
             }
             $this->skip(2);
         } else {
@@ -487,7 +488,7 @@ class OtlDump
         $indexToLocFormat = $this->read_ushort();
         $glyphDataFormat = $this->read_ushort();
         if ($glyphDataFormat != 0) {
-            throw new \Mpdf\Exception\FontException('Error loading font: Unknown glyph data format ' . $glyphDataFormat);
+            throw new FontException('Error loading font: Unknown glyph data format ' . $glyphDataFormat);
         }
 
         ///////////////////////////////////
@@ -516,7 +517,7 @@ class OtlDump
             if ($fsType == 0x0002 || ($fsType & 0x0300) != 0) {
                 global $overrideTTFFontRestriction;
                 if (!$overrideTTFFontRestriction) {
-                    throw new \Mpdf\Exception\FontException('Font file ' . $this->filename . ' cannot be embedded due to copyright restrictions.');
+                    throw new FontException('Font file ' . $this->filename . ' cannot be embedded due to copyright restrictions.');
                 }
                 $this->restrictedUse = true;
             }
@@ -566,7 +567,7 @@ class OtlDump
             $ver_maj = $this->read_ushort();
             $ver_min = $this->read_ushort();
             if ($ver_maj < 1 || $ver_maj > 4) {
-                throw new \Mpdf\Exception\FontException('Error loading font: Unknown post table version ' . $ver_maj);
+                throw new FontException('Error loading font: Unknown post table version ' . $ver_maj);
             }
         } else {
             $this->skip(4);
@@ -596,7 +597,7 @@ class OtlDump
             $ver_maj = $this->read_ushort();
             $ver_min = $this->read_ushort();
             if ($ver_maj != 1) {
-                throw new \Mpdf\Exception\FontException(sprintf('Error loading font: Unknown hhea table version %s', $ver_maj));
+                throw new FontException(sprintf('Error loading font: Unknown hhea table version %s', $ver_maj));
             }
             $this->skip(28);
         } else {
@@ -604,11 +605,11 @@ class OtlDump
         }
         $metricDataFormat = $this->read_ushort();
         if ($metricDataFormat != 0) {
-            throw new \Mpdf\Exception\FontException('Error loading font: Unknown horizontal metric data format ' . $metricDataFormat);
+            throw new FontException('Error loading font: Unknown horizontal metric data format ' . $metricDataFormat);
         }
         $numberOfHMetrics = $this->read_ushort();
         if ($numberOfHMetrics == 0) {
-            throw new \Mpdf\Exception\FontException('Error loading font: Number of horizontal metrics is 0');
+            throw new FontException('Error loading font: Number of horizontal metrics is 0');
         }
 
         ///////////////////////////////////
@@ -619,7 +620,7 @@ class OtlDump
             $ver_maj = $this->read_ushort();
             $ver_min = $this->read_ushort();
             if ($ver_maj != 1) {
-                throw new \Mpdf\Exception\FontException('Error loading font: Unknown maxp table version ' . $ver_maj);
+                throw new FontException('Error loading font: Unknown maxp table version ' . $ver_maj);
             }
         } else {
             $this->skip(4);
@@ -662,7 +663,7 @@ class OtlDump
         }
 
         if (!$unicode_cmap_offset) {
-            throw new \Mpdf\Exception\FontException('Font (' . $this->filename . ') does not have cmap for Unicode (platform 3, encoding 1, format 4, or platform 0, any encoding, format 4)');
+            throw new FontException('Font (' . $this->filename . ') does not have cmap for Unicode (platform 3, encoding 1, format 4, or platform 0, any encoding, format 4)');
         }
 
         $sipset = false;
@@ -739,7 +740,7 @@ class OtlDump
                                 $bctr++;
                             }
                         } else {
-                            throw new \Mpdf\Exception\FontException(sprintf('Font "%s" does not have cmap for Unicode (platform 3, encoding 1, format 4, or platform 0, any encoding, format 4)', $this->filename));
+                            throw new FontException(sprintf('Font "%s" does not have cmap for Unicode (platform 3, encoding 1, format 4, or platform 0, any encoding, format 4)', $this->filename));
                         }
                     }
                     $glyphToChar[$gid][] = $bctr;
@@ -1599,7 +1600,7 @@ $MarkAttachmentType = ' . var_export($this->MarkAttachmentType, true) . ';
                                                     }
                                                 }
                                             } else {
-                                                throw new \Mpdf\Exception\FontException("GPOS Lookup Type " . $Lookup[$i]['Type'] . ", Format " . $SubstFormat . " not supported (ttfontsuni.php).");
+                                                throw new FontException("GPOS Lookup Type " . $Lookup[$i]['Type'] . ", Format " . $SubstFormat . " not supported (ttfontsuni.php).");
                                             }
                                         }
                                     } // LookupType 6: Chaining Contextual Substitution Subtable
@@ -1656,7 +1657,7 @@ $MarkAttachmentType = ' . var_export($this->MarkAttachmentType, true) . ';
                                                 }
                                             }
                                         } else {
-                                            throw new \Mpdf\Exception\FontException("Lookup Type " . $Lookup[$i]['Type'] . " not supported.");
+                                            throw new FontException("Lookup Type " . $Lookup[$i]['Type'] . " not supported.");
                                         }
                                     }
                                 }
@@ -1838,7 +1839,7 @@ $MarkAttachmentType = ' . var_export($this->MarkAttachmentType, true) . ';
                                                         $glyphs = $this->_getCoverage();
                                                         $Lookup[$i]['Subtable'][$c]['CoverageInputGlyphs'][] = implode("|", $glyphs);
                                                     }
-                                                    throw new \Mpdf\Exception\FontException("Lookup Type 5, SubstFormat 3 not tested. Please report this with the name of font used - " . $this->fontkey);
+                                                    throw new FontException("Lookup Type 5, SubstFormat 3 not tested. Please report this with the name of font used - " . $this->fontkey);
                                                 }
                                             }
                                         }
@@ -2800,7 +2801,7 @@ $MarkAttachmentType = ' . var_export($this->MarkAttachmentType, true) . ';
 
         // Flag & 0x0010 = UseMarkFilteringSet
         if ($flag & 0x0010) {
-            throw new \Mpdf\Exception\FontException("This font " . $this->fontkey . " contains MarkGlyphSets");
+            throw new FontException("This font " . $this->fontkey . " contains MarkGlyphSets");
             $str = "Mark Glyph Set: ";
             $str .= $this->MarkGlyphSets[$MarkFilteringSet];
         }
@@ -3725,21 +3726,21 @@ $MarkAttachmentType = ' . var_export($this->MarkAttachmentType, true) . ';
                                             // Format 1:
                                             //===========
                                             if ($PosFormat == 1) {
-                                                throw new \Mpdf\Exception\FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not YET TESTED.");
+                                                throw new FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not YET TESTED.");
                                             } //===========
                                             // Format 2:
                                             //===========
                                             else {
                                                 if ($PosFormat == 2) {
-                                                    throw new \Mpdf\Exception\FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not YET TESTED.");
+                                                    throw new FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not YET TESTED.");
                                                 } //===========
                                                 // Format 3:
                                                 //===========
                                                 else {
                                                     if ($PosFormat == 3) {
-                                                        throw new \Mpdf\Exception\FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not YET TESTED.");
+                                                        throw new FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not YET TESTED.");
                                                     } else {
-                                                        throw new \Mpdf\Exception\FontException("GPOS Lookup Type " . $Type . ", Format " . $PosFormat . " not supported.");
+                                                        throw new FontException("GPOS Lookup Type " . $Type . ", Format " . $PosFormat . " not supported.");
                                                     }
                                                 }
                                             }
@@ -3753,7 +3754,7 @@ $MarkAttachmentType = ' . var_export($this->MarkAttachmentType, true) . ';
                                                 // Format 1:
                                                 //===========
                                                 if ($PosFormat == 1) {
-                                                    throw new \Mpdf\Exception\FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not TESTED YET.");
+                                                    throw new FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not TESTED YET.");
                                                 } //===========
                                                 // Format 2:
                                                 //===========
@@ -3762,7 +3763,7 @@ $MarkAttachmentType = ' . var_export($this->MarkAttachmentType, true) . ';
                                                         $html .= '<div>GPOS Lookup Type 8: Format 2 not yet supported in OTL dump</div>';
                                                         continue;
                                                         /* NB When developing - cf. GSUB 6.2 */
-                                                        throw new \Mpdf\Exception\FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not TESTED YET.");
+                                                        throw new FontException("GPOS Lookup Type " . $Type . " Format " . $PosFormat . " not TESTED YET.");
                                                     } //===========
                                                     // Format 3:
                                                     //===========
@@ -4371,7 +4372,7 @@ $MarkAttachmentType = ' . var_export($this->MarkAttachmentType, true) . ';
                     $this->glyphPos[] = ($arr[$n + 1]);
                 }
             } else {
-                throw new \Mpdf\Exception\FontException('Unknown location table format ' . $indexToLocFormat);
+                throw new FontException('Unknown location table format ' . $indexToLocFormat);
             }
         }
     }

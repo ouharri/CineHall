@@ -2,7 +2,7 @@
 
 namespace Mpdf\Barcode;
 
-class Rm4Scc extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\BarcodeInterface
+class Rm4Scc extends AbstractBarcode implements BarcodeInterface
 {
 
     /**

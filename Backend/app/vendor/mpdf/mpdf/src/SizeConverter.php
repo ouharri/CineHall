@@ -3,9 +3,10 @@
 namespace Mpdf;
 
 use Mpdf\Log\Context as LogContext;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class SizeConverter implements \Psr\Log\LoggerAwareInterface
+class SizeConverter implements LoggerAwareInterface
 {
 
     private $dpi;
@@ -13,12 +14,12 @@ class SizeConverter implements \Psr\Log\LoggerAwareInterface
     private $defaultFontSize;
 
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     private $mpdf;
 
     /**
-     * @var \Psr\Log\LoggerInterface
+     * @var LoggerInterface
      */
     private $logger;
 

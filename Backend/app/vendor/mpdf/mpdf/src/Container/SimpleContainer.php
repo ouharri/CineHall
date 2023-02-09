@@ -2,7 +2,7 @@
 
 namespace Mpdf\Container;
 
-class SimpleContainer implements \Mpdf\Container\ContainerInterface
+class SimpleContainer implements ContainerInterface
 {
 
     private $services;
@@ -15,7 +15,7 @@ class SimpleContainer implements \Mpdf\Container\ContainerInterface
     public function get($id)
     {
         if (!$this->has($id)) {
-            throw new \Mpdf\Container\NotFoundException(sprintf('Unable to find service of key "%s"', $id));
+            throw new NotFoundException(sprintf('Unable to find service of key "%s"', $id));
         }
 
         return $this->services[$id];

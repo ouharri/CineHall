@@ -3,6 +3,7 @@
 namespace Mpdf\Writer;
 
 use Mpdf\Mpdf;
+use Mpdf\MpdfException;
 use Mpdf\Strict;
 
 final class ImageWriter
@@ -11,12 +12,12 @@ final class ImageWriter
     use Strict;
 
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     private $mpdf;
 
     /**
-     * @var \Mpdf\Writer\BaseWriter
+     * @var BaseWriter
      */
     private $writer;
 
@@ -57,20 +58,20 @@ final class ImageWriter
                 $this->writer->write('/ColorSpace [/ICCBased ' . ($this->mpdf->n + 1) . ' 0 R]');
             } elseif ($info['cs'] === 'Indexed') {
                 if ($this->mpdf->PDFX || ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace === 3)) {
-                    throw new \Mpdf\MpdfException('PDFA1-b and PDFX/1-a files do not permit using mixed colour space (' . $file . ').');
+                    throw new MpdfException('PDFA1-b and PDFX/1-a files do not permit using mixed colour space (' . $file . ').');
                 }
                 $this->writer->write('/ColorSpace [/Indexed /DeviceRGB ' . (strlen($info['pal']) / 3 - 1) . ' ' . ($this->mpdf->n + 1) . ' 0 R]');
             } else {
                 $this->writer->write('/ColorSpace /' . $info['cs']);
                 if ($info['cs'] === 'DeviceCMYK') {
                     if ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace !== 3) {
-                        throw new \Mpdf\MpdfException('PDFA1-b does not permit Images using mixed colour space (' . $file . ').');
+                        throw new MpdfException('PDFA1-b does not permit Images using mixed colour space (' . $file . ').');
                     }
                     if ($info['type'] === 'jpg') {
                         $this->writer->write('/Decode [1 0 1 0 1 0 1 0]');
                     }
                 } elseif (($this->mpdf->PDFX || ($this->mpdf->PDFA && $this->mpdf->restrictColorSpace === 3)) && $info['cs'] === 'DeviceRGB') {
-                    throw new \Mpdf\MpdfException('PDFA1-b and PDFX/1-a files do not permit using mixed colour space (' . $file . ').');
+                    throw new MpdfException('PDFA1-b and PDFX/1-a files do not permit using mixed colour space (' . $file . ').');
                 }
             }
 

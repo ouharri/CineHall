@@ -4,9 +4,10 @@ namespace Mpdf\Http;
 
 use Mpdf\Log\Context as LogContext;
 use Psr\Http\Message\RequestInterface;
+use Psr\Log\LoggerAwareInterface;
 use Psr\Log\LoggerInterface;
 
-class SocketHttpClient implements \Mpdf\Http\ClientInterface, \Psr\Log\LoggerAwareInterface
+class SocketHttpClient implements ClientInterface, LoggerAwareInterface
 {
 
     private $logger;

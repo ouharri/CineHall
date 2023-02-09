@@ -7,7 +7,7 @@ namespace Mpdf\Barcode;
  * 2-Digit Ext.: Used to indicate magazines and newspaper issue numbers
  * 5-Digit Ext.: Used to mark suggested retail price of books
  */
-class EanExt extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\BarcodeInterface
+class EanExt extends AbstractBarcode implements BarcodeInterface
 {
 
     /**
@@ -46,7 +46,7 @@ class EanExt extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barc
             $r = (3 * ($code[0] + $code[2] + $code[4])) + (9 * ($code[1] + $code[3]));
             $r %= 10;
         } else {
-            throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid EAN barcode value "%s"', $code));
+            throw new BarcodeException(sprintf('Invalid EAN barcode value "%s"', $code));
         }
 
         // Convert digits to bars

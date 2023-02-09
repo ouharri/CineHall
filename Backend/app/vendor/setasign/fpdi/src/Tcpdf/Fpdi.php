@@ -22,6 +22,11 @@ use setasign\Fpdi\PdfParser\Type\PdfStream;
 use setasign\Fpdi\PdfParser\Type\PdfString;
 use setasign\Fpdi\PdfParser\Type\PdfType;
 use setasign\Fpdi\PdfParser\Type\PdfTypeException;
+use TCPDF;
+use TCPDF_STATIC;
+use function array_keys;
+use function array_pop;
+use function strlen;
 
 /**
  * Class Fpdi
@@ -30,7 +35,7 @@ use setasign\Fpdi\PdfParser\Type\PdfTypeException;
  *
  * @method _encrypt_data(int $n, string $s) string
  */
-class Fpdi extends \TCPDF
+class Fpdi extends TCPDF
 {
     use FpdiTrait {
         writePdfType as fpdiWritePdfType;
@@ -167,11 +172,11 @@ class Fpdi extends \TCPDF
             $this->_put('endobj');
         }
 
-        foreach (\array_keys($this->readers) as $readerId) {
+        foreach (array_keys($this->readers) as $readerId) {
             $parser = $this->getPdfReader($readerId)->getParser();
             $this->currentReaderId = $readerId;
 
-            while (($objectNumber = \array_pop($this->objectsToCopy[$readerId])) !== null) {
+            while (($objectNumber = array_pop($this->objectsToCopy[$readerId])) !== null) {
                 try {
                     $object = $parser->getIndirectObject($objectNumber);
                 } catch (CrossReferenceException $e) {
@@ -231,7 +236,7 @@ class Fpdi extends \TCPDF
         if ($value instanceof PdfString) {
             $string = PdfString::unescape($value->value);
             $string = $this->_encrypt_data($this->currentObjectNumber, $string);
-            $value->value = \TCPDF_STATIC::_escape($string);
+            $value->value = TCPDF_STATIC::_escape($string);
         } elseif ($value instanceof PdfHexString) {
             $filter = new AsciiHex();
             $string = $filter->decode($value->value);
@@ -241,7 +246,7 @@ class Fpdi extends \TCPDF
             $stream = $value->getStream();
             $stream = $this->_encrypt_data($this->currentObjectNumber, $stream);
             $dictionary = $value->value;
-            $dictionary->value['Length'] = PdfNumeric::create(\strlen($stream));
+            $dictionary->value['Length'] = PdfNumeric::create(strlen($stream));
             $value = PdfStream::create($dictionary, $stream);
         } elseif ($value instanceof PdfIndirectObject) {
             /**

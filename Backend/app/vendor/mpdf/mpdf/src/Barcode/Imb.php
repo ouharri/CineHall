@@ -31,7 +31,7 @@ namespace Mpdf\Barcode;
  *     be 0, 5, 9, or 11 digits. The allowable encoding ranges shall be no ZIP Code, 00000-99999,  000000000-999999999,
  *     and 00000000000-99999999999.
  */
-class Imb extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\BarcodeInterface
+class Imb extends AbstractBarcode implements BarcodeInterface
 {
 
     /**
@@ -43,7 +43,7 @@ class Imb extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barcode
     public function __construct($code, $xDim, $gapWidth, $daft)
     {
         if (!function_exists('bcadd')) {
-            throw new \Mpdf\Barcode\BarcodeException('IMB barcodes require bcmath extension to be loaded.');
+            throw new BarcodeException('IMB barcodes require bcmath extension to be loaded.');
         }
 
         $this->init($code, $gapWidth, $daft);
@@ -108,7 +108,7 @@ class Imb extends \Mpdf\Barcode\AbstractBarcode implements \Mpdf\Barcode\Barcode
                 $binaryCode = bcadd($routingCode, '1000100001');
                 break;
             default:
-                throw new \Mpdf\Barcode\BarcodeException(sprintf('Invalid MSI routing code "%s"', $routingCode));
+                throw new BarcodeException(sprintf('Invalid MSI routing code "%s"', $routingCode));
         }
 
         $binaryCode = bcmul($binaryCode, 10);

@@ -2,6 +2,9 @@
 
 namespace Mpdf\Image;
 
+use DOMDocument;
+use DOMElement;
+use DOMNode;
 use Mpdf\Color\ColorConverter;
 use Mpdf\Css\TextVars;
 use Mpdf\CssManager;
@@ -31,37 +34,37 @@ class Svg
     /**
      * ATM marked as public in spite of xml handling callbacks
      *
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     public $mpdf;
 
     /**
-     * @var \Mpdf\Otl
+     * @var Otl
      */
     public $otl;
 
     /**
-     * @var \Mpdf\CssManager
+     * @var CssManager
      */
     public $cssManager;
 
     /**
-     * @var \Mpdf\SizeConverter
+     * @var SizeConverter
      */
     public $sizeConverter;
 
     /**
-     * @var \Mpdf\Color\ColorConverter
+     * @var ColorConverter
      */
     public $colorConverter;
 
     /**
-     * @var \Mpdf\Language\LanguageToFontInterface
+     * @var LanguageToFontInterface
      */
     public $languageToFont;
 
     /**
-     * @var \Mpdf\Language\ScriptToLanguageInterface
+     * @var ScriptToLanguageInterface
      */
     public $scriptToLanguage;
     /**
@@ -122,18 +125,18 @@ class Svg
     var $subPathInit;
     var $spxstart;
     var $spystart;
-var $kp;
+    var $kp;
     var $pathBBox; // convert pixels to PDF units
-var $textlength;
-var $texttotallength; // mPDF 5.7.4
-var $textoutput; // mPDF 5.7.4
-var $textanchor; // mPDF 5.7.4
-var $textXorigin; // mPDF 5.7.4
-var $textYorigin; // mPDF 5.7.4
-var $textjuststarted; // mPDF 5.7.4
-var $intext; // mPDF 5.7.4
+    var $textlength;
+    var $texttotallength; // mPDF 5.7.4
+    var $textoutput; // mPDF 5.7.4
+    var $textanchor; // mPDF 5.7.4
+    var $textXorigin; // mPDF 5.7.4
+    var $textYorigin; // mPDF 5.7.4
+    var $textjuststarted; // mPDF 5.7.4
+    var $intext; // mPDF 5.7.4
     /**
-     * @var \Mpdf\Image\ImageProcessor
+     * @var ImageProcessor
      */
     private $imageProcessor;  // mPDF 5.7.4
     private $dashesUsed;
@@ -476,7 +479,7 @@ var $intext; // mPDF 5.7.4
      */
     function mergeStyles($data)
     {
-        $xml = new \DOMDocument();
+        $xml = new DOMDocument();
         if (!$xml->loadXML($data, LIBXML_NOERROR)) {
             return $data;
         }
@@ -489,7 +492,7 @@ var $intext; // mPDF 5.7.4
 
         // Find the style node
         $styles = [];
-        /** @var $styleNode \DOMNode */
+        /** @var $styleNode DOMNode */
         foreach ($svgNode->item(0)->getElementsByTagName('style') as $styleNode) {
 
             preg_match_all('/(\.[^{]+)\s*\{\s*([^}]+)\s*}/m', $styleNode->nodeValue, $matches, PREG_SET_ORDER);
@@ -508,7 +511,7 @@ var $intext; // mPDF 5.7.4
         }
 
         // Recursively loop the nodes inserting the styles inline
-        $setStylesInline = function (\DOMNode $xml) use ($styles, &$setStylesInline) {
+        $setStylesInline = function (DOMNode $xml) use ($styles, &$setStylesInline) {
             // Apply the styles to the elements
             foreach ($xml->childNodes as $node) {
 
@@ -516,7 +519,7 @@ var $intext; // mPDF 5.7.4
                     $setStylesInline($node);
                 }
 
-                if (!$node instanceof \DOMElement) {
+                if (!$node instanceof DOMElement) {
                     continue;
                 }
 

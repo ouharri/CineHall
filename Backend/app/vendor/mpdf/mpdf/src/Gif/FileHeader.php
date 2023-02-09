@@ -34,7 +34,7 @@ class FileHeader
     var $m_nPixelRatio;
 
     /**
-     * @var \Mpdf\Gif\ColorTable
+     * @var ColorTable
      */
     var $m_colorTable;
 

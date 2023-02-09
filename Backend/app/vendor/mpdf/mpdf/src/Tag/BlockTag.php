@@ -4,6 +4,7 @@ namespace Mpdf\Tag;
 
 use Mpdf\Conversion\DecToAlpha;
 use Mpdf\Conversion\DecToRoman;
+use Mpdf\MpdfException;
 use Mpdf\Utils\Arrays;
 use Mpdf\Utils\UtfString;
 
@@ -85,7 +86,7 @@ abstract class BlockTag extends Tag
                     || strtolower($p['POSITION']) === 'absolute'))
             && $this->mpdf->blklvl == 0) {
             if ($this->mpdf->inFixedPosBlock) {
-                throw new \Mpdf\MpdfException('Cannot nest block with position:fixed or position:absolute');
+                throw new MpdfException('Cannot nest block with position:fixed or position:absolute');
             }
             $this->mpdf->inFixedPosBlock = true;
             return;

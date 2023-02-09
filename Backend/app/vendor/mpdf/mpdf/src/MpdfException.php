@@ -2,7 +2,9 @@
 
 namespace Mpdf;
 
-class MpdfException extends \ErrorException
+use ErrorException;
+
+class MpdfException extends ErrorException
 {
 
 }

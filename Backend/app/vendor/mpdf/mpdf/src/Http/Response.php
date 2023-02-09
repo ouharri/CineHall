@@ -2,14 +2,19 @@
 
 namespace Mpdf\Http;
 
+use InvalidArgumentException;
+use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\StreamInterface;
+use function is_int;
+use function is_string;
+use function sprintf;
 
 /**
  * PSR-7 URI implementation ported from nyholm/psr7 and adapted for PHP 5.6
  *
  * @link https://github.com/Nyholm/psr7/blob/master/src/Uri.php
  */
-class Response implements \Psr\Http\Message\ResponseInterface
+class Response implements ResponseInterface
 {
 
     /** @var array Map of standard HTTP status code/reason phrases */
@@ -36,7 +41,7 @@ class Response implements \Psr\Http\Message\ResponseInterface
     /** @var string */
     private $protocol;
 
-    /** @var \Psr\Http\Message\StreamInterface */
+    /** @var StreamInterface */
     private $stream;
 
     /**
@@ -117,13 +122,13 @@ class Response implements \Psr\Http\Message\ResponseInterface
 
     public function withStatus($code, $reasonPhrase = '')
     {
-        if (!\is_int($code) && !\is_string($code)) {
-            throw new \InvalidArgumentException('Status code has to be an integer');
+        if (!is_int($code) && !is_string($code)) {
+            throw new InvalidArgumentException('Status code has to be an integer');
         }
 
         $code = (int)$code;
         if ($code < 100 || $code > 599) {
-            throw new \InvalidArgumentException(\sprintf('Status code has to be an integer between 100 and 599. A status code of %d was given', $code));
+            throw new InvalidArgumentException(sprintf('Status code has to be an integer between 100 and 599. A status code of %d was given', $code));
         }
 
         $new = clone $this;

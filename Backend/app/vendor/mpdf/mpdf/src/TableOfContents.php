@@ -10,7 +10,7 @@ class TableOfContents
 
     var $_toc;
     var $TOCmark;
-var $TOCoutdent;
+    var $TOCoutdent;
     var $TOCpreHTML;
     var $TOCpostHTML; // mPDF 5.6.31
     var $TOCbookmarkText;
@@ -32,9 +32,9 @@ var $TOCoutdent;
     var $TOC_odd_footer_value;
     var $TOC_even_footer_value;
     var $TOC_page_selector;
-var $TOC_resetpagenum;
-var $TOC_pagenumstyle;
-var $TOC_suppress; // mPDF 6
+    var $TOC_resetpagenum;
+    var $TOC_pagenumstyle;
+    var $TOC_suppress; // mPDF 6
     var $TOCsheetsize; // mPDF 6
     var $m_TOC; // mPDF 6
     /**

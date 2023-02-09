@@ -32,43 +32,43 @@ abstract class Tag
         'justify' => 'J'
     ];
     /**
-     * @var \Mpdf\Mpdf
+     * @var Mpdf
      */
     protected $mpdf;
     /**
-     * @var \Mpdf\Cache
+     * @var Cache
      */
     protected $cache;
     /**
-     * @var \Mpdf\CssManager
+     * @var CssManager
      */
     protected $cssManager;
     /**
-     * @var \Mpdf\Form
+     * @var Form
      */
     protected $form;
     /**
-     * @var \Mpdf\Otl
+     * @var Otl
      */
     protected $otl;
     /**
-     * @var \Mpdf\TableOfContents
+     * @var TableOfContents
      */
     protected $tableOfContents;
     /**
-     * @var \Mpdf\SizeConverter
+     * @var SizeConverter
      */
     protected $sizeConverter;
     /**
-     * @var \Mpdf\Color\ColorConverter
+     * @var ColorConverter
      */
     protected $colorConverter;
     /**
-     * @var \Mpdf\Image\ImageProcessor
+     * @var ImageProcessor
      */
     protected $imageProcessor;
     /**
-     * @var \Mpdf\Language\LanguageToFontInterface
+     * @var LanguageToFontInterface
      */
     protected $languageToFont;
 

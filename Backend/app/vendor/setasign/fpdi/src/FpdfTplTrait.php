@@ -10,6 +10,16 @@
 
 namespace setasign\Fpdi;
 
+use BadMethodCallException;
+use InvalidArgumentException;
+use function extract;
+use function gzcompress;
+use function in_array;
+use function is_array;
+use function sprintf;
+use function strlen;
+use function version_compare;
+
 /**
  * Trait FpdfTplTrait
  *
@@ -57,15 +67,15 @@ trait FpdfTplTrait
     public function useTemplate($tpl, $x = 0, $y = 0, $width = null, $height = null, $adjustPageSize = false)
     {
         if (!isset($this->templates[$tpl])) {
-            throw new \InvalidArgumentException('Template does not exist!');
+            throw new InvalidArgumentException('Template does not exist!');
         }
 
-        if (\is_array($x)) {
+        if (is_array($x)) {
             unset($x['tpl']);
-            \extract($x, EXTR_IF_EXISTS);
+            extract($x, EXTR_IF_EXISTS);
             /** @noinspection NotOptimalIfConditionsInspection */
             /** @noinspection PhpConditionAlreadyCheckedInspection */
-            if (\is_array($x)) {
+            if (is_array($x)) {
                 $x = 0;
             }
         }
@@ -80,7 +90,7 @@ trait FpdfTplTrait
 
         $this->_out(
         // reset standard values, translate and scale
-            \sprintf(
+            sprintf(
                 'q 0 J 1 w 0 j 0 G 0 g %.4F 0 0 %.4F %.4F %.4F cm /%s Do Q',
                 ($newSize['width'] / $originalSize['width']),
                 ($newSize['height'] / $originalSize['height']),
@@ -122,7 +132,7 @@ trait FpdfTplTrait
         }
 
         if ($height <= 0. || $width <= 0.) {
-            throw new \InvalidArgumentException('Width or height parameter needs to be larger than zero.');
+            throw new InvalidArgumentException('Width or height parameter needs to be larger than zero.');
         }
 
         return [
@@ -139,16 +149,16 @@ trait FpdfTplTrait
      *
      * @param array $size An array with two values defining the size.
      * @param string $orientation "L" for landscape, "P" for portrait.
-     * @throws \BadMethodCallException
+     * @throws BadMethodCallException
      */
     public function setPageFormat($size, $orientation)
     {
         if ($this->currentTemplateId !== null) {
-            throw new \BadMethodCallException('The page format cannot be changed when writing to a template.');
+            throw new BadMethodCallException('The page format cannot be changed when writing to a template.');
         }
 
-        if (!\in_array($orientation, ['P', 'L'], true)) {
-            throw new \InvalidArgumentException(\sprintf(
+        if (!in_array($orientation, ['P', 'L'], true)) {
+            throw new InvalidArgumentException(sprintf(
                 'Invalid page orientation "%s"! Only "P" and "L" are allowed!',
                 $orientation
             ));
@@ -213,10 +223,10 @@ trait FpdfTplTrait
 
         // initiate buffer with current state of FPDF
         $buffer = "2 J\n"
-            . \sprintf('%.2F w', $this->LineWidth * $this->k) . "\n";
+            . sprintf('%.2F w', $this->LineWidth * $this->k) . "\n";
 
         if ($this->FontFamily) {
-            $buffer .= \sprintf("BT /F%d %.2F Tf ET\n", $this->CurrentFont['i'], $this->FontSizePt);
+            $buffer .= sprintf("BT /F%d %.2F Tf ET\n", $this->CurrentFont['i'], $this->FontSizePt);
         }
 
         if ($this->DrawColor !== '0 G') {
@@ -226,7 +236,7 @@ trait FpdfTplTrait
             $buffer .= $this->FillColor . "\n";
         }
 
-        if ($groupXObject && \version_compare('1.4', $this->PDFVersion, '>')) {
+        if ($groupXObject && version_compare('1.4', $this->PDFVersion, '>')) {
             $this->PDFVersion = '1.4';
         }
 
@@ -336,7 +346,7 @@ trait FpdfTplTrait
     public function AddPage($orientation = '', $size = '', $rotation = 0)
     {
         if ($this->currentTemplateId !== null) {
-            throw new \BadMethodCallException('Pages cannot be added when writing to a template.');
+            throw new BadMethodCallException('Pages cannot be added when writing to a template.');
         }
         parent::AddPage($orientation, $size, $rotation);
     }
@@ -347,7 +357,7 @@ trait FpdfTplTrait
     public function Link($x, $y, $w, $h, $link)
     {
         if ($this->currentTemplateId !== null) {
-            throw new \BadMethodCallException('Links cannot be set when writing to a template.');
+            throw new BadMethodCallException('Links cannot be set when writing to a template.');
         }
         parent::Link($x, $y, $w, $h, $link);
     }
@@ -358,7 +368,7 @@ trait FpdfTplTrait
     public function SetLink($link, $y = 0, $page = -1)
     {
         if ($this->currentTemplateId !== null) {
-            throw new \BadMethodCallException('Links cannot be set when writing to a template.');
+            throw new BadMethodCallException('Links cannot be set when writing to a template.');
         }
         return parent::SetLink($link, $y, $page);
     }
@@ -392,7 +402,7 @@ trait FpdfTplTrait
     {
         parent::SetLineWidth($width);
         if ($this->page === 0 && $this->currentTemplateId !== null) {
-            $this->_out(\sprintf('%.2F w', $width * $this->k));
+            $this->_out(sprintf('%.2F w', $width * $this->k));
         }
     }
 
@@ -403,7 +413,7 @@ trait FpdfTplTrait
     {
         parent::SetFont($family, $style, $size);
         if ($this->page === 0 && $this->currentTemplateId !== null) {
-            $this->_out(\sprintf('BT /F%d %.2F Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
+            $this->_out(sprintf('BT /F%d %.2F Tf ET', $this->CurrentFont['i'], $this->FontSizePt));
         }
     }
 
@@ -430,7 +440,7 @@ trait FpdfTplTrait
             $this->templates[$key]['objectNumber'] = $this->n;
 
             $this->_put('<</Type /XObject /Subtype /Form /FormType 1');
-            $this->_put(\sprintf(
+            $this->_put(sprintf(
                 '/BBox[0 0 %.2F %.2F]',
                 $template['width'] * $this->k,
                 $template['height'] * $this->k
@@ -438,13 +448,13 @@ trait FpdfTplTrait
             $this->_put('/Resources 2 0 R'); // default resources dictionary of FPDF
 
             if ($this->compress) {
-                $buffer = \gzcompress($template['buffer']);
+                $buffer = gzcompress($template['buffer']);
                 $this->_put('/Filter/FlateDecode');
             } else {
                 $buffer = $template['buffer'];
             }
 
-            $this->_put('/Length ' . \strlen($buffer));
+            $this->_put('/Length ' . strlen($buffer));
 
             if ($template['groupXObject']) {
                 $this->_put('/Group <</Type/Group/S/Transparency>>');

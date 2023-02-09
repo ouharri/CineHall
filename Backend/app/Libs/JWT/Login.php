@@ -2,7 +2,7 @@
 
 class Login
 {
-    public static function JWT(): void
+    public static function JWT($admin = false): void
     {
         header('Access-Control-Allow-Origin: *');
         header('Content-Type: application/json');
@@ -55,7 +55,17 @@ class Login
             exit;
         }
 
-//        echo json_encode($jwt->getPayload($token));
-//        return $token;
+        if ($admin) {
+            $flag = true;
+            $payload = $jwt->getPayload($token);
+            foreach ($payload['roles'] as $role) {
+                if ($role == 'ROLE_ADMIN') $flag = false;
+            }
+            if ($flag) {
+                http_response_code(403);
+                echo json_encode(['message' => "vous n'avez pas l'accès a cette page !"]);
+                exit;
+            }
+        }
     }
 }

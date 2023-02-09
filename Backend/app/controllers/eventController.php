@@ -6,7 +6,7 @@ class eventController
 
     public function __construct()
     {
-        Login::JWT();
+        Login::JWT(true);
         $this->event = new event();
     }
 

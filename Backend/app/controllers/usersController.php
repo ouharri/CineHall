@@ -16,6 +16,51 @@ class usersController
         $this->user = new users();
     }
 
+    /** get one user
+     * @param $token
+     * @return void
+     * @throws Exception|\Exception
+     */
+    public function get($token): void
+    {
+        $user = $this->user;
+
+        // Headers
+        header('Access-Control-Allow-Origin:*');
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Method: none');
+        header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
+
+        // get data
+        $data = $user->getRow($token, 'token');
+
+        //output
+        echo json_encode($data);
+    }
+
+
+    /**
+     * get all users
+     * @return void
+     * @throws Exception|\Exception
+     */
+    public function getAll(): void
+    {
+        $user = $this->user;
+
+        // Headers
+        header("Access-Control-Allow-Origin:*");
+        header("Content-Type: application/json");
+        header("Access-Control-Allow-Method: none");
+        header("Access-Control-Allow-Headers: Authorization, Content-Type");
+
+        // get data
+        $data = $user->getAll();
+
+        // output
+        echo json_encode($data);
+    }
+
     /**
      * login with token
      * @throws Exception|\Exception
@@ -27,7 +72,7 @@ class usersController
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            if (_isset::post('token' )) {
+            if (_isset::post('token')) {
 
                 _validate::post();
 
@@ -43,10 +88,9 @@ class usersController
                 http_response_code(200);
 
 
+                if ($user->exists($token, 'token', 'Like')) {
 
-                if($user->exists($token,'token' ,'Like')){
-
-                    $data = $user->getRow($token,'token');
+                    $data = $user->getRow($token, 'token');
 
                     $header = [
                         'typ' => 'JWT',
@@ -58,9 +102,12 @@ class usersController
                         'user' => $token,
                         'firstName' => $data['firstName'],
                         'lastName' => $data['lastName'],
-                        'roles' => [
-                            'ROLE_USER'
-                        ] ?? $data[''],
+                        'roles' => $data['role'] == 'client' ?
+                            [
+                                'ROLE_USER'
+                            ] : [
+                                'ROLE_ADMIN'
+                            ],
                         'email' => $data['email'],
                     ];
 
@@ -139,78 +186,90 @@ class usersController
                 $user->startTransaction();
                 $email = $_POST['email'];
 
-                // generate token
-                $char = base64_encode( $_POST['firstName'] . $email . $_POST['lastName'] );
-                $token = _random::string(10,  sha1($char));
+                if (!$user->exists($email, 'email', 'Like')) {
 
-                // Get posted data
-                $data = array(
-                    'token' => $token,
-                    'firstName' => $_POST['firstName'],
-                    'lastName' => $_POST['lastName'],
-                    'email' => $_POST['email'],
-                );
-                // insert data
-                if ($user->insert($data)) {
+                    // generate token
+                    $char = base64_encode($_POST['firstName'] . $email . $_POST['lastName']);
+                    $token = _random::string(10, sha1($char));
 
-                    // send email
-                    $mail = new PHPMailer(true);
-                    ob_start();
-                    {
-                        $flag = true;
-                        try {
-                            //Server settings
-                            $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-                            $mail->isSMTP();                                            //Send using SMTP
-                            $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
-                            $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-                            $mail->Username = 'atman.atharri@gmail.com';                     //SMTP username
-                            $mail->Password = 'xakztnzayygnxzkc';                               //SMTP password
-                            $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-                            $mail->Port = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-                            //Recipients
-                            $mail->setFrom('atman.atharri@gmail.com');
-                            $mail->addAddress($email);
-                            //Content
-                            $mail->isHTML(true);                                  //Set email format to HTML
-                            $mail->Subject = 'no reply';
-                            $mail->Body = "your Token is : {$token}";
-                            $mail->send();
-                        } catch (Exception $e) {
-                            $flag = false;
-                            $message = $mail->ErrorInfo;
+                    // Get posted data
+                    $data = array(
+                        'token' => $token,
+                        'firstName' => $_POST['firstName'],
+                        'lastName' => $_POST['lastName'],
+                        'email' => $_POST['email'],
+                    );
+                    // insert data
+                    if ($user->insert($data)) {
+
+                        // send email
+                        $mail = new PHPMailer(true);
+                        ob_start();
+                        {
+                            $flag = true;
+                            try {
+                                //Server settings
+                                $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
+                                $mail->isSMTP();                                            //Send using SMTP
+                                $mail->Host = 'smtp.gmail.com';                     //Set the SMTP server to send through
+                                $mail->SMTPAuth = true;                                   //Enable SMTP authentication
+                                $mail->Username = 'atman.atharri@gmail.com';                     //SMTP username
+                                $mail->Password = 'xakztnzayygnxzkc';                               //SMTP password
+                                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
+                                $mail->Port = 465;                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
+                                //Recipients
+                                $mail->setFrom('atman.atharri@gmail.com');
+                                $mail->addAddress($email);
+                                //Content
+                                $mail->isHTML(true);                                  //Set email format to HTML
+                                $mail->Subject = 'no reply';
+                                $mail->Body = "your Token is : {$token}";
+                                $mail->send();
+                            } catch (Exception $e) {
+                                $flag = false;
+                                $message = $mail->ErrorInfo;
+                            }
                         }
-                    }
-                    ob_clean();
-                    if ($flag) {
-                        $user->commit();
-                        http_response_code(201);
-                        echo json_encode(
-                            array(
-                                'success' => true,
-                                'token' => $token,
-                                'message' => "registered successfully <br> We've send your token on your email address.",
-                                'status' => $_SERVER['REDIRECT_STATUS']
-                            )
-                        );
+                        ob_clean();
+                        if ($flag) {
+                            $user->commit();
+                            http_response_code(201);
+                            echo json_encode(
+                                array(
+                                    'success' => true,
+                                    'token' => $token,
+                                    'message' => "registered successfully <br> We've send your token on your email address.",
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        } else {
+                            $user->rollback();
+                            http_response_code(500);
+                            echo json_encode(
+                                array(
+                                    'success' => false,
+                                    'message' => $message ?? 'error in registered',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                )
+                            );
+                        }
                     } else {
-                        $user->rollback();
                         http_response_code(500);
                         echo json_encode(
                             array(
                                 'success' => false,
-                                'message' => $message ?? 'error in registered',
+                                'message' => 'error in registered',
                                 'status' => $_SERVER['REDIRECT_STATUS']
                             )
                         );
                     }
                 } else {
-                    http_response_code(500);
+                    http_response_code(510);
                     echo json_encode(
                         array(
                             'success' => false,
-                            'message' => 'error in registered',
-                            'status' => $_SERVER['REDIRECT_STATUS']
+                            'message' => 'this email is already exists',
+                            'status' => 504
                         )
                     );
                 }
@@ -260,19 +319,19 @@ class usersController
                 header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
                 http_response_code(200);
 
-//                $user->startTransaction();
+                $user->startTransaction();
                 $email = $_POST['email'];
 
-                if($user->exists($email,'email' ,'Like')){
+                if ($user->exists($email, 'email', 'Like')) {
 
-                    $data = $user->getRow($email,'email');
+                    $data = $user->getRow($email, 'email');
 
                     // generate New token
-                    $char = base64_encode( $data['firstName'] . $email . $data['lastName'] );
-                    $token = _random::string(10,  sha1($char));
+                    $char = base64_encode($data['firstName'] . $email . $data['lastName']);
+                    $token = _random::string(10, sha1($char));
 
                     // update token
-                    if ($user->update($email,['token' => $token],'email')) {
+                    if ($user->update($email, ['token' => $token], 'email')) {
 
                         // send email
                         $mail = new PHPMailer(true);
@@ -345,7 +404,7 @@ class usersController
                         )
                     );
                 }
-            }else {
+            } else {
                 http_response_code(510);
                 echo json_encode(
                     array(

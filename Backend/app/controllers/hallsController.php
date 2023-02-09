@@ -7,7 +7,7 @@ class hallsController
 
     public function __construct()
     {
-        Login::JWT();
+        Login::JWT(true);
         $this->halls = new halls();
         $this->image = new image();
     }

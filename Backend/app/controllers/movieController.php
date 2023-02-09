@@ -7,7 +7,7 @@ class movieController
 
     public function __construct()
     {
-        Login::JWT();
+        Login::JWT(true);
         $this->movie = new movie();
         $this->image = new image();
     }

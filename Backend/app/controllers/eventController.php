@@ -11,6 +11,7 @@ class eventController
     }
 
     /**
+     * get the event
      * @param $id
      * @return void
      * @throws Exception
@@ -34,6 +35,7 @@ class eventController
 
 
     /**
+     * get all events
      * @return void
      * @throws Exception
      */
@@ -56,6 +58,7 @@ class eventController
 
 
     /**
+     * insert a new event
      * @return void
      * @throws Exception
      */
@@ -137,6 +140,7 @@ class eventController
 
 
     /**
+     * update the event
      * @return void
      * @throws Exception
      */
@@ -246,6 +250,7 @@ class eventController
 
 
     /**
+     * delet event
      * @return void
      * @throws Exception
      */

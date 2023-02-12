@@ -160,7 +160,7 @@ class usersController
     /**
      * user register white send token in email
      * @return void
-     * @throws Exception|\Exception
+     * @throws \Exception
      */
     public function register(): void
     {
@@ -296,7 +296,8 @@ class usersController
     }
 
     /**
-     * @throws Exception|\Exception
+     * send new token for login in email
+     * @throws \Exception
      */
     public function forgotToken(): void
     {

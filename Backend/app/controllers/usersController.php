@@ -12,7 +12,6 @@ class usersController
 
     public function __construct()
     {
-        Login::JWT();
         $this->user = new users();
     }
 
@@ -23,6 +22,7 @@ class usersController
      */
     public function get($token): void
     {
+        Login::JWT();
         $user = $this->user;
 
         // Headers
@@ -46,6 +46,7 @@ class usersController
      */
     public function getAll(): void
     {
+        Login::JWT();
         $user = $this->user;
 
         // Headers

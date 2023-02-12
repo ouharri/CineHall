@@ -1,6 +1,9 @@
 <?php
 session_start();
 
+use Dotenv\Dotenv;
+
+
 define("ROOT_PATH", dirname(__DIR__) . DS);
 const APP = ROOT_PATH . 'APP' . DS;
 
@@ -14,11 +17,18 @@ const VENDOR = APP . 'vendor' . DS;
 const PUBLIC_ = ROOT_PATH . 'public' . DS;
 const UPLOADS = PUBLIC_ . DS . 'uploads' . DS;
 
+
+
+
 // require configuration & used files
 require_once LIBS . 'autoload.php';
 require_once CONFIG . 'config.php';
 require_once CONFIG . 'healpers.php';
 require_once VENDOR . 'autoload.php';
+
+$dotenv = Dotenv::createImmutable(APP);
+
+$dotenv->load();
 
 // autoload all classes
 $modules = [ROOT_PATH, APP, CORE, VIEWS, CONTROLLERS, MODELS, CONFIG, LIBS, VENDOR, UPLOADS];

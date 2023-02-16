@@ -8,6 +8,7 @@ class JWT
      * @param string $token Token à vérifier
      * @param string $secret Clé secrète
      * @return bool Vérifié ou non
+     * @throws JsonException
      */
     public function check(string $token, string $secret): bool
     {
@@ -25,6 +26,7 @@ class JWT
      * Récupère le header
      * @param string $token Token
      * @return array Header
+     * @throws JsonException
      */
     public function getHeader(string $token): array
     {
@@ -32,13 +34,14 @@ class JWT
         $array = explode('.', $token);
 
         // On décode le header
-        return json_decode(base64_decode($array[0]), true);
+        return json_decode(base64_decode($array[0]), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
      * Retourne le payload
      * @param string $token Token
      * @return array Payload
+     * @throws JsonException
      */
     public function getPayload(string $token): array
     {
@@ -46,7 +49,7 @@ class JWT
         $array = explode('.', $token);
 
         // On décode le payload
-        return json_decode(base64_decode($array[1]), true);
+        return json_decode(base64_decode($array[1]), true, 512, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -56,6 +59,7 @@ class JWT
      * @param string $secret Clé secrète
      * @param int $validity Durée de validité (en secondes)
      * @return string Token
+     * @throws JsonException
      */
     public function generate(array $header, array $payload, string $secret, int $validity = 86400): string
     {
@@ -67,8 +71,8 @@ class JWT
         }
 
         // On encode en base64
-        $base64Header = base64_encode(json_encode($header));
-        $base64Payload = base64_encode(json_encode($payload));
+        $base64Header = base64_encode(json_encode($header, JSON_THROW_ON_ERROR));
+        $base64Payload = base64_encode(json_encode($payload, JSON_THROW_ON_ERROR));
 
         // On "nettoie" les valeurs encodées
         // On retire les +, / et =
@@ -91,6 +95,7 @@ class JWT
      * Vérification de l'expiration
      * @param string $token Token à vérifier
      * @return bool Vérifié ou non
+     * @throws JsonException
      */
     public function isExpired(string $token): bool
     {

@@ -71,7 +71,7 @@ class movieController
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            if (_isset::post('libel', 'description', 'category')) {
+            if (_isset::post('libel', 'description', 'actors', 'date', 'genre', 'language', 'runeTime', 'Time', 'imdbRating')) {
 
                 _validate::post();
 
@@ -102,8 +102,12 @@ class movieController
                     if ($image->insert($data)) {
                         // Get posted data
                         $data = array(
+                            'DVD' => $_POST['DVD'],
                             'libel' => $_POST['libel'],
-                            'category' => $_POST['category'],
+                            'genre' => $_POST['genre'],
+                            'actors' => $_POST['category'],
+                            'language' => $_POST['language'],
+                            'runeTime' => $_POST['runeTime'],
                             'description' => $_POST['description'],
                             'image' => BURL . 'image/get/' . $image->getInsertId()
                         );

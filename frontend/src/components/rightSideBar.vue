@@ -1,7 +1,7 @@
 <template>
   <!-- Right Sidebar -->
   <aside
-    class="w-1/5 py-10 px-10 min-w-min border-l border-gray-300 dark:border-zinc-700 hidden lg:block"
+    class="w-1/5 py-10 px-10 min-w-min border-l border-gray-300 dark:border-zinc-700 hidden lg:block max-h-screen overflow-x-auto scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent"
   >
     <div class="relative items-center content-center flex">
       <span class="text-gray-400 absolute left-4 cursor-pointer">
@@ -181,7 +181,7 @@
         </li>
       </ul>
     </div>
-    <div class="mt-10">
+    <div class="mt-10" v-if="Loged">
       <span class="font-semibold text-gray-700 dark:text-white">Favorites</span>
       <ul class="mt-4 text-gray-400 text-xs space-y-3">
         <li class="flex space-x-3">
@@ -340,7 +340,14 @@
 </template>
 
 <script>
-export default {};
+export default {
+  props: {
+    Loged: {
+      type: Boolean,
+      default: false,
+    },
+  },
+};
 </script>
 
 <style>

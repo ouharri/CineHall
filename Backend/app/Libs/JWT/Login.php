@@ -2,6 +2,9 @@
 
 class Login
 {
+    /**
+     * @throws JsonException
+     */
     public static function JWT($admin = false): void
     {
         header('Access-Control-Allow-Origin: *');
@@ -25,7 +28,10 @@ class Login
         // On vérifie si la chaine commence par "Bearer "
         if (!isset($token) || !preg_match('/Bearer\s(\S+)/', $token, $matches)) {
             http_response_code(200);
-            echo json_encode(['message' => 'Token introuvable']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Token introuvable'
+            ], JSON_THROW_ON_ERROR);
             exit;
         }
 
@@ -37,21 +43,30 @@ class Login
         // On vérifie la validité
         if (!$jwt->isValid($token)) {
             http_response_code(400);
-            echo json_encode(['message' => 'Token invalide']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Token invalide'
+            ], JSON_THROW_ON_ERROR);
             exit;
         }
 
         // On vérifie la signature
         if (!$jwt->check($token, SECRET)) {
             http_response_code(403);
-            echo json_encode(['message' => 'Le token est invalide']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Le token est invalide'
+            ], JSON_THROW_ON_ERROR);
             exit;
         }
 
         // On vérifie l'expiration
         if ($jwt->isExpired($token)) {
             http_response_code(403);
-            echo json_encode(['message' => 'Le token a expiré']);
+            echo json_encode([
+                'success' => false,
+                'message' => 'Le token a expiré'
+            ], JSON_THROW_ON_ERROR);
             exit;
         }
 
@@ -59,11 +74,14 @@ class Login
             $flag = true;
             $payload = $jwt->getPayload($token);
             foreach ($payload['roles'] as $role) {
-                if ($role == 'ROLE_ADMIN') $flag = false;
+                if ($role === 'ROLE_ADMIN') $flag = false;
             }
             if ($flag) {
                 http_response_code(403);
-                echo json_encode(['message' => "vous n'avez pas l'accès a cette page !"]);
+                echo json_encode([
+                    'success' => false,
+                    'message' => "vous n'avez pas l'accès a cette page !"
+                ], JSON_THROW_ON_ERROR);
                 exit;
             }
         }

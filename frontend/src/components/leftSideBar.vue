@@ -1,8 +1,9 @@
 <template>
   <!-- Left Sidebar Sidebar L-->
   <aside
-    class="w-1/6 py-10 pl-10 min-w-min border-r border-gray-300 dark:border-zinc-700 hidden md:block transition duration-1000 ease-linear"
+    class="w-1/6 py-10 pl-10 pr-10 min-w-min border-r border-gray-300 dark:border-zinc-700 hidden md:block transition duration-1000 ease-linear max-h-screen overflow-x-auto scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent"
     id="left-sidebar"
+    :key="this.test"
   >
     <div class="font-bold text-lg flex items-center gap-x-3">
       <svg
@@ -15,7 +16,7 @@
         ></path>
       </svg>
       <div class="tracking-wide dark:text-white">
-        MMovie<span class="text-red-600">.</span>
+        CineHall<span class="text-red-600">.</span>
       </div>
     </div>
 
@@ -24,9 +25,9 @@
       class="mt-12 flex flex-col gap-y-4 text-gray-500 fill-gray-500 text-sm"
     >
       <div class="text-gray-400/70 font-medium uppercase">Menu</div>
-      <a
-        class="flex items-center space-x-2 py-1 dark:text-white font-semibold border-r-4 border-r-red-600 pr-20"
-        href="#"
+      <router-link
+        to="/"
+        class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white"
       >
         <svg
           class="h-5 w-5 fill-red-600"
@@ -38,7 +39,7 @@
           ></path>
         </svg>
         <span>Home</span>
-      </a>
+      </router-link>
       <a
         class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white"
         href="#"
@@ -59,7 +60,8 @@
         </svg>
         <span>Community</span>
       </a>
-      <a
+      <router-link
+        to="/movie"
         class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white"
         href="#"
       >
@@ -75,8 +77,8 @@
             <path d="M8 16l5.991-2 2-6 -6 2Z"></path>
           </g>
         </svg>
-        <span>Discovery</span>
-      </a>
+        <span>Movie</span>
+      </router-link>
       <a
         class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white"
         href="#"
@@ -154,7 +156,7 @@
       </a>
 
       <div class="mt-8 text-gray-400/70 font-medium uppercase">General</div>
-      <a
+      <!-- <a
         class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white"
         href="#"
       >
@@ -178,10 +180,52 @@
           />
         </svg>
         <span>Settings</span>
-      </a>
-      <a
+      </a> -->
+
+      <router-link
+        to="/login"
+        class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white cursor-pointer"
+        v-if="!this.Loged"
+      >
+        <svg
+          class="h-5 w-5 group-hover:fill-red-600"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <g>
+            <path d="M16 13v-2H7V8l-5 4 5 4v-3Z"></path>
+            <path
+              d="M20 3h-9c-1.11 0-2 .89-2 2v4h2V5h9v14h-9v-4H9v4c0 1.1.89 2 2 2h9c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2Z"
+            ></path>
+          </g>
+        </svg>
+        <span>Login</span>
+      </router-link>
+
+      <router-link
+        to="/register"
         class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white"
-        href="#"
+        v-if="!this.Loged"
+      >
+        <svg
+          class="h-5 w-5 group-hover:fill-red-600"
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+        >
+          <g>
+            <path d="M16 13v-2H7V8l-5 4 5 4v-3Z"></path>
+            <path
+              d="M20 3h-9c-1.11 0-2 .89-2 2v4h2V5h9v14h-9v-4H9v4c0 1.1.89 2 2 2h9c1.1 0 2-.9 2-2V5c0-1.11-.9-2-2-2Z"
+            ></path>
+          </g>
+        </svg>
+        <span>register</span>
+      </router-link>
+
+      <a
+        class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white cursor-pointer"
+        v-if="this.Loged"
+        @click="logout"
       >
         <svg
           class="h-5 w-5 group-hover:fill-red-600"
@@ -201,13 +245,13 @@
         <div
           class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"
         >
-        <!-- @click="isDark = !isDark"
-            :value="isDark" -->
           <input
             type="checkbox"
             name="toggle"
             id="toggle"
             class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer"
+            @click="$emit('isdark')"
+            :value="this.isDark"
           />
           <label
             for="toggle"
@@ -223,8 +267,68 @@
 </template>
 
 <script>
-export default {};
+import { ref } from "vue";
+export default {
+  props: {
+    isDark: {
+      type: Boolean,
+      default:
+        window.matchMedia &&
+        window.matchMedia("(prefers-color-scheme: dark)").matches,
+    },
+    Loged: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  data() {
+    return {
+      // isLoged: false,
+      // test : false
+    };
+  },
+  methods: {
+    // async IsLoged() {
+    //   // alert('hhh');
+    //   var LogedKey = ref(false);
+    //   if (!localStorage.getItem("JWT")) {
+    //     return false;
+    //   } else {
+    //     const jwt = JSON.parse(localStorage.getItem("JWT"));
+    //     await axios({
+    //       method: "get",
+    //       url: "http://cdn.cinehall.ma/users/tokenIsValid",
+    //       headers: {
+    //         "Content-Type": "application/json",
+    //         Authorization: `Bearer ${jwt}`,
+    //       },
+    //     })
+    //       .then((result) => {
+    //         this.isLoged = result.data.success;
+    //         LogedKey.value = result.data.success;
+    //       })
+    //       .catch((error) => {
+    //         this.isLoged = false;
+    //         LogedKey.value = false;
+    //         // console.log(error);
+    //       });
+    //   }
+    //   // return false;
+    //   this.test = LogedKey;
+    // },
+    logout() {
+      localStorage.removeItem("JWT");
+      this.$router.push("/home");
+    },
+  },
+  created() {
+    // this.IsLoged();
+  },
+};
 </script>
 
-<style>
+<style scoped>
+/* @tailwind base;
+@tailwind components;
+@tailwind utilities; */
 </style>

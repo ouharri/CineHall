@@ -13,6 +13,8 @@ class usersController
     public function __construct()
     {
         $this->user = new users();
+        header('Access-Control-Allow-Origin: *');
+        header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
     }
 
     /** get one user
@@ -59,7 +61,7 @@ class usersController
         $data = $user->getAll();
 
         // output
-        echo json_encode($data);
+        echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
     /**
@@ -79,6 +81,7 @@ class usersController
 
                 $user = $this->user;
                 $token = $_POST['token'];
+                $remember = $_POST['remember'];
 
                 // Headers
                 header("Access-Control-Max-Age: 3600");
@@ -114,13 +117,14 @@ class usersController
 
                     $jwt = new JWT();
 
-                    $authentication = $jwt->generate($header, $payload, SECRET);
+                    $authentication = $jwt->generate($header, $payload, SECRET, $remember? 31556952 : 3600);
 
                     echo json_encode(
                         array(
                             'success' => true,
                             'token' => $authentication,
                             'message' => 'connected successfully',
+                            'user' => $data['firstName'] . ' ' . $data['lastName'],
                             'status' => $_SERVER['REDIRECT_STATUS']
                         ),
                         JSON_THROW_ON_ERROR);
@@ -426,5 +430,16 @@ class usersController
                 ),
                 JSON_THROW_ON_ERROR);
         }
+    }
+
+    /**
+     * @throws JsonException
+     */
+    public function tokenIsValid(): void
+    {
+        Login::JWT();
+        echo json_encode([
+            'success' => true,
+        ], JSON_THROW_ON_ERROR);
     }
 }

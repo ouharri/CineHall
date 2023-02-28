@@ -1,11 +1,10 @@
 <template>
   <!-- Left Sidebar Sidebar L-->
   <aside
-    class="w-1/6 py-10 pl-10 pr-10 min-w-min border-r border-gray-300 dark:border-zinc-700 hidden md:block transition duration-1000 ease-linear max-h-screen overflow-x-auto scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent"
+    class="w-1/6 py-10 pl-10 min-w-min border-r border-gray-300 dark:border-zinc-700 hidden md:block transition duration-1000 ease-linear max-h-screen overflow-x-auto scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent"
     id="left-sidebar"
-    :key="this.test"
   >
-    <div class="font-bold text-lg flex items-center gap-x-3">
+    <div class="font-bold text-lg flex items-center gap-x-3 mr-10">
       <svg
         class="h-8 w-8 fill-red-600"
         xmlns="http://www.w3.org/2000/svg"
@@ -288,34 +287,6 @@ export default {
     };
   },
   methods: {
-    // async IsLoged() {
-    //   // alert('hhh');
-    //   var LogedKey = ref(false);
-    //   if (!localStorage.getItem("JWT")) {
-    //     return false;
-    //   } else {
-    //     const jwt = JSON.parse(localStorage.getItem("JWT"));
-    //     await axios({
-    //       method: "get",
-    //       url: "http://cdn.cinehall.ma/users/tokenIsValid",
-    //       headers: {
-    //         "Content-Type": "application/json",
-    //         Authorization: `Bearer ${jwt}`,
-    //       },
-    //     })
-    //       .then((result) => {
-    //         this.isLoged = result.data.success;
-    //         LogedKey.value = result.data.success;
-    //       })
-    //       .catch((error) => {
-    //         this.isLoged = false;
-    //         LogedKey.value = false;
-    //         // console.log(error);
-    //       });
-    //   }
-    //   // return false;
-    //   this.test = LogedKey;
-    // },
     logout() {
       localStorage.removeItem("JWT");
       this.$router.push("/home");

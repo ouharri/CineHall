@@ -1,6 +1,6 @@
 <template>
   <div
-    class="calendar border-zinc-200 bg-gradient-to-tr from-gray-100 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear overflow-hidden shadow-inner"
+    class="calendar mb-10 border-zinc-200 bg-gradient-to-tr from-gray-100 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear overflow-hidden shadow-inner"
   >
     <div class="calendar-header bg-red-600">
       <span class="month-picker" id="month-picker"> May </span>
@@ -17,13 +17,13 @@
 
     <div class="calendar-body">
       <div class="calendar-week-days mt-3">
-        <div>Sun</div>
-        <div>Mon</div>
         <div>Tue</div>
         <div>Wed</div>
         <div>Thu</div>
         <div>Fri</div>
         <div>Sat</div>
+        <div>Sun</div>
+        <div>Mon</div>
       </div>
       <div class="calendar-days"></div>
     </div>
@@ -76,6 +76,8 @@ export default {
     const timeFormate = document.querySelector(".time-formate");
     const dateFormate = document.querySelector(".date-formate");
 
+    month_picker.innerHTML = "";
+
     month_picker.onclick = () => {
       month_list.classList.remove("hideonce");
       month_list.classList.remove("hide");
@@ -90,7 +92,6 @@ export default {
 
     const generateCalendar = (month, year) => {
       let calendar_days = document.querySelector(".calendar-days");
-      calendar_days.innerHTML = "";
       let calendar_header_year = document.querySelector("#year");
       let days_of_month = [
         31,
@@ -107,6 +108,7 @@ export default {
         31,
       ];
 
+      calendar_days.innerHTML = "";
       let currentDate = new Date();
 
       month_picker.innerHTML = month_names[month];
@@ -122,10 +124,6 @@ export default {
           day.innerHTML = i - first_day.getDay() + 1;
           const date =
             year + "-" + (month + 1) + "-" + (i - first_day.getDay() + 1);
-          day.setAttribute("x-date", date);
-          day.onclick = ()=>{
-            alert(date);
-          }
 
           if (
             i - first_day.getDay() + 1 === currentDate.getDate() &&
@@ -134,12 +132,37 @@ export default {
           ) {
             day.classList.add("current-date");
           }
+
+          if (
+            year < currentDate.getFullYear() ||
+            (year === currentDate.getFullYear() &&
+              month < currentDate.getMonth()) ||
+            (year === currentDate.getFullYear() &&
+              month === currentDate.getMonth() &&
+              i - first_day.getDay() + 1 < currentDate.getDate())
+          ) {
+            day.classList.add("cursor-not-allowed");
+            day.classList.add("hover:bg-gray-200");
+          } else if ((i + 1) % 7 === 0) {
+            day.classList.add("cursor-not-allowed");
+            day.classList.add("hover:bg-gray-200");
+          } else {
+            day.setAttribute("x-date", date);
+            day.onclick = () => {
+              this.$emit('clikedDate',date);
+            };
+          }
+        } else {
+          day.classList.add("cursor-auto");
+          day.classList.add("bg-transparent");
         }
+
         calendar_days.appendChild(day);
       }
     };
 
     let month_list = calendar.querySelector(".month-list");
+    month_list.innerHTML = "";
     month_names.forEach((e, index) => {
       let month = document.createElement("div");
       month.innerHTML = `<div>${e}</div>`;
@@ -199,14 +222,14 @@ export default {
       const formateTimer = new Intl.DateTimeFormat("en-us", option).format(
         timer
       );
-      let time = `${`${timer.getHours()}`.padStart(
+      let time = `${`${timer.getHours()-1}`.padStart(
         2,
         "0"
       )}:${`${timer.getMinutes()}`.padStart(
         2,
         "0"
       )}: ${`${timer.getSeconds()}`.padStart(2, "0")}`;
-      todayShowTime.textContent = formateTimer;
+      todayShowTime.textContent = time;
     }, 1000);
   },
 };
@@ -221,7 +244,6 @@ export default {
   --light-hover: #f0f0f0;
   --light-text: #151426;
   --light-btn: #f5c518;
-  --blue: #0000ff;
   --white: #fff;
   --shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
   --font-family: consolas;
@@ -240,7 +262,6 @@ export default {
   overflow: hidden;
   padding: 50px 100px 0px 100px;
 }
-
 
 .calendar-header {
   display: flex;
@@ -459,6 +480,21 @@ export default {
   animation: showtime 1s forwards;
 }
 
+.cursor-not-allowed {
+  cursor: not-allowed !important;
+}
+
+.bg-transparent {
+  background-color: transparent !important;
+}
+.cursor-auto {
+  cursor: auto !important;
+}
+
+.hover\:bg-gray-200:hover {
+  background-color: #818181 !important;
+}
+
 @keyframes to-top {
   0% {
     transform: translateY(0);
@@ -509,7 +545,7 @@ export default {
     opacity: 1;
   }
   100% {
-    transform: translatex(-370%);
+    transform: translatex(-400%);
     opacity: 1;
   }
 }

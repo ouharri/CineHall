@@ -6,7 +6,6 @@ class reservationController
 
     public function __construct()
     {
-        Login::JWT();
         $this->reservation = new reservation();
     }
 
@@ -28,6 +27,41 @@ class reservationController
 
         // get data
         $data = $reservation->getRow($id);
+
+        //output
+        echo json_encode($data, JSON_THROW_ON_ERROR);
+    }
+
+
+    public function getExist($user, $event): void
+    {
+        $reservation = $this->reservation;
+
+        // Headers
+        header('Access-Control-Allow-Origin:*');
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Method: none');
+        header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
+
+        // get data
+        $data = $reservation->getExist($user, $event);
+
+        //output
+        echo json_encode($data, JSON_THROW_ON_ERROR);
+    }
+
+    public function getUserExist($user, $event): void
+    {
+        $reservation = $this->reservation;
+
+        // Headers
+        header('Access-Control-Allow-Origin:*');
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Method: none');
+        header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
+
+        // get data
+        $data = $reservation->getUserExist($user, $event);
 
         //output
         echo json_encode($data, JSON_THROW_ON_ERROR);
@@ -62,14 +96,16 @@ class reservationController
      * @return void
      * @throws Exception
      */
-    public function insert(): void
+    public function add(): void
     {
+        Login::JWT();
+
         // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
 
-            if (_isset::post('seat', 'event')) {
+            if (_isset::post('seat', 'event', 'user')) {
 
                 $reservation = $this->reservation;
 
@@ -83,11 +119,11 @@ class reservationController
 
                 _validate::post();
 
-                if (!$reservation->exists($_POST['seat'], 'seat')) {
+                if (!$reservation->existSeat($_POST['event'], $_POST['seat'])) {
 
                     // Get posted data
                     $data = array(
-                        'user' => 1,
+                        'user' => $_POST['user'],
                         'event' => $_POST['event'],
                         'seat' => $_POST['seat']
                     );
@@ -96,45 +132,55 @@ class reservationController
                         http_response_code(201);
                         echo json_encode(
                             array(
+                                'success' => true,
                                 'message' => 'reservation Created',
                                 'status' => $_SERVER['REDIRECT_STATUS']
                             ),
-                            JSON_THROW_ON_ERROR);
+                            JSON_THROW_ON_ERROR
+                        );
                     } else {
                         http_response_code(500);
                         echo json_encode(
                             array(
+                                'success' => false,
                                 'message' => 'reservation Not Created',
                                 'status' => $_SERVER['REDIRECT_STATUS']
                             ),
-                            JSON_THROW_ON_ERROR);
+                            JSON_THROW_ON_ERROR
+                        );
                     }
                 } else {
                     http_response_code(510);
                     echo json_encode(
                         array(
+                            'success' => false,
                             'message' => 'reservation Not Created ( seat already reserved )',
                             'status' => 504
                         ),
-                        JSON_THROW_ON_ERROR);
+                        JSON_THROW_ON_ERROR
+                    );
                 }
             } else {
                 http_response_code(510);
                 echo json_encode(
                     array(
+                        'success' => false,
                         'message' => 'reservation Not Created (error in data)',
                         'status' => 504
                     ),
-                    JSON_THROW_ON_ERROR);
+                    JSON_THROW_ON_ERROR
+                );
             }
         } else {
             http_response_code(405);
             echo json_encode(
                 array(
+                    'success' => false,
                     'message' => 'Méthode non autorisée',
                     'status' => 405
                 ),
-                JSON_THROW_ON_ERROR);
+                JSON_THROW_ON_ERROR
+            );
         }
     }
 
@@ -146,6 +192,8 @@ class reservationController
      */
     public function delete(): void
     {
+        Login::JWT();
+
         // On interdit toute méthode qui n'est pas DELETE
         if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
@@ -157,60 +205,77 @@ class reservationController
 
             $_DELETE = (array)json_decode(file_get_contents("php://input"), false, 512, JSON_THROW_ON_ERROR);
 
-            if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
+            if (
+                _isset::delete($_DELETE, 'event') && _empty::delete($_DELETE, 'event')
+                && _isset::delete($_DELETE, 'user') && _empty::delete($_DELETE, 'user')
+                && _isset::delete($_DELETE, 'seat') && _empty::delete($_DELETE, 'seat')
+            ) {
 
                 $reservation = $this->reservation;
 
                 _validate::arr($_DELETE);
 
-                $id = $_DELETE['id'];
 
-                if ($reservation->exists($id)) {
+                $user = $_DELETE['user'];
+                $seat = $_DELETE['seat'];
+                $event = $_DELETE['event'];
+
+                if ($reservation->exists($user, 'user', 'LIKE') && $reservation->exists($seat, 'seat') && $reservation->exists($event, 'event')) {
 
                     // Delete reservation
-                    if ($reservation->delete($id)) {
+                    if ($reservation->deleteReservation($user, $seat, $event)) {
                         http_response_code(201);
                         echo json_encode(
                             array(
+                                'success' => true,
                                 'message' => 'reservation deleted successfully',
                                 'status' => $_SERVER['REDIRECT_STATUS']
                             ),
-                            JSON_THROW_ON_ERROR);
+                            JSON_THROW_ON_ERROR
+                        );
                     } else {
                         http_response_code(500);
                         echo json_encode(
                             array(
+                                'success' => false,
                                 'message' => 'reservation Not deleted',
                                 'status' => $_SERVER['REDIRECT_STATUS']
                             ),
-                            JSON_THROW_ON_ERROR);
+                            JSON_THROW_ON_ERROR
+                        );
                     }
                 } else {
                     http_response_code(401);
                     echo json_encode(
                         array(
+                            'success' => false,
                             'message' => 'Error  ( reservation not exist )',
                             'status' => 401
                         ),
-                        JSON_THROW_ON_ERROR);
+                        JSON_THROW_ON_ERROR
+                    );
                 }
             } else {
                 http_response_code(401);
                 echo json_encode(
                     array(
+                        'success' => false,
                         'message' => 'Error  ( No item for delete )',
                         'status' => 401
                     ),
-                    JSON_THROW_ON_ERROR);
+                    JSON_THROW_ON_ERROR
+                );
             }
         } else {
             http_response_code(405);
             echo json_encode(
                 array(
+                    'success' => false,
                     'message' => 'Méthode non autorisée',
                     'status' => 405
                 ),
-                JSON_THROW_ON_ERROR);
+                JSON_THROW_ON_ERROR
+            );
         }
     }
 }

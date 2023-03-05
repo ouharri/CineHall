@@ -6,6 +6,8 @@ import Register from "../pages/auth/register.vue";
 import Forgot from "../pages/auth/forgot.vue";
 
 import Reserve from "../pages/reserve.vue";
+import myreservation from "../pages/myReservation.vue"
+
 import movie from "../pages/movie.vue";
 import event from "../pages/event.vue";
 
@@ -32,8 +34,8 @@ const router = createRouter(
                 component: Register,
             },
             {
-                name : 'movie',
-                path: '/movie',
+                name : 'movies',
+                path: '/movies',
                 component: movie,
                 meta: {}
             },
@@ -44,7 +46,7 @@ const router = createRouter(
             },
             {
                 name : 'reserve',
-                path: '/reserve',
+                path: '/reserve/:id',
                 component: Reserve,
                 meta: {
                 }
@@ -53,6 +55,11 @@ const router = createRouter(
                 name : 'event',
                 path: '/event',
                 component: event,
+            },
+            {
+                name:'myreservation',
+                path:'/reserve/my-reserve',
+                component: myreservation,
             }
         ]
     }

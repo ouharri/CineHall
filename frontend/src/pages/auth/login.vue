@@ -104,24 +104,25 @@ export default {
       e.preventDefault();
       if (!this.token) {
         this.errors = "token required.";
+        return;
       } else {
         this.errors = false;
       }
-      var data = new FormData();
-      data.append("token", this.token);
-      data.append("remember", this.remember);
+      var userData = new FormData();
+      userData.append("token", this.token);
+      userData.append("remember", this.remember);
       await axios({
         method: "POST",
-        url: "http://cdn.cinehall.ma/users/login",
-        headers: {
-          //   "Content-Type": "application/json",
-        },
-        data: data,
+        url: `${config.API_URL}users/login`,
+        data: userData,
       })
         .then((result) => {
           if (result.data.success) {
-            localStorage.setItem("JWT", JSON.stringify(result.data.token));
-            this.$router.push({ name: "home" });
+            localStorage.setItem(
+              "auth:cinhall",
+              JSON.stringify(result.data.token)
+            );
+            this.$router.go(-1);
             Swal.fire({
               position: "center",
               icon: "success",

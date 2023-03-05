@@ -114,10 +114,9 @@ export default {
       }
       var data = new FormData();
       data.append("email", this.email);
-      console.log(this.email);
       await axios({
         method: "POST",
-        url: "http://cdn.cinehall.ma/users/forgotToken",
+        url: `${config.API_URL}users/forgotToken`,
         data: data,
       })
         .then((result) => {

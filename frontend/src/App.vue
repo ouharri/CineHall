@@ -3,7 +3,6 @@ import leftSideBar from "./components/leftSideBar.vue";
 import rightSideBar from "./components/rightSideBar.vue";
 import calendar from "./components/calendar.vue";
 import navBar from "./components/navBar.vue";
-// import Swal from 'sweetalert2'
 
 export default {
   name: "App",
@@ -26,10 +25,10 @@ export default {
   },
   methods: {
     async Loged() {
-      if (!localStorage.getItem("JWT")) {
+      if (!localStorage.getItem("auth:cinhall")) {
         this.isLoged = false;
       } else {
-        const jwt = JSON.parse(localStorage.getItem("JWT"));
+        const jwt = JSON.parse(localStorage.getItem("auth:cinhall"));
         await axios({
           method: "get",
           url: "http://cdn.cinehall.ma/users/tokenIsValid",
@@ -66,9 +65,7 @@ export default {
   },
   watch: {
     async $route(to, from) {
-      console.log(to, from);
       await this.Loged();
-      console.log(this.isLoged);
     },
   },
   created() {
@@ -88,18 +85,13 @@ export default {
         @isdark="setMode(true)"
         :Loged="this.isLoged"
       ></leftSideBar>
-
       <main
         class="main flex-1 py-10 px-5 sm:px-10 transition duration-200 max-h-screen md:scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent"
         id="main-page"
       >
         <navBar></navBar>
-
-        <!-- <calendar></calendar> -->
-
         <router-view></router-view>
       </main>
-
       <rightSideBar :Loged="this.isLoged"></rightSideBar>
     </div>
   </div>

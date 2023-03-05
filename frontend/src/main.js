@@ -21,6 +21,9 @@ import 'flowbite';
 
 import router from "./router";
 
+import config from '../config'
+window.config = config;
+
 createApp(App)
 .use(router)
 .mount('#app');

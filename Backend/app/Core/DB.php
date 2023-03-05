@@ -11,7 +11,7 @@ class DB
      */
     public function _connect(): MysqliDb
     {
-        $this->db = new MysqliDb (HOST, USER, PASS, DBNAME);
+        $this->db = new MysqliDb(HOST, USER, PASS, DBNAME);
         $this->db->connect();
         return $this->db;
     }
@@ -101,7 +101,6 @@ class DB
                                                            `{$row}` {$s} '{$id}'
                                                        ) as rep;
                                         ")[0]['rep'];
-
     }
 
     /**

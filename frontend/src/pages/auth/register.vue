@@ -193,7 +193,7 @@ export default {
       data.append("email", this.email);
       await axios({
         method: "POST",
-        url: "http://cdn.cinehall.ma/users/register",
+        url: `${config.API_URL}users/register`,
         data: data,
       })
         .then((result) => {

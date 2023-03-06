@@ -17,7 +17,10 @@ class reservation extends DB
         $this->_table('reservation');
     }
 
-    public function getExist($user, $event)
+    /**
+     * @throws Exception
+     */
+    public function getExist($user, $event): array|string
     {
         return $this->db->rawQuery("SELECT r.seat AS seat
                                     FROM 
@@ -33,7 +36,10 @@ class reservation extends DB
                                     ");
     }
 
-    public function getUserExist($user, $event)
+    /**
+     * @throws Exception
+     */
+    public function getUserExist($user, $event): array|string
     {
         return $this->db->rawQuery("SELECT r.seat AS seat
                                     FROM 
@@ -49,7 +55,10 @@ class reservation extends DB
                                     ");
     }
 
-    public function deleteReservation($user, $seat, $event)
+    /**
+     * @throws Exception
+     */
+    public function deleteReservation($user, $seat, $event): bool
     {
         $this->db->rawQuery("DELETE FROM {$this->table} 
                                     WHERE 
@@ -65,9 +74,12 @@ class reservation extends DB
                                     = {$event}
                                     ");
 
-        return count(explode(" ", $this->db->getLastError()) )?true:false;
+        return (bool)count(explode(" ", $this->db->getLastError()));
     }
 
+    /**
+     * @throws Exception
+     */
     public function existSeat($event, $seat): bool
     {
         return (bool)$this->db->rawQuery("SELECT EXISTS(

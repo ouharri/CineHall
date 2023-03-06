@@ -1,6 +1,6 @@
 <template>
   <div
-    class="calendar mb-10 border-zinc-200 bg-gradient-to-tr from-gray-100 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear overflow-hidden shadow-inner"
+      class="calendar mb-10 border-zinc-200 bg-gradient-to-tr from-gray-100 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear overflow-hidden shadow-inner"
   >
     <div class="calendar-header bg-red-600">
       <span class="month-picker" id="month-picker"> May </span>
@@ -29,7 +29,7 @@
     </div>
     <div class="calendar-footer"></div>
     <div
-      class="date-time-formate h-fit relative top-[100px] flex w-full align-middle items-center justify-center gap-7"
+        class="date-time-formate h-fit relative top-[100px] flex w-full align-middle items-center justify-center gap-7"
     >
       <div class="day-text-formate border-r-4 border-red-600">TODAY</div>
       <div class="date-time-value">
@@ -38,7 +38,7 @@
       </div>
     </div>
     <div
-      class="month-list grid relative bottom-[25px] justify-center items-center border border-red-600 dark:text-gray-200 overflow-x-hidden"
+        class="month-list grid relative bottom-[25px] justify-center items-center border border-red-600 dark:text-gray-200 overflow-x-hidden"
     ></div>
   </div>
 </template>
@@ -48,8 +48,8 @@ export default {
   mounted() {
     const isLeapYear = (year) => {
       return (
-        (year % 4 === 0 && year % 100 !== 0 && year % 400 !== 0) ||
-        (year % 100 === 0 && year % 400 === 0)
+          (year % 4 === 0 && year % 100 !== 0 && year % 400 !== 0) ||
+          (year % 100 === 0 && year % 400 === 0)
       );
     };
     const getFebDays = (year) => {
@@ -123,23 +123,23 @@ export default {
         if (i >= first_day.getDay()) {
           day.innerHTML = i - first_day.getDay() + 1;
           const date =
-            year + "-" + (month + 1) + "-" + (i - first_day.getDay() + 1);
+              year + "-" + (month + 1) + "-" + (i - first_day.getDay() + 1);
 
           if (
-            i - first_day.getDay() + 1 === currentDate.getDate() &&
-            year === currentDate.getFullYear() &&
-            month === currentDate.getMonth()
+              i - first_day.getDay() + 1 === currentDate.getDate() &&
+              year === currentDate.getFullYear() &&
+              month === currentDate.getMonth()
           ) {
             day.classList.add("current-date");
           }
 
           if (
-            year < currentDate.getFullYear() ||
-            (year === currentDate.getFullYear() &&
-              month < currentDate.getMonth()) ||
-            (year === currentDate.getFullYear() &&
-              month === currentDate.getMonth() &&
-              i - first_day.getDay() + 1 < currentDate.getDate())
+              year < currentDate.getFullYear() ||
+              (year === currentDate.getFullYear() &&
+                  month < currentDate.getMonth()) ||
+              (year === currentDate.getFullYear() &&
+                  month === currentDate.getMonth() &&
+                  i - first_day.getDay() + 1 < currentDate.getDate())
           ) {
             day.classList.add("cursor-not-allowed");
             day.classList.add("hover:bg-gray-200");
@@ -149,7 +149,7 @@ export default {
           } else {
             day.setAttribute("x-date", date);
             day.onclick = () => {
-              this.$emit('clikedDate',date);
+              this.$emit('clikedDate', date);
             };
           }
         } else {
@@ -194,8 +194,8 @@ export default {
     };
 
     let currentDate = new Date();
-    let currentMonth = { value: currentDate.getMonth() };
-    let currentYear = { value: currentDate.getFullYear() };
+    let currentMonth = {value: currentDate.getMonth()};
+    let currentYear = {value: currentDate.getFullYear()};
     generateCalendar(currentMonth.value, currentYear.value);
 
     const todayShowTime = document.querySelector(".time-formate");
@@ -209,8 +209,8 @@ export default {
       weekday: "long",
     };
     todayShowDate.textContent = new Intl.DateTimeFormat(
-      "en-US",
-      showCurrentDateOption
+        "en-US",
+        showCurrentDateOption
     ).format(currshowDate);
     setInterval(() => {
       const timer = new Date();
@@ -220,16 +220,15 @@ export default {
         second: "numeric",
       };
       const formateTimer = new Intl.DateTimeFormat("en-us", option).format(
-        timer
+          timer
       );
-      let time = `${`${timer.getHours()-1}`.padStart(
-        2,
-        "0"
+      todayShowTime.textContent = `${`${timer.getHours() - 1}`.padStart(
+          2,
+          "0"
       )}:${`${timer.getMinutes()}`.padStart(
-        2,
-        "0"
+          2,
+          "0"
       )}: ${`${timer.getSeconds()}`.padStart(2, "0")}`;
-      todayShowTime.textContent = time;
     }, 1000);
   },
 };
@@ -487,6 +486,7 @@ export default {
 .bg-transparent {
   background-color: transparent !important;
 }
+
 .cursor-auto {
   cursor: auto !important;
 }
@@ -500,6 +500,7 @@ export default {
     transform: translateY(0);
     opacity: 0;
   }
+
   100% {
     transform: translateY(100%);
     opacity: 1;
@@ -511,6 +512,7 @@ export default {
     transform: translatex(230%);
     opacity: 1;
   }
+
   100% {
     transform: translatex(0);
     opacity: 1;
@@ -522,6 +524,7 @@ export default {
     transform: translatex(0);
     opacity: 1;
   }
+
   100% {
     transform: translatex(-150%);
     opacity: 1;
@@ -533,6 +536,7 @@ export default {
     transform: translatex(250%);
     opacity: 1;
   }
+
   100% {
     transform: translatex(0%);
     opacity: 1;

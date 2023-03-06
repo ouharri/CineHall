@@ -131,7 +131,7 @@ export default {
     },
     async checkForm(e) {
       e.preventDefault();
-      var flag = false;
+      let flag = false;
       if (!this.firstName) {
         this.errors["firstName"] = "First Name is required.";
         flag = true;
@@ -163,7 +163,7 @@ export default {
       } else {
         this.errors["lastName"] = false;
       }
-      const email = true;
+      let email = true;
       if (
         this.email &&
         !this.email
@@ -187,7 +187,7 @@ export default {
       if (flag) {
         return;
       }
-      var data = new FormData();
+      const data = new FormData();
       data.append("firstName", this.firstName);
       data.append("lastName", this.lastName);
       data.append("email", this.email);

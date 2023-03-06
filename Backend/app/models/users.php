@@ -34,8 +34,7 @@ class users extends DB
      */
     public function getRowByMail($mail): array|string|null
     {
-        $db = $this->db->where('email', $mail);
-        return $db->getOne($this->table);
+        return $this->db->where('email', $mail)->getOne($this->table);
     }
 
     /**
@@ -43,8 +42,7 @@ class users extends DB
      */
     public function getRowByCode($code): array|string|null
     {
-        $db = $this->db->where('code', $code);
-        return $db->getOne($this->table);
+        return $this->db->where('code', $code)->getOne($this->table);
     }
 
     /**
@@ -52,8 +50,7 @@ class users extends DB
      */
     public function updateCode($code, $data): bool
     {
-        $db = $this->db->where('code', $code);
-        return $db->update($this->table, $data);
+        return $this->db->where('code', $code)->update($this->table, $data);
     }
 
     /**
@@ -61,8 +58,7 @@ class users extends DB
      */
     public function updateByEmail($email, $data): bool
     {
-        $db = $this->db->where('email', $email);
-        return $db->update($this->table, $data);
+        return $this->db->where('email', $email)->update($this->table, $data);
     }
 
 
@@ -71,8 +67,7 @@ class users extends DB
      */
     public function updateByCode($code, $data): bool
     {
-        $db = $this->db->where('code', $code);
-        return $db->update($this->table, $data);
+        return $this->db->where('code', $code)->update($this->table, $data);
     }
 
     /**
@@ -80,8 +75,7 @@ class users extends DB
      */
     public function setAdmin($id): bool
     {
-        $db = $this->db->where('id', $id);
-        return $db->update($this->table, ['is_admin' => true]);
+        return $this->db->where('id', $id)->update($this->table, ['is_admin' => true]);
     }
 
     /**
@@ -89,8 +83,7 @@ class users extends DB
      */
     public function setClient($id): bool
     {
-        $db = $this->db->where('id', $id);
-        return $db->update($this->table, ['is_admin' => false]);
+        return $this->db->where('id', $id)->update($this->table, ['is_admin' => false]);
     }
 
     /**

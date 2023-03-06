@@ -33,6 +33,9 @@ class reservationController
     }
 
 
+    /**
+     * @throws JsonException
+     */
     public function getExist($user, $event): void
     {
         $reservation = $this->reservation;
@@ -50,6 +53,9 @@ class reservationController
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getUserExist($user, $event): void
     {
         $reservation = $this->reservation;

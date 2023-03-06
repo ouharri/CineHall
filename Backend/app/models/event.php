@@ -11,6 +11,9 @@ class event extends DB
         $this->_table('events');
     }
 
+    /**
+     * @throws Exception
+     */
     public function getDetailEvent($id)
     {
         return $this->db->rawQuery("SELECT ev.*,h.nbrPlace,m.image,m.libel,m.Time, m.description ,m.actors,  m.genre, m.date, m.Country, m.language, m.imdbRating, h.nbrPlace, h.numbre, h.numbre AS hallNumber ,ev.date as eventDate
@@ -46,7 +49,11 @@ class event extends DB
                                                         ) AS rep;
                                         ")[0]['rep'];
     }
-    public function getAllEvents()
+
+    /**
+     * @throws Exception
+     */
+    public function getAllEvents(): array|string
     {
         return $this->db->rawQuery("SELECT {$this->table}.* , m.image, m.libel, m.Time, m.description ,m.actors,  m.genre, m.date, m.Country, m.language, m.imdbRating, h.nbrPlace, h.numbre, h.numbre AS hallNumber ,{$this->table}.date as eventDate
                                     FROM
@@ -63,7 +70,11 @@ class event extends DB
                                         {$this->table}.date >= CURDATE()
                                     ");
     }
-    public function getAllEventsByDate($date)
+
+    /**
+     * @throws Exception
+     */
+    public function getAllEventsByDate($date): array|string
     {
         return $this->db->rawQuery("SELECT {$this->table}.* , m.image, m.libel, m.Time, m.description ,m.actors,  m.genre, m.date, m.Country, m.language, m.imdbRating, h.nbrPlace, h.numbre, h.numbre AS hallNumber ,{$this->table}.date as eventDate
                                     FROM

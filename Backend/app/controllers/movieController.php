@@ -66,36 +66,6 @@ class movieController
      */
     public function insert(): void
     {
-        // header("Access-Control-Max-Age: 3600");
-        // header('Access-Control-Allow-Origin: *');
-        // header("Content-Type: application/json; charset=UTF-8");
-        // header("Access-Control-Allow-Methods: *");
-        // header("Access-Control-Allow-Headers: *");
-
-        // $_DELETE = (array)json_decode(file_get_contents("php://input"), false, 512, JSON_THROW_ON_ERROR);
-
-        // _validate::arr($_DELETE);
-
-
-        // $movie = $this->movie;
-
-        // $data = [
-        //     'libel' => $_DELETE['libel'],
-        //     'date' => $_DELETE['date'],
-        //     'genre' => $_DELETE['genre'],
-        //     'actors' => $_DELETE['actors'],
-        //     'language' => $_DELETE['language'],
-        //     'Time' => $_DELETE['Time'],
-        //     'description' => $_DELETE['description'],
-        //     'image' => $_DELETE['image'],
-        //     'imdbRating' => $_DELETE['imdbRating'],
-        //     'Country' => $_DELETE['Country'],
-        // ];
-
-        // $movie->insert($data);
-
-        // exit();
-        // die();
         Login::JWT(true);
 
         // On interdit toute méthode qui n'est pas POST

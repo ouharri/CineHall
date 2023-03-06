@@ -66,9 +66,9 @@ export default {
   methods: {
     nextevent() {
       if (this.events.length < this.eventsPerPage) return;
-      const startIndex = (this.currentPage - 1) * this.eventsPerPage;
+      const startIndex = this.currentPage * this.eventsPerPage;
       const endIndex = startIndex + this.eventsPerPage;
-      this.events = this.tmpEvents.slice(startIndex+1, endIndex);
+      this.events = this.tmpEvents.slice(startIndex, endIndex);
       this.currentPage++;
     },
     preventevent() {
@@ -84,10 +84,6 @@ export default {
       axios({
         method: "get",
         url: `${config.API_URL}event/getAllByDate/${date}`,
-        headers: {
-          //   "Content-Type": "application/json",
-          // Authorization: `Bearer ${jwt}`,
-        },
       })
         .then((result) => {
           this.tmpEvents = result.data;
@@ -98,7 +94,12 @@ export default {
           Swal.fire({
             position: "center",
             icon: "error",
-            title: error.response.data.message,
+            title: error &&
+              error.response &&
+              error.response.data &&
+              error.response.data.message
+                ? error.response.data.message
+                : error,
             showConfirmButton: false,
             timer: 3000,
           });
@@ -112,10 +113,6 @@ export default {
       await axios({
         method: "get",
         url: `${config.API_URL}event/getAll`,
-        headers: {
-          //   "Content-Type": "application/json",
-          // Authorization: `Bearer ${jwt}`,
-        },
       })
         .then((result) => {
           this.tmpEvents = result.data;
@@ -125,7 +122,12 @@ export default {
           Swal.fire({
             position: "center",
             icon: "error",
-            title: error.response.data.message,
+            title: error &&
+              error.response &&
+              error.response.data &&
+              error.response.data.message
+                ? error.response.data.message
+                : error,
             showConfirmButton: false,
             timer: 3000,
           });

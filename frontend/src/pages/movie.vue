@@ -49,10 +49,9 @@
 
 <script>
 import movieCard from "../components/movieCard.vue";
-import calendar from "../components/calendar.vue";
 export default {
   name: "movie",
-  components: { movieCard, calendar },
+  components: { movieCard },
   data() {
     return {
       currentPage: 1,
@@ -81,7 +80,7 @@ export default {
     async getMovie() {
       await axios({
         method: "get",
-        url: "http://cdn.cinehall.ma/movie/getAll",
+        url:  `${config.API_URL}movie/getAll`,
         headers: {
           "Content-Type": "application/json",
         },
@@ -94,7 +93,12 @@ export default {
           Swal.fire({
             position: "center",
             icon: "error",
-            title: error.response.data.message,
+            title: error &&
+              error.response &&
+              error.response.data &&
+              error.response.data.message
+                ? error.response.data.message
+                : error,
             showConfirmButton: false,
             timer: 3000,
           });

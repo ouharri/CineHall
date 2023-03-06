@@ -74,7 +74,9 @@ class Login
             $flag = true;
             $payload = $jwt->getPayload($token);
             foreach ($payload['roles'] as $role) {
-                if ($role === 'ROLE_ADMIN') $flag = false;
+                if ($role === 'ROLE_ADMIN') {
+                    $flag = false;
+                }
             }
             if ($flag) {
                 http_response_code(403);

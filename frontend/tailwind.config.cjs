@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+const defaultTheme = require('tailwindcss/defaultTheme')
 module.exports = {
   darkMode: 'class',
   content: [
@@ -10,10 +11,10 @@ module.exports = {
   ],
   purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}','./node_modules/sweetalert/**/*{vue,js,ts,jsx,tsx}'],
   theme: {
-    // screens: {
-    //   xs: '350px',
-    //   // ...defaultTheme.screens,
-    // },
+    screens: {
+      xs: '350px',
+      ...defaultTheme.screens,
+    },
     extend: {
       colors: {},
       fontFamily: {
@@ -30,7 +31,7 @@ module.exports = {
   },
   plugins: [
     // require('tailwindcss-dark-mode')(),
-    // require('flowbite/plugin')
+    require('flowbite/plugin'),
     require('tailwind-scrollbar'),
   ],
 }

@@ -3,28 +3,106 @@
   <aside
     class="w-1/5 py-10 px-10 min-w-min border-l border-gray-300 dark:border-zinc-700 hidden lg:block max-h-screen overflow-x-auto scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent"
   >
-    <div class="relative items-center content-center flex">
-      <span class="text-gray-400 absolute left-4 cursor-pointer">
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-4 w-4"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
+    <div class="flex items-center">
+      <div class="relative items-center content-center flex">
+        <span class="text-gray-400 absolute left-4 cursor-pointer">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            class="h-4 w-4"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+            ></path>
+          </svg>
+        </span>
+        <input
+          type="text"
+          class="text-xs ring-1 bg-transparent ring-gray-200 dark:ring-zinc-600 focus:ring-red-300 pl-10 pr-5 text-gray-600 dark:text-white py-3 rounded-full w-full outline-none focus:ring-1"
+          placeholder="Search ..."
+        />
+      </div>
+
+      <div
+      class="fixed right-5"
+        v-if="this.user"
+      >
+        <img
+          data-popover-target="popover-user-profile"
+          class="w-8 aspect-auto h-8 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
+          :src="this.user.avatar"
+          alt="Bordered avatar"
+        />
+
+        <div
+          data-popover
+          id="popover-user-profile"
+          role="tooltip"
+          class="absolute z-10 invisible inline-block w-64 text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600"
         >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-          ></path>
-        </svg>
-      </span>
-      <input
-        type="text"
-        class="text-xs ring-1 bg-transparent ring-gray-200 dark:ring-zinc-600 focus:ring-red-300 pl-10 pr-5 text-gray-600 dark:text-white py-3 rounded-full w-full outline-none focus:ring-1"
-        placeholder="Search ..."
-      />
+          <div class="p-3">
+            <div class="flex items-center justify-between mb-2">
+              <a href="#">
+                <img
+                  class="w-10 h-10 rounded-full"
+                  :src="this.user.avatar"
+                  alt="Jese Leos"
+                />
+              </a>
+              <div>
+                <button
+                  type="button"
+                  class="text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-xs px-3 py-1.5 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800"
+                >
+                  Follow
+                </button>
+              </div>
+            </div>
+            <p
+              class="text-base font-semibold leading-none text-gray-900 dark:text-white"
+            >
+              <a href="#">{{
+                this.user.lastName + " " + this.user.firstName
+              }}</a>
+            </p>
+            <p class="mb-3 text-sm font-normal">
+              <a href="#" class="hover:underline">@{{ this.user.lastName }}</a>
+            </p>
+            <p class="mb-4 text-sm font-light">
+              Open-source contributor. Building
+              <a
+                href="#"
+                class="text-blue-600 dark:text-blue-500 hover:underline"
+                >flowbite.com</a
+              >.
+            </p>
+            <ul class="flex text-sm font-light">
+              <li class="mr-2">
+                <a href="#" class="hover:underline">
+                  <span class="font-semibold text-gray-900 dark:text-white"
+                    >799</span
+                  >
+                  <span>Following</span>
+                </a>
+              </li>
+              <li>
+                <a href="#" class="hover:underline">
+                  <span class="font-semibold text-gray-900 dark:text-white"
+                    >3,758</span
+                  >
+                  <span>Followers</span>
+                </a>
+              </li>
+            </ul>
+          </div>
+          <div data-popper-arrow></div>
+        </div>
+      </div>
     </div>
 
     <div class="mt-10">
@@ -346,6 +424,10 @@ export default {
     Loged: {
       type: Boolean,
       default: false,
+    },
+    user: {
+      type: Object,
+      default: null,
     },
   },
 };

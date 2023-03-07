@@ -489,7 +489,6 @@ export default {
               })
               .join("")
       );
-
       return JSON.parse(jsonPayload);
     },
   },

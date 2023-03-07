@@ -106,6 +106,7 @@ class usersController
                         'user' => $token,
                         'firstName' => $data['firstName'],
                         'lastName' => $data['lastName'],
+                        'avatar' => $data['avatar'],
                         'roles' => $data['role'] === 'client' ?
                             [
                                 'ROLE_USER'

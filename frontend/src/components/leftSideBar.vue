@@ -324,8 +324,6 @@ export default {
       default: false,
     },
   },
-  data() {
-  },
   methods: {
     logout() {
       localStorage.removeItem("auth:cinhall");

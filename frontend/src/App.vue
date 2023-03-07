@@ -15,15 +15,16 @@ export default {
   data() {
     return {
       isDark:
-        window.matchMedia &&
-        window.matchMedia("(prefers-color-scheme: dark)").matches &&
-        localStorage.getItem("mode")
-          ? JSON.parse(localStorage.getItem("mode")) === "dark"
-          : false,
+          localStorage.getItem("mode") !== null ?
+              JSON.parse(localStorage.getItem("mode")) === 'dark'
+              : window.matchMedia &&
+              window.matchMedia("(prefers-color-scheme: dark)").matches ?
+                  window.matchMedia &&
+                  window.matchMedia("(prefers-color-scheme: dark)").matches : false,
       isLoged: null,
       user: localStorage.getItem("auth:cinhall")
-        ? this.parseJwt(JSON.stringify(localStorage.getItem("auth:cinhall")))
-        : null,
+          ? this.parseJwt(JSON.stringify(localStorage.getItem("auth:cinhall")))
+          : null,
     };
   },
   methods: {
@@ -41,16 +42,16 @@ export default {
             Authorization: `Bearer ${jwt}`,
           },
         })
-          .then((result) => {
-            this.isLoged = result.data.success;
-            this.user = this.parseJwt(
-              JSON.stringify(localStorage.getItem("auth:cinhall"))
-            );
-          })
-          .catch((error) => {
-            this.isLoged = false;
-            this.user = null;
-          });
+            .then((result) => {
+              this.isLoged = result.data.success;
+              this.user = this.parseJwt(
+                  JSON.stringify(localStorage.getItem("auth:cinhall"))
+              );
+            })
+            .catch((error) => {
+              this.isLoged = false;
+              this.user = null;
+            });
       }
     },
     setMode(ChangeMode = false) {
@@ -58,21 +59,21 @@ export default {
         this.isDark = !this.isDark;
       }
       localStorage.setItem(
-        "mode",
-        JSON.stringify(this.isDark ? "dark" : "light")
+          "mode",
+          JSON.stringify(this.isDark ? "dark" : "light")
       );
     },
     parseJwt(token) {
       const base64Url = token.split(".")[1];
       const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
       const jsonPayload = decodeURIComponent(
-        window
-          .atob(base64)
-          .split("")
-          .map(function (c) {
-            return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
-          })
-          .join("")
+          window
+              .atob(base64)
+              .split("")
+              .map(function (c) {
+                return "%" + ("00" + c.charCodeAt(0).toString(16)).slice(-2);
+              })
+              .join("")
       );
       return JSON.parse(jsonPayload);
     },
@@ -100,24 +101,24 @@ export default {
 <template>
   <div :class="isDark ? 'dark' : 'light'">
     <div
-      class="flex min-h-screen 2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200 dark:2xl:border-zinc-700 w-full dark:bg-gray-800 dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear"
+        class="flex min-h-screen 2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200 dark:2xl:border-zinc-700 w-full dark:bg-gray-800 dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear"
     >
       <leftSideBar
-        :isDark="isDark"
-        @isdark="setMode(true)"
-        :Loged="this.isLoged"
+          :isDark="isDark"
+          @isdark="setMode(true)"
+          :Loged="this.isLoged"
       ></leftSideBar>
       <main
-        class="main flex-1 py-10 px-5 sm:px-10 transition duration-200 max-h-screen md:scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent"
-        id="main-page"
+          class="main flex-1 py-10 px-5 sm:px-10 transition duration-200 max-h-screen md:scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent"
+          id="main-page"
       >
         <navBar></navBar>
         <router-view></router-view>
       </main>
       <rightSideBar
-        :Loged="this.isLoged"
-        :user="this.user"
-        :key="this.user"
+          :Loged="this.isLoged"
+          :user="this.user"
+          :key="this.user"
       ></rightSideBar>
     </div>
   </div>

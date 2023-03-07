@@ -4,7 +4,7 @@ import App from './App.vue'
 import './style.css'
 
 import $ from "jquery";
-window.$ = window.jQuery = $;   
+window.$ = window.jQuery = $;
 
 import axios from 'axios';
 window.axios = axios;
@@ -16,8 +16,8 @@ import 'sweetalert2/dist/sweetalert2.min.css';
 window.Swal = Swal;
 window.DarkSwal = DarkSwal;
 
-
 import 'flowbite';
+import  "flowbite/dist/flowbite.js";
 
 import router from "./router";
 

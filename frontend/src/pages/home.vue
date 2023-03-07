@@ -355,6 +355,7 @@ export default {
               timer: 3000,
             });
           });
+      await DarkSwal();
     },
   },
   async mounted() {

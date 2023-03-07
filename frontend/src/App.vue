@@ -1,7 +1,6 @@
 <script>
 import leftSideBar from "./components/leftSideBar.vue";
 import rightSideBar from "./components/rightSideBar.vue";
-import calendar from "./components/calendar.vue";
 import navBar from "./components/navBar.vue";
 
 export default {
@@ -9,7 +8,6 @@ export default {
   components: {
     leftSideBar,
     rightSideBar,
-    calendar,
     navBar,
   },
   data() {
@@ -63,6 +61,14 @@ export default {
           JSON.stringify(this.isDark ? "dark" : "light")
       );
     },
+    loadComponents() {
+      return Promise.all([
+        import("./components/leftSideBar.vue"),
+        import("./components/rightSideBar.vue"),
+        import("./components/calendar.vue"),
+        import("./components/navBar.vue"),
+      ]);
+    },
     parseJwt(token) {
       const base64Url = token.split(".")[1];
       const base64 = base64Url.replace(/-/g, "+").replace(/_/g, "/");
@@ -80,7 +86,6 @@ export default {
   },
   beforeRouteUpdate(to, from, next) {
     this.$nextTick(() => {
-      // Appel à la méthode qui charge les composants
       this.loadComponents().then(() => {
         next();
       });

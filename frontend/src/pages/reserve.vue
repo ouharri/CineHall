@@ -471,11 +471,7 @@ export default {
               });
         }
       });
-
       DarkSwal();
-
-      // alert(seatNumber);
-      // DarkSwal();
     },
     parseJwt(token) {
       const base64Url = token.split(".")[1];

@@ -239,7 +239,6 @@
         <div class="flex items-center space-x-2 fill-gray-500">
           <div
               @click="preventMovie"
-              :disabled="currentPage === 1"
               :class="currentPage === 1 ? '' : 'cursor-pointer'"
           >
             <svg
@@ -254,7 +253,6 @@
           </div>
           <div
               @click="nextMovie"
-              :disabled="movies.length < moviesPerPage"
               :class="movies.length < moviesPerPage ? '' : 'cursor-pointer'"
           >
             <svg

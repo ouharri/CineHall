@@ -34,7 +34,7 @@
       >
         <img
             data-popover-target="popover-user-profile"
-            class="w-8 aspect-auto h-8 p-1 rounded-full ring-2 ring-gray-300 dark:ring-gray-500"
+            class="w-9 aspect-auto h-9 aspect-auto ring-gray-300 ring-1 rounded-full dark:ring-gray-500"
             :src="this.user.avatar"
             alt="Bordered avatar"
         />

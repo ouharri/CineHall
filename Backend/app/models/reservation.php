@@ -92,4 +92,50 @@ class reservation extends DB
                                                        ) as rep;
                                         ")[0]['rep'];
     }
+
+    /**
+     * @throws Exception
+     */
+    public function getUserReservation($user): array|string
+    {
+        return $this->db->rawQuery("SELECT r.seat AS seat,r.id AS id, e.hall AS hall, e.date AS eventdate, m.libel AS movieName, r.date AS reservationDate, e.price AS eventPrice
+                                    FROM 
+                                        {$this->table} r
+                                    INNER JOIN 
+                                        events e
+                                    ON 
+                                        r.event = e.id
+                                    INNER JOIN 
+                                        movie m
+                                    ON
+                                        e.movie = m.id
+                                    WHERE 
+                                        r.user LIKE '{$user}'
+                                    ");
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getReservationById(int $id): array|string
+    {
+        return $this->db->rawQuery("SELECT r.seat AS seat,r.id AS id, e.hall AS hall, e.date AS eventdate, m.libel AS movieName, r.date AS reservationDate, e.price AS eventPrice, u.firstName AS firstName, u.email AS userEmailn, u.lastName AS lastName,m.image AS movieImage,e.time AS eventTime
+                                    FROM 
+                                        {$this->table} r
+                                    INNER JOIN 
+                                        events e
+                                    ON 
+                                        r.event = e.id
+                                    INNER JOIN 
+                                        movie m
+                                    ON
+                                        e.movie = m.id
+                                    INNER JOIN
+                                        users u
+                                    ON
+                                        r.user = u.token
+                                    WHERE 
+                                        r.id = {$id}
+                                    ")[0];
+    }
 }

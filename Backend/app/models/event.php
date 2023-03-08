@@ -27,8 +27,16 @@ class event extends DB
                                         halls h
                                     ON 
                                         ev.hall = h.id
+                                    INNER JOIN
+                                        reservation r
+                                    ON 
+                                        ev.id = r.event
                                     WHERE 
                                         ev.id = {$id}
+                                    GROUP BY 
+                                        ev.id
+                                    HAVING 
+                                        COUNT(r.id) < h.nbrPlace;
                                     ")[0];
     }
 
@@ -87,8 +95,16 @@ class event extends DB
                                         halls h
                                     ON
                                         {$this->table}.hall = h.id
+                                    INNER JOIN
+                                        reservation r
+                                    ON 
+                                        {$this->table}.id = r.event
                                     where
                                         {$this->table}.date = '{$date}'
+                                    GROUP BY 
+                                        {$this->table}.id
+                                    HAVING 
+                                        COUNT(r.id) < h.nbrPlace;
                                     ");
     }
 }

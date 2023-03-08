@@ -304,6 +304,7 @@ export default {
               showConfirmButton: false,
               timer: 3000,
             });
+            DarkSwal();
           });
     },
     getSpacerClass(groupIndex) {

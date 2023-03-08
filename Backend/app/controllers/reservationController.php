@@ -629,7 +629,7 @@ HTML;
                         echo json_encode(
                             array(
                                 'success' => true,
-                                'message' => "Ticket sented successfully to $email",
+                                'message' => "Ticket sent successfully to $email",
                                 'status' => $_SERVER['REDIRECT_STATUS']
                             ),
                             JSON_THROW_ON_ERROR);

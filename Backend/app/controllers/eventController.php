@@ -56,6 +56,28 @@ class eventController
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * get the Month event
+     * @param $id
+     * @return void
+     * @throws Exception
+     */
+    public function getMonthEvent(): void
+    {
+        $event = $this->event;
+
+        // Headers
+        header('Access-Control-Allow-Origin:*');
+        header('Content-Type: application/json');
+        header('Access-Control-Allow-Method: none');
+        header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
+
+        // get data
+        $data = $event->getMonthEvent();
+
+        //output
+        echo json_encode($data, JSON_THROW_ON_ERROR);
+    }
 
     /**
      * get all events

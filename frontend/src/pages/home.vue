@@ -2,19 +2,23 @@
   <main class="flex-1 py-10 px-5 sm:px-10">
     <section>
       <nav class="flex space-x-6 text-gray-400 font-medium">
-        <a href="#" class="hover:text-gray-700 dark:hover:text-white"
-        >TV Series</a
-        >
-        <a href="#" class="text-gray-700 dark:text-white font-semibold"
-        >Movies</a
-        >
-        <a href="#" class="hover:text-gray-700 dark:hover:text-white">Animes</a>
+<!--        <a href="#" class="hover:text-gray-700 dark:hover:text-white"-->
+<!--        >TV Series</a-->
+<!--        >-->
+<!--        <a href="#" class="text-gray-700 dark:text-white font-semibold"-->
+<!--        >Movies</a-->
+<!--        >-->
+<!--        <a href="#" class="hover:text-gray-700 dark:hover:text-white">Animes</a>-->
+        <a href="#" class="text-gray-700 dark:text-white font-semibold">The Month Movie </a>
       </nav>
 
       <div
-          class="topmovie flex flex-col justify-between mt-4 bg-black/10 bg-blend-multiply rounded-3xl h-80 overflow-hidden bg-cover bg-center px-7 pt-4 pb-6 text-white"
+          class="topmovie flex relative flex-col justify-between mt-4 bg-black/10 bg-blend-multiply rounded-3xl h-80 overflow-hidden bg-center px-7 pt-4 pb-6 text-white"
+          :class="this.bgMonthImage"
+          :style="this.bgMonthImage"
       >
-        <!-- <img class="object-cover w-full h-full" src="../assets/inception.jpg" alt=""> -->
+<!--         <img class="object-cover w-full h-full" src="/inception.jpg" alt="">-->
+        <div class="absolute top-[-1px] right-0 h-full w-full bg-white opacity-30 z-[1]"></div>
         <div class="flex -space-x-1 items-center">
           <img
               class="rounded-full w-7 h-7 shadow-lg border border-white"
@@ -40,21 +44,20 @@
         </div>
 
         <div
-            class="bg-gradient-to-r from-black/30 to-transparent -mx-7 -mb-6 px-7 pb-6 pt-2"
+            class="bg-gradient-to-r from-black/30 to-transparent z-[2] -mx-7 -mb-6 px-7 pb-6 pt-2"
         >
           <span class="uppercase text-3xl font-semibold drop-shadow-lg"
-          >Inception</span
+          >{{ this.monthMovie.libel }}</span
           >
           <div class="text-xs text-gray-200 mt-2">
-            <a href="#" class="">Action</a>, <a href="#" class="">Adventure</a>,
-            <a href="#" class="">Sci-Fi</a>
+            {{this.monthMovie.genre}}
           </div>
           <div class="mt-4 flex space-x-3 items-center">
-            <a
-                href="#"
-                class="px-5 py-2.5 bg-red-600 hover:bg-red-700 rounded-lg text-xs inline-block"
-            >Watch</a
-            >
+            <router-link
+                :to="{name: 'reserve', params: {id: this.monthMovie.id}}"
+                class="px-5 py-2.5 bg-red-600 hover:bg-red-700 rounded-lg text-xs inline-block cursor-pointer"
+            >Reserve
+            </router-link>
             <a
                 href="#"
                 class="p-2.5 bg-gray-800/80 rounded-lg hover:bg-red-600"
@@ -82,26 +85,6 @@
         <span class="font-semibold text-gray-700 text-base dark:text-white"
         >Top Stars</span
         >
-        <div class="flex items-center space-x-2 fill-gray-500">
-          <svg
-              class="h-7 w-7 rounded-full border p-1 hover:border-red-600 hover:fill-red-600 dark:fill-white dark:hover:fill-red-600"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-          >
-            <path
-                d="M13.293 6.293L7.58 12l5.7 5.7 1.41-1.42 -4.3-4.3 4.29-4.293Z"
-            ></path>
-          </svg>
-          <svg
-              class="h-7 w-7 rounded-full border p-1 hover:border-red-600 hover:fill-red-600 dark:fill-white dark:hover:fill-red-600"
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-          >
-            <path
-                d="M10.7 17.707l5.7-5.71 -5.71-5.707L9.27 7.7l4.29 4.293 -4.3 4.29Z"
-            ></path>
-          </svg>
-        </div>
       </div>
 
       <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-x-5 gap-y-5">
@@ -309,6 +292,8 @@ export default {
       currentPage: 1,
       moviesPerPage: 3,
       tmpMovies: [],
+      monthMovie: {id:0},
+      bgMonthImage : "",
       movies: [],
     };
   },
@@ -328,6 +313,34 @@ export default {
         this.movies = this.tmpMovies.slice(startIndex, endIndex);
         this.currentPage--;
       }
+    },
+    async getMonthMovies() {
+      await axios({
+        method: "get",
+        url: `${config.API_URL}event/getMonthEvent`,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+          .then((result) => {
+            this.monthMovie = result.data;
+            this.bgMonthImage = 'background-image: url("'+ result.data.image +'");';
+          })
+          .catch((error) => {
+            Swal.fire({
+              position: "center",
+              icon: "error",
+              title: error &&
+              error.response &&
+              error.response.data &&
+              error.response.data.message
+                  ? error.response.data.message
+                  : error,
+              showConfirmButton: false,
+              timer: 3000,
+            });
+          });
+      await DarkSwal();
     },
     async getMovie() {
       await axios({
@@ -358,7 +371,8 @@ export default {
       await DarkSwal();
     },
   },
-  async mounted() {
+  async created() {
+    await this.getMonthMovies();
     await this.getMovie();
   },
 };
@@ -366,7 +380,6 @@ export default {
 
 <style scoped>
 .topmovie {
-  background-image: url("/inception.jpg");
   color: #ffffff;
 }
 </style>

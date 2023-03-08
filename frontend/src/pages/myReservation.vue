@@ -58,7 +58,7 @@
         <td class="px-6 py-4 text-center">
           <button
               class="px-4 py-2 opacity-80 font-semibold text-white bg-red-500 rounded-md hover:bg-red-600 focus:outline-none focus:bg-red-600"
-              @click="cancelReservation(reservation.id,reservation.eventdate)">Delete
+              @click="cancelReservation(reservation.id,reservation.eventdate)">Cancel
           </button>
         </td>
         <th scope="row" class="px-6 py-4 font-medium text-gray-900 whitespace-nowrap dark:text-white">

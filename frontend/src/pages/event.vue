@@ -1,7 +1,7 @@
 <template>
   <calendar :cliked="this.date" @clikedDate="getAllByDate"></calendar>
-  <div class="flex items-center justify-between mt-10">
-    <span class="font-semibold text-gray-700 text-base dark:text-white">
+  <div class="flex items-center justify-between mt-10" v-if="events.length > 0">
+    <span class="font-semibold text-gray-700 text-base dark:text-white" >
       Event {{ this.eventDate ? " in : " + this.eventDate : "" }}
     </span>
     <div class="flex items-center space-x-2 fill-gray-500">
@@ -38,12 +38,18 @@
     </div>
   </div>
   <eventCard
-      :key="event.id"
+      v-if="events.length > 0"
       v-for="event in events"
+      :key="event.id"
       :event="event"
       @click="reserve(event.id)"
       class="cursor-pointer hover:transform hover:scale-105 transition duration-500 ease-in-out"
   ></eventCard>
+  <div v-else class="flex justify-center items-center">
+    <span class="font-semibold text-gray-700 text-base dark:text-white mt-8">
+      No Event in: {{ this.eventDate }}
+    </span>
+  </div>
 </template>
 
 <script>
@@ -56,19 +62,19 @@ export default {
   data() {
     return {
       currentPage: 1,
-      eventsPerPage: 2,
+      eventsPerPage: 3,
       tmpEvents: [],
       events: [],
-      eventDate: null,
+      eventDate: new Date().toISOString().slice(0, 10),
       date: null,
     };
   },
   methods: {
     nextevent() {
-      if (this.events.length < this.eventsPerPage) return;
+      if (this.events.length  < this.eventsPerPage) return;
       const startIndex = this.currentPage * this.eventsPerPage;
       const endIndex = startIndex + this.eventsPerPage;
-      this.events = this.tmpEvents.slice(startIndex, endIndex);
+      this.events = this.tmpEvents.slice(startIndex , endIndex);
       this.currentPage++;
     },
     preventevent() {

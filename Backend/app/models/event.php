@@ -27,7 +27,7 @@ class event extends DB
                                         halls h
                                     ON 
                                         ev.hall = h.id
-                                    INNER JOIN
+                                    LEFT JOIN
                                         reservation r
                                     ON 
                                         ev.id = r.event
@@ -36,7 +36,8 @@ class event extends DB
                                     GROUP BY 
                                         ev.id
                                     HAVING 
-                                        COUNT(r.id) < h.nbrPlace;
+                                        COUNT(r.id) < h.nbrPlace
+                                    Limit 1;
                                     ")[0];
     }
 
@@ -76,6 +77,8 @@ class event extends DB
                                         {$this->table}.hall = h.id
                                     where
                                         {$this->table}.date >= CURDATE()
+                                    ORDER BY 
+                                        {$this->table}.date ASC  
                                     ");
     }
 
@@ -95,7 +98,7 @@ class event extends DB
                                         halls h
                                     ON
                                         {$this->table}.hall = h.id
-                                    INNER JOIN
+                                    LEFT JOIN
                                         reservation r
                                     ON 
                                         {$this->table}.id = r.event
@@ -106,5 +109,33 @@ class event extends DB
                                     HAVING 
                                         COUNT(r.id) < h.nbrPlace;
                                     ");
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function getMonthEvent(): array|string
+    {
+        return $this->db->rawQuery("SELECT m.libel,m.image, COUNT(r.id) as total_reservations,{$this->table}.id,m.genre
+                                    FROM movie m
+                                        INNER JOIN {$this->table} ON {$this->table}.movie = m.id
+                                    INNER JOIN 
+                                        reservation r 
+                                    ON 
+                                        {$this->table}.id = r.event
+                                    INNER JOIN
+                                        halls h
+                                    ON
+                                        {$this->table}.hall = h.id
+                                    WHERE 
+                                            MONTH({$this->table}.date) = MONTH(CURDATE())
+                                    GROUP BY 
+                                        m.id, h.nbrPlace
+                                    HAVING 
+                                        total_reservations < h.nbrPlace
+                                    ORDER BY 
+                                            total_reservations DESC   
+                                    LIMIT 1;
+                                    ")[0];
     }
 }

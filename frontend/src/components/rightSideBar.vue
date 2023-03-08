@@ -36,14 +36,14 @@
             data-popover-target="popover-user-profile"
             class="w-9 aspect-auto h-9 aspect-auto ring-gray-300 ring-1 rounded-full dark:ring-gray-500"
             :src="this.user.avatar"
-            alt="Bordered avatar"
+            :alt="this.user.firstName + ' ' + this.user.lastName"
         />
 
         <div
             data-popover
             id="popover-user-profile"
             role="tooltip"
-            class="absolute z-10 invisible inline-block w-64 text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600"
+            class="absolute z-10 invisible inline-block p-3 m-3 text-sm font-light text-gray-500 transition-opacity duration-300 bg-white border border-gray-200 rounded-lg shadow-sm opacity-0 dark:text-gray-400 dark:bg-gray-800 dark:border-gray-600"
         >
           <div class="p-3">
             <div class="flex items-center justify-between mb-2">
@@ -51,7 +51,7 @@
                 <img
                     class="w-10 h-10 rounded-full"
                     :src="this.user.avatar"
-                    alt="Jese Leos"
+                    :alt="this.user.firstName + ' ' + this.user.lastName"
                 />
               </a>
               <div>
@@ -74,11 +74,11 @@
               <a href="#" class="hover:underline">@{{ this.user.lastName }}</a>
             </p>
             <p class="mb-4 text-sm font-light">
-              Open-source contributor. Building
+              Your cenima Reservation
               <a
                   href="#"
                   class="text-blue-600 dark:text-blue-500 hover:underline"
-              >flowbite.com</a
+              >CineHall</a
               >.
             </p>
             <ul class="flex text-sm font-light">

@@ -13,6 +13,8 @@ import DarkSwal from './scripts/darkSwal';
 import Swal from 'sweetalert2';
 import 'sweetalert2/dist/sweetalert2.min.css';
 
+import 'typeface-roboto'
+
 window.Swal = Swal;
 window.DarkSwal = DarkSwal;
 

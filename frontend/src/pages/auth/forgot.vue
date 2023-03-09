@@ -1,8 +1,8 @@
 <template>
   <div
-      class="flex flex-col justify-center h-[80vh] transition duration-1000 ease-linear"
+      class="flex my-20 flex-col justify-center transition rounded-3xl duration-1000 ease-linear border-zinc-200 bg-gradient-to-tr from-gray-50 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear overflow-hidden shadow"
   >
-    <div class="relative bg-white rounded-lg shadow dark:bg-gray-700">
+    <div class="relative rounded-lg">
       <div class="px-6 py-6 lg:px-8">
         <div class="flex items-start flex-col text-center gap-3">
           <div class="font-bold text-lg flex items-center gap-x-2">
@@ -35,7 +35,7 @@
               name="email"
               id="email"
               placeholder="outmanouharri@gmail.com"
-              class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
+              class="bg-transparent border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white"
               :class="
               errors
                 ? 'border border-red-500 text-red-900 placeholder-red-700 focus:ring-red-500 focus:border-red-500 dark:border-red-400'

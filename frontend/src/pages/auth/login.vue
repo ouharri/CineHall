@@ -1,6 +1,6 @@
 <template>
   <div
-      class="flex flex-col justify-center h-[80vh] transition rounded-3xl duration-1000 ease-linear border-zinc-200 bg-gradient-to-b from-gray-100 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear overflow-hidden shadow"
+      class="flex my-28 flex-col justify-center transition rounded-3xl duration-1000 ease-linear border-zinc-200 bg-gradient-to-b from-gray-50 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear overflow-hidden shadow"
   >
     <div class="relative rounded-lg">
       <div class="px-6 py-6 lg:px-8">

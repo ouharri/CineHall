@@ -16,6 +16,9 @@ module.exports = {
       xs: '350px',
       ...defaultTheme.screens,
     },
+    fontFamily: {
+      sans: ['Roboto', 'Helvetica', 'Arial', 'sans-serif'],
+    },
     extend: {
       colors: {},
       fontFamily: {

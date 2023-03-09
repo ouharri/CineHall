@@ -106,7 +106,7 @@ export default {
 <template>
   <div :class="isDark ? 'dark' : 'light'">
     <div
-        class="flex max-h-screen 2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200 dark:2xl:border-zinc-700 w-full dark:bg-gray-800 dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear"
+        class="flex max-h-screen 2xl:max-w-screen-2xl 2xl:mx-auto 2xl:border-x-2 2xl:border-gray-200 dark:2xl:border-zinc-700 w-full dark:bg-gray-800 dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear scrollbar-thin scrollbar-gray-700 scrollbar-track-transparent scrollbar-thumb-gray-200 dark:scrollbar-thumb-gray-700"
     >
       <leftSideBar
           :isDark="isDark"

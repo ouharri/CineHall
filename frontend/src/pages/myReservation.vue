@@ -190,8 +190,8 @@ export default {
     sendTicket(id) {
       Swal.fire({
         title: "Are you sure?",
-        text: "You Want to send this ticket?",
-        icon: "warning",
+        text: "You Want receive your ticket by email",
+        icon: "question",
         showCancelButton: true,
         confirmButtonColor: "#3085d6",
         cancelButtonColor: "#d33",

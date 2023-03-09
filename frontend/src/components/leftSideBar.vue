@@ -66,12 +66,12 @@
           class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white"
           to="/event"
           :class="
-          this.$route.path === '/event' ? 'border-r-4 border-r-red-600' : ''
+          this.$route.path === '/event'||/^\/reserve\/\d+$/.test(this.$route.path) ? 'border-r-4 border-r-red-600' : ''
         "
       >
         <svg
             class="h-5 w-5 group-hover:fill-red-600"
-            :class="this.$route.path === '/event' ? 'fill-red-600' : ''"
+            :class="this.$route.path === '/event'||/^\/reserve\/\d+$/.test(this.$route.path) ? 'fill-red-600' : ''"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
         >
@@ -86,11 +86,12 @@
         </svg>
         <span>Event</span>
       </router-link>
+      <!--      /^\/reserve\//.test(this.$route.path)-->
       <router-link
           to="/reserve/my-reserve"
           class="flex items-center space-x-2 py-1 group hover:border-r-4 hover:border-r-red-600 hover:font-semibold dark:hover:text-white"
           :class="
-          /^\/reserve\//.test(this.$route.path)
+          /^\/reserve\/my-reserve$/.test(this.$route.path)
             ? 'border-r-4 border-r-red-600'
             : ''
         "
@@ -98,7 +99,7 @@
       >
         <svg
             class="h-5 w-5 group-hover:fill-red-600"
-            :class="/^\/reserve\//.test(this.$route.path) ? 'fill-red-600' : ''"
+            :class="/^\/reserve\/my-reserve$/.test(this.$route.path) ? 'fill-red-600' : ''"
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 24 24"
         >

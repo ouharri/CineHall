@@ -18,7 +18,7 @@
           :style="this.bgMonthImage"
       >
 <!--         <img class="object-cover w-full h-full" src="/inception.jpg" alt="">-->
-        <div class="absolute top-[-1px] right-0 h-full w-full bg-white opacity-30 z-[1]"></div>
+        <div class="absolute top-[-1px] right-0 h-full w-full bg-white opacity-20 z-[1]"></div>
         <div class="flex -space-x-1 items-center">
           <img
               class="rounded-full w-7 h-7 shadow-lg border border-white"

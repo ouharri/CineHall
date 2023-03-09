@@ -1,6 +1,6 @@
 <template>
   <div
-      class="calendar mb-10 border-zinc-200 bg-gradient-to-tr from-gray-100 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 overflow-x-hidden transition duration-1000 ease-linear overflow-hidden shadow-inner"
+      class="calendar mb-10 border-zinc-200 bg-gradient-to-tr from-gray-100 dark:2xl:border-zinc-700 dark:from-black/10 to-transparent dark:text-gray-200 transition duration-1000 ease-linear overflow-hidden shadow-inner"
   >
     <div class="calendar-header bg-red-600">
       <span class="month-picker" id="month-picker"> May </span>

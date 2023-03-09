@@ -2,13 +2,13 @@
   <main class="flex-1 py-10 px-5 sm:px-10">
     <section>
       <nav class="flex space-x-6 text-gray-400 font-medium">
-<!--        <a href="#" class="hover:text-gray-700 dark:hover:text-white"-->
-<!--        >TV Series</a-->
-<!--        >-->
-<!--        <a href="#" class="text-gray-700 dark:text-white font-semibold"-->
-<!--        >Movies</a-->
-<!--        >-->
-<!--        <a href="#" class="hover:text-gray-700 dark:hover:text-white">Animes</a>-->
+        <!--        <a href="#" class="hover:text-gray-700 dark:hover:text-white"-->
+        <!--        >TV Series</a-->
+        <!--        >-->
+        <!--        <a href="#" class="text-gray-700 dark:text-white font-semibold"-->
+        <!--        >Movies</a-->
+        <!--        >-->
+        <!--        <a href="#" class="hover:text-gray-700 dark:hover:text-white">Animes</a>-->
         <a href="#" class="text-gray-700 dark:text-white font-semibold">The Month Movie </a>
       </nav>
 
@@ -17,9 +17,10 @@
           :class="this.bgMonthImage"
           :style="this.bgMonthImage"
       >
-<!--         <img class="object-cover w-full h-full" src="/inception.jpg" alt="">-->
+        <!--         <img class="object-cover w-full h-full" src="/inception.jpg" alt="">-->
+
         <div class="absolute top-[-1px] right-0 h-full w-full bg-white opacity-20 z-[1]"></div>
-        <div class="flex -space-x-1 items-center">
+        <div class="flex -space-x-1 items-center" v-if="this.bgMonthImage">
           <img
               class="rounded-full w-7 h-7 shadow-lg border border-white"
               src="https://api.lorem.space/image/face?w=32&amp;h=32&amp;hash=zsrj8csk"
@@ -42,15 +43,79 @@
           >+8 friends are watching</span
           >
         </div>
+        <div role="status"
+             class="flex flex-col justify-center items-center space-y-2.5 animate-pulse max-w-full w-screen"
+             v-if="!this.bgMonthImage">
+          <div class="flex items-center w-full space-x-2 ">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2" v-for="i in 2">
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-80"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-32"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2" v-for="i in 3">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2">
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-32"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-full"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2">
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-80"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+          </div>
+          <div class="flex items-center w-full space-x-2" v-for="i in 3">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-full"></div>
+            <div class="h-2.5 bg-gray-300 rounded-full dark:bg-gray-600 w-24"></div>
+          </div>
+        </div>
 
         <div
             class="bg-gradient-to-r from-black/30 to-transparent z-[2] -mx-7 -mb-6 px-7 pb-6 pt-2"
+            v-if="this.bgMonthImage"
         >
           <span class="uppercase text-3xl font-semibold drop-shadow-lg"
           >{{ this.monthMovie.libel }}</span
           >
           <div class="text-xs text-gray-200 mt-2">
-            {{this.monthMovie.genre}}
+            {{ this.monthMovie.genre }}
           </div>
           <div class="mt-4 flex space-x-3 items-center">
             <router-link
@@ -269,10 +334,35 @@
       </div>
       <div class="mt-4 grid grid-cols-2 gap-y-5 sm:grid-cols-3 gap-x-5">
         <movieCard
+            v-if="movies.length > 0"
             :key="movie.id"
             v-for="movie in movies"
             :movie="movie"
         ></movieCard>
+        <div
+            v-else
+            class="flex flex-col px-2 opacity-50 justify-center items-center rounded-xl overflow-hidden aspect-square border border-opacity-[20%] dark:border-zinc-700"
+            v-for="i in 3"
+            :key="i"
+
+        >
+          <div role="status" class="max-w-sm animate-pulse w-full h-full">
+            <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-32 px-2 mt-3 mb-4"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[300px] mb-4"></div>
+            <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"></div>
+          </div>
+        </div>
       </div>
 
     </section>
@@ -290,8 +380,8 @@ export default {
       currentPage: 1,
       moviesPerPage: 3,
       tmpMovies: [],
-      monthMovie: {id:0},
-      bgMonthImage : "",
+      monthMovie: {id: 0},
+      bgMonthImage: null,
       movies: [],
     };
   },
@@ -322,7 +412,7 @@ export default {
       })
           .then((result) => {
             this.monthMovie = result.data;
-            this.bgMonthImage = 'background-image: url("'+ result.data.image +'");';
+            this.bgMonthImage = 'background-image: url("' + result.data.image + '");';
           })
           .catch((error) => {
             Swal.fire({

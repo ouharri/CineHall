@@ -65,7 +65,7 @@ export default {
       eventsPerPage: 3,
       tmpEvents: [],
       events: [],
-      eventDate: new Date().toISOString().slice(0, 10),
+      eventDate: null,
       date: null,
     };
   },
@@ -137,6 +137,7 @@ export default {
               showConfirmButton: false,
               timer: 3000,
             });
+            DarkSwal();
           });
     },
   },

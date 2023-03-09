@@ -7,7 +7,6 @@
       <div class="flex items-center space-x-2 fill-gray-500">
         <div
             @click="preventMovie"
-            :disabled="currentPage === 1"
             :class="currentPage === 1 ? '' : 'cursor-pointer'"
         >
           <svg
@@ -22,7 +21,6 @@
         </div>
         <div
             @click="nextMovie"
-            :disabled="movies.length < moviesPerPage"
             :class="movies.length < moviesPerPage ? '' : 'cursor-pointer'"
         >
           <svg
@@ -37,13 +35,40 @@
         </div>
       </div>
     </div>
-    <div class="mt-4 grid grid-cols-2 gap-y-5 sm:grid-cols-3 gap-x-5">
+    <div class="mt-4 pb-12 grid grid-cols-2 gap-y-5 sm:grid-cols-3 gap-x-5">
       <movieCard
+          v-if="movies.length > 0"
           :key="movie.id"
           v-for="movie in movies"
           :movie="movie"
       ></movieCard>
+
+      <div
+          v-else
+          class="flex flex-col px-2 opacity-50 justify-center items-center rounded-xl overflow-hidden aspect-square border border-opacity-[20%] dark:border-zinc-700"
+          v-for="i in 10"
+          :key="i"
+
+      >
+        <div role="status" class="max-w-sm animate-pulse w-full h-full">
+          <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-32 px-2 mt-3 mb-4"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[330px] mb-2.5"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[300px] mb-4"></div>
+          <div class="h-2 bg-gray-200 rounded-full dark:bg-gray-700 max-w-[360px]"></div>
+        </div>
+      </div>
     </div>
+
   </section>
 </template>
 
@@ -103,6 +128,7 @@ export default {
               showConfirmButton: false,
               timer: 3000,
             });
+            DarkSwal();
           });
     },
   },

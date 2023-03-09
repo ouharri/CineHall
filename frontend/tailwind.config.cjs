@@ -5,11 +5,12 @@ module.exports = {
   content: [
     './index.html',
     './src/**/*.{vue,js}',
+    './src/**/*.{vue,js,ts,jsx,tsx}',
     './node_modules/flowbite/**/*.js',
     './node_modules/sweetalert/**/*.js',
     './node_modules/sweetalert/**/*.css',
+    './node_modules/sweetalert/**/*{vue,js,ts,jsx,tsx}'
   ],
-  purge: ['./index.html', './src/**/*.{vue,js,ts,jsx,tsx}','./node_modules/sweetalert/**/*{vue,js,ts,jsx,tsx}'],
   theme: {
     screens: {
       xs: '350px',

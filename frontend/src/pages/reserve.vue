@@ -311,6 +311,17 @@ export default {
       return `col-span-${remainingColumns}`;
     },
     async reservSeat(e, seatNumber) {
+      if (this.reservedSeats.includes(seatNumber)) {
+        Swal.fire({
+          position: "center",
+          icon: "error",
+          title: "You can't reserve this seat",
+          showConfirmButton: false,
+          timer: 2000,
+        });
+        DarkSwal();
+        return;
+      }
       if (!localStorage.getItem("auth:cinhall")) {
         Swal.fire({
           position: "center",
@@ -321,17 +332,6 @@ export default {
         });
         DarkSwal();
         this.$router.push("/login");
-        return;
-      }
-      if (this.reservedSeats.includes(seatNumber)) {
-        Swal.fire({
-          position: "center",
-          icon: "error",
-          title: "You can't reserve this seat",
-          showConfirmButton: false,
-          timer: 2000,
-        });
-        DarkSwal();
         return;
       }
       if (this.userReservedSeats.includes(seatNumber)) {

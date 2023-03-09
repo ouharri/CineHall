@@ -92,7 +92,6 @@
                   :class="this.rowSeat(i)"
               >
                 <!-- <div v-if="i <= 3" class="md:m-5"></div> -->
-
                 <div
                     v-for="(seatNumber, index) in getSeatNumbers(i + 6)"
                     :key="index"

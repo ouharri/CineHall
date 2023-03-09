@@ -9,6 +9,18 @@
   <component name="PHPCodeSnifferOptionsConfiguration">
     <option name="transferred" value="true" />
   </component>
+  <component name="PhpIncludePathManager">
+    <include_path>
+      <path value="$PROJECT_DIR$/Backend/vendor/psr/http-message" />
+      <path value="$PROJECT_DIR$/Backend/vendor/psr/log" />
+      <path value="$PROJECT_DIR$/Backend/vendor/mpdf/mpdf" />
+      <path value="$PROJECT_DIR$/Backend/vendor/composer" />
+      <path value="$PROJECT_DIR$/Backend/vendor/paragonie/random_compat" />
+      <path value="$PROJECT_DIR$/Backend/vendor/php-http/message-factory" />
+      <path value="$PROJECT_DIR$/Backend/vendor/setasign/fpdi" />
+      <path value="$PROJECT_DIR$/Backend/vendor/myclabs/deep-copy" />
+    </include_path>
+  </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="8.2">
     <option name="suggestChangeDefaultLanguageLevel" value="false" />
   </component>

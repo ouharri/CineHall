@@ -188,44 +188,55 @@ export default {
       DarkSwal();
     },
     sendTicket(id) {
-      const jwt = JSON.parse(localStorage.getItem("auth:cinhall"));
-      const resData = new FormData();
-      resData.append("id", id);
-      axios({
-        method: "POST",
-        url: `${config.API_URL}reservation/sendTicket`,
-        headers: {
-          "Authorization": `Bearer ${jwt}`,
-        },
-        data: resData
-      })
-          .then((result) => {
-            Swal.fire({
-              position: "center",
-              icon: "success",
-              title: result.data.message,
-              showConfirmButton: false,
-              timer: 3000,
-            });
-            DarkSwal();
+      Swal.fire({
+        title: "Are you sure?",
+        text: "You Want to send this ticket?",
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonColor: "#3085d6",
+        cancelButtonColor: "#d33",
+        confirmButtonText: "Yes, delete it!",
+      }).then((result) => {
+        if (result.isConfirmed) {
+          const jwt = JSON.parse(localStorage.getItem("auth:cinhall"));
+          const resData = new FormData();
+          resData.append("id", id);
+          axios({
+            method: "POST",
+            url: `${config.API_URL}reservation/sendTicket`,
+            headers: {
+              "Authorization": `Bearer ${jwt}`,
+            },
+            data: resData
           })
-          .catch((error) => {
-            Swal.fire({
-              position: "center",
-              icon: "error",
-              title: error &&
-              error.response &&
-              error.response.data &&
-              error.response.data.message
-                  ? error.response.data.message
-                  : error,
-              showConfirmButton: false,
-              timer: 3000,
-            });
-            DarkSwal();
-          })
-
-
+              .then((result) => {
+                Swal.fire({
+                  position: "center",
+                  icon: "success",
+                  title: result.data.message,
+                  showConfirmButton: false,
+                  timer: 3000,
+                });
+                DarkSwal();
+              })
+              .catch((error) => {
+                Swal.fire({
+                  position: "center",
+                  icon: "error",
+                  title: error &&
+                  error.response &&
+                  error.response.data &&
+                  error.response.data.message
+                      ? error.response.data.message
+                      : error,
+                  showConfirmButton: false,
+                  timer: 3000,
+                });
+                DarkSwal();
+              })
+        }
+      });
+      DarkSwal();
     },
     compareDates(date) {
       const currentDate = new Date();
@@ -245,10 +256,12 @@ export default {
       );
       return JSON.parse(jsonPayload);
     },
-  },
+  }
+  ,
   created() {
     this.getReservation();
-  },
+  }
+  ,
 }
 </script>
 

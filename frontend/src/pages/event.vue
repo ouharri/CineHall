@@ -140,9 +140,6 @@ export default {
           });
     },
   },
-  //   beforeMount() {
-  //     if (!auth()) this.$router.push({ name: "login" });
-  //   },
   async mounted() {
     await this.getEvent();
   },

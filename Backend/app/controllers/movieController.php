@@ -21,16 +21,13 @@ class movieController
     {
         $movie = $this->movie;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $movie->getRow($id);
 
-        //output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -42,19 +39,15 @@ class movieController
      */
     public function getAll(): void
     {
-
         $movie = $this->movie;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $movie->getAll();
 
-        // output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -68,7 +61,6 @@ class movieController
     {
         Login::JWT(true);
 
-        // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -82,7 +74,6 @@ class movieController
                     $movie = $this->movie;
                     $image = $this->image;
 
-                    // Headers
                     header("Access-Control-Max-Age: 3600");
                     header('Access-Control-Allow-Origin: *');
                     header("Content-Type: application/json; charset=UTF-8");
@@ -90,19 +81,17 @@ class movieController
                     header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
                     http_response_code(200);
 
-                    // start transaction
                     $movie->startTransaction();
                     $image->startTransaction();
 
-                    // Get images posted data
                     $data = array(
                         'name' => $_FILES["image"]["name"],
                         'type' => $_FILES["image"]["type"],
                         'image' => file_get_contents(_validate::_string($_FILES["image"]["tmp_name"]))
                     );
-                    // insert image
+
                     if ($image->insert($data)) {
-                        // Get posted data
+
                         $data = array(
                             'DVD' => $_POST['DVD'],
                             'libel' => $_POST['libel'],
@@ -113,7 +102,7 @@ class movieController
                             'description' => $_POST['description'],
                             'image' => BURL . 'image/get/' . $image->getInsertId()
                         );
-                        // insert data
+
                         if ($movie->insert($data)) {
                             $image->commit();
                             $movie->commit();
@@ -190,7 +179,6 @@ class movieController
     {
         Login::JWT(true);
 
-        // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -200,7 +188,6 @@ class movieController
                 $movie = $this->movie;
                 $image = $this->image;
 
-                // Headers
                 header("Access-Control-Max-Age: 3600");
                 header('Access-Control-Allow-Origin: *');
                 header("Content-Type: application/json; charset=UTF-8");
@@ -226,11 +213,10 @@ class movieController
                     if ($flag || $isset_img) {
 
                         if ($flag && $isset_img) {
-                            // start transaction
+
                             $movie->startTransaction();
                             $image->startTransaction();
 
-                            // Get images data
                             $img = array(
                                 'name' => $_FILES["image"]["name"],
                                 'type' => $_FILES["image"]["type"],
@@ -241,9 +227,8 @@ class movieController
                             $arr = explode('/', $tmp);
                             $id_img = (int)end($arr);
 
-                            // update image
                             if ($image->update($id_img, $img)) {
-                                // update data
+
                                 if ($movie->update($id, $data)) {
                                     $image->commit();
                                     $movie->commit();
@@ -279,7 +264,7 @@ class movieController
                                 );
                             }
                         } else if ($isset_img) {
-                            // Get images data
+
                             $img = array(
                                 'name' => $_FILES["image"]["name"],
                                 'type' => $_FILES["image"]["type"],
@@ -290,7 +275,6 @@ class movieController
                             $arr = explode('/', $tmp);
                             $id_img = (int)end($arr);
 
-                            // update image
                             if ($image->update($id_img, $img)) {
                                 http_response_code(201);
                                 echo json_encode(
@@ -310,27 +294,24 @@ class movieController
                                     JSON_THROW_ON_ERROR
                                 );
                             }
+                        } else if ($movie->update($id, $data)) {
+                            http_response_code(201);
+                            echo json_encode(
+                                array(
+                                    'message' => 'movie updated successfully',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                ),
+                                JSON_THROW_ON_ERROR
+                            );
                         } else {
-                            // update data
-                            if ($movie->update($id, $data)) {
-                                http_response_code(201);
-                                echo json_encode(
-                                    array(
-                                        'message' => 'movie updated successfully',
-                                        'status' => $_SERVER['REDIRECT_STATUS']
-                                    ),
-                                    JSON_THROW_ON_ERROR
-                                );
-                            } else {
-                                http_response_code(500);
-                                echo json_encode(
-                                    array(
-                                        'message' => 'movie Not Created',
-                                        'status' => $_SERVER['REDIRECT_STATUS']
-                                    ),
-                                    JSON_THROW_ON_ERROR
-                                );
-                            }
+                            http_response_code(500);
+                            echo json_encode(
+                                array(
+                                    'message' => 'movie Not Created',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                ),
+                                JSON_THROW_ON_ERROR
+                            );
                         }
                     } else {
                         http_response_code(401);
@@ -384,10 +365,8 @@ class movieController
     {
         Login::JWT(true);
 
-        // On interdit toute méthode qui n'est pas DELETE
         if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
-            // Headers
             header('Access-Control-Allow-Origin: *');
             header('Content-Type: application/json');
             header('Access-Control-Allow-Methods: DELETE');
@@ -406,7 +385,6 @@ class movieController
 
                 if ($movie->exists($id)) {
 
-                    // start transaction
                     $movie->startTransaction();
                     $image->startTransaction();
 
@@ -414,7 +392,6 @@ class movieController
                     $arr = explode('/', $tmp);
                     $id_img = (int)end($arr);
 
-                    // Delete movie
                     if ($image->delete($id_img)) {
                         if ($movie->delete($id)) {
                             $image->commit();

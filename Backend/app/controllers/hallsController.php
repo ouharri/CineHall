@@ -5,6 +5,9 @@ class hallsController
     private halls $halls;
     private image $image;
 
+    /**
+     * @throws JsonException
+     */
     public function __construct()
     {
         Login::JWT(true);
@@ -21,16 +24,13 @@ class hallsController
     {
         $halls = $this->halls;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $halls->getRow($id);
 
-        //output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -44,16 +44,13 @@ class hallsController
     {
         $halls = $this->halls;
 
-        // Headers
         header("Access-Control-Allow-Origin:*");
         header("Content-Type: application/json");
         header("Access-Control-Allow-Method: none");
         header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
-        // get data
         $data = $halls->getAll();
 
-        // output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -64,7 +61,6 @@ class hallsController
      */
     public function insert(): void
     {
-        // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -76,7 +72,6 @@ class hallsController
                     $halls = $this->halls;
                     $image = $this->image;
 
-                    // Headers
                     header("Access-Control-Max-Age: 3600");
                     header('Access-Control-Allow-Origin: *');
                     header("Content-Type: application/json; charset=UTF-8");
@@ -84,27 +79,26 @@ class hallsController
                     header("Access-Control-Allow-Headers: Origin, Authorization, Content-Type, Access-Control-Allow-Origin");
                     http_response_code(200);
 
-                    // start transaction
                     $halls->startTransaction();
                     $image->startTransaction();
 
                     _validate::post();
-                    // Get images posted data
+
                     $data = array(
                         'name' => _validate::_string($_FILES["image"]["name"]),
                         'type' => _validate::_string($_FILES["image"]["type"]),
                         'image' => file_get_contents(_validate::_string($_FILES["image"]["tmp_name"]))
                     );
-                    // insert image
+
                     if ($image->insert($data)) {
-                        // Get posted data
+
                         $data = array(
                             'libel' => $_POST['libel'],
                             'nbrPlace' => $_POST['nbrPlace'],
                             'description' => $_POST['description'],
                             'image' => BURL . 'image/get/' . $image->getInsertId()
                         );
-                        // insert data
+
                         if ($halls->insert($data)) {
                             $image->commit();
                             $halls->commit();
@@ -172,7 +166,7 @@ class hallsController
      */
     public function update(): void
     {
-        // On interdit toute méthode qui n'est pas POST
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -182,7 +176,6 @@ class hallsController
                 $halls = $this->halls;
                 $image = $this->image;
 
-                // Headers
                 header("Access-Control-Max-Age: 3600");
                 header('Access-Control-Allow-Origin: *');
                 header("Content-Type: application/json; charset=UTF-8");
@@ -208,11 +201,10 @@ class hallsController
                     if ($flag || $isset_img) {
 
                         if ($flag && $isset_img) {
-                            // start transaction
+
                             $halls->startTransaction();
                             $image->startTransaction();
 
-                            // Get images data
                             $img = array(
                                 'name' => $_FILES["image"]["name"],
                                 'type' => $_FILES["image"]["type"],
@@ -223,9 +215,8 @@ class hallsController
                             $arr = explode('/', $tmp);
                             $id_img = (int)end($arr);
 
-                            // update image
                             if ($image->update($id_img, $img)) {
-                                // update data
+
                                 if ($halls->update($id, $data)) {
                                     $image->commit();
                                     $halls->commit();
@@ -258,7 +249,7 @@ class hallsController
                                     JSON_THROW_ON_ERROR);
                             }
                         } else if ($isset_img) {
-                            // Get images data
+
                             $img = array(
                                 'name' => $_FILES["image"]["name"],
                                 'type' => $_FILES["image"]["type"],
@@ -269,7 +260,6 @@ class hallsController
                             $arr = explode('/', $tmp);
                             $id_img = (int)end($arr);
 
-                            // update image
                             if ($image->update($id_img, $img)) {
                                 http_response_code(201);
                                 echo json_encode(
@@ -287,25 +277,22 @@ class hallsController
                                     ),
                                     JSON_THROW_ON_ERROR);
                             }
+                        } else if ($halls->update($id, $data)) {
+                            http_response_code(201);
+                            echo json_encode(
+                                array(
+                                    'message' => 'halls updated successfully',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                ),
+                                JSON_THROW_ON_ERROR);
                         } else {
-                            // update data
-                            if ($halls->update($id, $data)) {
-                                http_response_code(201);
-                                echo json_encode(
-                                    array(
-                                        'message' => 'halls updated successfully',
-                                        'status' => $_SERVER['REDIRECT_STATUS']
-                                    ),
-                                    JSON_THROW_ON_ERROR);
-                            } else {
-                                http_response_code(500);
-                                echo json_encode(
-                                    array(
-                                        'message' => 'halls Not Created',
-                                        'status' => $_SERVER['REDIRECT_STATUS']
-                                    ),
-                                    JSON_THROW_ON_ERROR);
-                            }
+                            http_response_code(500);
+                            echo json_encode(
+                                array(
+                                    'message' => 'halls Not Created',
+                                    'status' => $_SERVER['REDIRECT_STATUS']
+                                ),
+                                JSON_THROW_ON_ERROR);
                         }
                     } else {
                         http_response_code(401);
@@ -352,10 +339,8 @@ class hallsController
      */
     public function delete(): void
     {
-        // On interdit toute méthode qui n'est pas DELETE
         if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
-            // Headers
             header('Access-Control-Allow-Origin: *');
             header('Content-Type: application/json');
             header('Access-Control-Allow-Methods: DELETE');
@@ -374,7 +359,6 @@ class hallsController
 
                 if ($halls->exists($id)) {
 
-                    // start transaction
                     $halls->startTransaction();
                     $image->startTransaction();
 
@@ -382,7 +366,6 @@ class hallsController
                     $arr = explode('/', $tmp);
                     $id_img = (int)end($arr);
 
-                    // Delete halls
                     if ($image->delete($id_img)) {
                         if ($halls->delete($id)) {
                             $image->commit();

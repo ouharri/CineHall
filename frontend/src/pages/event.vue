@@ -1,13 +1,12 @@
 <template>
   <calendar :cliked="this.date" @clikedDate="getAllByDate"></calendar>
-  <div class="flex items-center justify-between mt-10" v-if="events.length > 0">
-    <span class="font-semibold text-gray-700 text-base dark:text-white" >
-      Event {{ this.eventDate ? " in : " + this.eventDate : "" }}
+  <div class="flex items-center justify-between mt-10" v-if="events.length > 0 && this.eventDate === ''">
+    <span class="font-semibold text-gray-700 text-base dark:text-white">
+      Event {{ this.eventDate !== "" ? " in : " + this.eventDate : "" }}
     </span>
     <div class="flex items-center space-x-2 fill-gray-500">
       <div
           @click="preventevent"
-          :disabled="currentPage === 1"
           :class="currentPage === 1 ? '' : 'cursor-pointer'"
       >
         <svg
@@ -22,8 +21,7 @@
       </div>
       <div
           @click="nextevent"
-          :disabled="events.length < eventsPerPage"
-          :class="events.length < eventsPerPage ? '' : 'cursor-pointer'"
+          :class="events.length < eventsPerPage || this.currentPage * this.eventsPerPage === this.tmpEvents.length ? '' : 'cursor-pointer'"
       >
         <svg
             class="h-7 w-7 rounded-full border p-1 hover:border-red-600 hover:fill-red-600 dark:fill-white dark:hover:fill-red-600"
@@ -45,9 +43,9 @@
       @click="reserve(event.id)"
       class="cursor-pointer hover:transform hover:scale-105 transition duration-500 ease-in-out"
   ></eventCard>
-  <div v-else class="flex justify-center items-center">
+  <div v-else class="flex justify-center items-center mt-2.5">
     <span class="font-semibold text-gray-700 text-base dark:text-white mt-8">
-      No Event in: {{ this.eventDate }}
+      No Event {{ this.eventDate !== "" ? " in : " + this.eventDate : "" }}
     </span>
   </div>
 </template>
@@ -65,16 +63,17 @@ export default {
       eventsPerPage: 3,
       tmpEvents: [],
       events: [],
-      eventDate: null,
+      eventDate: '',
       date: null,
     };
   },
   methods: {
     nextevent() {
-      if (this.events.length  < this.eventsPerPage) return;
+      if (this.events.length < this.eventsPerPage) return;
+      if (this.currentPage * this.eventsPerPage === this.tmpEvents.length) return;
       const startIndex = this.currentPage * this.eventsPerPage;
       const endIndex = startIndex + this.eventsPerPage;
-      this.events = this.tmpEvents.slice(startIndex , endIndex);
+      this.events = this.tmpEvents.slice(startIndex, endIndex);
       this.currentPage++;
     },
     preventevent() {

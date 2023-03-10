@@ -27,16 +27,13 @@ class usersController
         Login::JWT();
         $user = $this->user;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $user->getRow($token, 'token');
 
-        //output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -51,16 +48,13 @@ class usersController
         Login::JWT();
         $user = $this->user;
 
-        // Headers
         header("Access-Control-Allow-Origin:*");
         header("Content-Type: application/json");
         header("Access-Control-Allow-Method: none");
         header("Access-Control-Allow-Headers: Authorization, Content-Type");
 
-        // get data
         $data = $user->getAll();
 
-        // output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -70,7 +64,6 @@ class usersController
      */
     public function login(): void
     {
-        // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -83,7 +76,6 @@ class usersController
                 $token = $_POST['token'];
                 $remember = $_POST['remember'];
 
-                // Headers
                 header("Access-Control-Max-Age: 3600");
                 header('Access-Control-Allow-Origin: *');
                 header("Access-Control-Allow-Methods: POST");
@@ -101,7 +93,6 @@ class usersController
                         'alg' => 'HS256'
                     ];
 
-                    // On crée le contenu (payload)
                     $payload = [
                         'user' => $token,
                         'firstName' => $data['firstName'],
@@ -170,7 +161,7 @@ class usersController
      */
     public function register(): void
     {
-        // On interdit toute méthode qui n'est pas POST
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -181,7 +172,6 @@ class usersController
 
                 $user = $this->user;
 
-                // Headers
                 header("Access-Control-Max-Age: 3600");
                 header('Access-Control-Allow-Origin: *');
                 header("Access-Control-Allow-Methods: POST");
@@ -194,42 +184,45 @@ class usersController
 
                 if (!$user->exists($email, 'email', 'Like')) {
 
-                    // generate token
                     $char = base64_encode($_POST['firstName'] . $email . $_POST['lastName']);
                     $token = _random::string(10, sha1($char));
 
-                    // Get posted data
                     $data = array(
                         'token' => $token,
                         'firstName' => $_POST['firstName'],
                         'lastName' => $_POST['lastName'],
                         'email' => $_POST['email'],
                     );
-                    // insert data
+
                     if ($user->insert($data)) {
 
-                        // send email
                         $mail = new PHPMailer(true);
                         ob_start();
                         {
                             $flag = true;
                             try {
-                                //Server settings
-                                $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
-                                $mail->isSMTP();                                            //Send using SMTP
-                                $mail->Host = $_ENV['MAIL_HOST'];                     //Set the SMTP server to send through
-                                $mail->SMTPAuth = true;                                   //Enable SMTP authentication
-                                $mail->Username = $_ENV['MAIL_USERNAME'];                     //SMTP username
-                                $mail->Password = $_ENV['MAIL_PASSWORD'];                               //SMTP password
-                                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
-                                $mail->Port = $_ENV['MAIL_PORT'];                                   //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-                                //Recipients
-                                $mail->setFrom('atman.atharri@gmail.com');
+                                $mail->SMTPDebug = SMTP::DEBUG_SERVER;
+                                $mail->isSMTP();
+                                $mail->Host = $_ENV['MAIL_HOST'];
+                                $mail->SMTPAuth = true;
+                                $mail->Username = $_ENV['MAIL_USERNAME'];
+                                $mail->Password = $_ENV['MAIL_PASSWORD'];
+                                $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
+                                $mail->Port = $_ENV['MAIL_PORT'];
+                                $mail->setFrom($_ENV['MAIL_USERNAME'],'cinehall');
                                 $mail->addAddress($email);
-                                //Content
-                                $mail->isHTML(true);                                  //Set email format to HTML
+                                $mail->isHTML(true);
                                 $mail->Subject = 'no reply';
-                                $mail->Body = "your Token is : {$token}";
+                                $mail->Body = <<<HTML
+                                    <center>
+                                    <h1>Hello $_POST[firstName]</h1>
+                                        <br>
+                                        <h3>
+                                        your Token is : 
+                                        <span style="color: red; font-weight: bold"> $token </span>
+                                        </h3> 
+                                    </center>
+                                HTML;
                                 $mail->send();
                             } catch (Exception $e) {
                                 $flag = false;
@@ -307,7 +300,6 @@ class usersController
      */
     public function forgotToken(): void
     {
-        // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -318,7 +310,6 @@ class usersController
 
                 $user = $this->user;
 
-                // Headers
                 header("Access-Control-Max-Age: 3600");
                 header('Access-Control-Allow-Origin: *');
                 header("Access-Control-Allow-Methods: POST");
@@ -333,20 +324,16 @@ class usersController
 
                     $data = $user->getRow($email, 'email');
 
-                    // generate New token
                     $char = base64_encode($data['firstName'] . $email . $data['lastName']);
                     $token = _random::string(10, sha1($char));
 
-                    // update token
                     if ($user->update($email, ['token' => $token], 'email')) {
 
-                        // send email
                         $mail = new PHPMailer(true);
                         ob_start();
                         {
                             $flag = true;
                             try {
-                                //Server settings
                                 $mail->SMTPDebug = SMTP::DEBUG_SERVER;                      //Enable verbose debug output
                                 $mail->isSMTP();                                            //Send using SMTP
                                 $mail->Host = $_ENV['MAIL_HOST'];                     //Set the SMTP server to send through
@@ -355,10 +342,8 @@ class usersController
                                 $mail->Password = $_ENV['MAIL_PASSWORD'];                               //SMTP password
                                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
                                 $mail->Port = $_ENV['MAIL_PORT'];                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-                                //Recipients
                                 $mail->setFrom('atman.atharri@gmail.com');
                                 $mail->addAddress($email);
-                                //Content
                                 $mail->isHTML(true);                                  //Set email format to HTML
                                 $mail->Subject = 'no reply';
                                 $mail->Body = "your new Token is : {$token}";

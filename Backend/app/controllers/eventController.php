@@ -6,7 +6,6 @@ class eventController
 
     public function __construct()
     {
-        // Login::JWT(true);
         $this->event = new event();
     }
 
@@ -20,16 +19,13 @@ class eventController
     {
         $event = $this->event;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $event->getRow($id);
 
-        //output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -43,16 +39,13 @@ class eventController
     {
         $event = $this->event;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $event->getDetailEvent($id);
 
-        //output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -66,16 +59,13 @@ class eventController
     {
         $event = $this->event;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $event->getMonthEvent();
 
-        //output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -88,33 +78,30 @@ class eventController
     {
         $event = $this->event;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $event->getAllEvents();
 
-        // output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
+    /**
+     * @throws JsonException
+     */
     public function getAllByDate($date): void
     {
         $event = $this->event;
 
-        // Headers
         header('Access-Control-Allow-Origin:*');
         header('Content-Type: application/json');
         header('Access-Control-Allow-Method: none');
         header('Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorisation');
 
-        // get data
         $data = $event->getAllEventsByDate($date);
 
-        // output
         echo json_encode($data, JSON_THROW_ON_ERROR);
     }
 
@@ -127,7 +114,7 @@ class eventController
     public function insert(): void
     {
         Login::JWT(true);
-        // On interdit toute méthode qui n'est pas POST
+
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -136,7 +123,6 @@ class eventController
 
                 $event = $this->event;
 
-                // Headers
                 header("Access-Control-Max-Age: 3600");
                 header('Access-Control-Allow-Origin: *');
                 header("Content-Type: application/json; charset=UTF-8");
@@ -147,14 +133,13 @@ class eventController
 
                 if (!$event->existsEvent(0, $_POST['date'], $_POST['hall'])) {
 
-                    // Get posted data
                     $data = array(
                         'hall' => $_POST['hall'],
                         'movie' => $_POST['movie'],
                         'date' => $_POST['date'],
                         'time' => $_POST['time']
                     );
-                    // insert data
+
                     if ($event->insert($data)) {
                         http_response_code(201);
                         echo json_encode(
@@ -216,7 +201,6 @@ class eventController
     {
         Login::JWT(true);
 
-        // On interdit toute méthode qui n'est pas POST
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $_POST = filter_input_array(INPUT_POST, FILTER_SANITIZE_STRING);
@@ -225,7 +209,6 @@ class eventController
 
                 $event = $this->event;
 
-                // Headers
                 header("Access-Control-Max-Age: 3600");
                 header('Access-Control-Allow-Origin: *');
                 header("Content-Type: application/json; charset=UTF-8");
@@ -255,7 +238,6 @@ class eventController
 
                         if (!$event->existsEvent($id, $dateEvent, $idHall)) {
 
-                            // update data
                             if ($event->update($id, $data)) {
                                 http_response_code(201);
                                 echo json_encode(
@@ -337,10 +319,8 @@ class eventController
     {
         Login::JWT(true);
 
-        // On interdit toute méthode qui n'est pas DELETE
         if ($_SERVER['REQUEST_METHOD'] === 'DELETE') {
 
-            // Headers
             header('Access-Control-Allow-Origin: *');
             header('Content-Type: application/json');
             header('Access-Control-Allow-Methods: DELETE');
@@ -351,12 +331,10 @@ class eventController
             if (_isset::delete($_DELETE, 'id') && _empty::delete($_DELETE, 'id')) {
                 $event = $this->event;
 
-                // Set ID to UPDATE
                 $id = $_DELETE['id'];
 
                 if ($event->exists($id)) {
 
-                    // Delete event
                     if ($event->delete($id)) {
                         http_response_code(201);
                         echo json_encode(

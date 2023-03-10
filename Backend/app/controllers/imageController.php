@@ -17,12 +17,10 @@ class imageController
     {
         $image = $this->image;
 
-        // get data image
         $data = $image->getRow($id);
 
         if ($data) {
 
-            // header
             header('Expires: 0');
             header('Pragma: public');
             header('Access-Control-Allow-Origin: *');

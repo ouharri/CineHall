@@ -57,53 +57,71 @@
               <div class="screen2"></div>
             </div>
           </div>
-
-          <div
-              class="flex justify-center items-center gap-x-14 gap-y-10 flex-wrap"
-          >
-            <div class="cinema-seats left flex flex-wrap">
-              <div
-                  :key="i"
-                  v-for="i in 6"
-                  class="cinema-row flex flex-col flex-wrap"
-                  :class="this.rowSeat(i)"
-              >
-                <!-- <div v-if="i > 3" class="md:m-2"></div> -->
+          <div class="flex flex-col">
+            <div
+                class="flex justify-center items-center gap-x-14 gap-y-10 flex-wrap"
+            >
+              <div class="cinema-seats left flex flex-wrap">
                 <div
-                    v-for="(seatNumber, index) in getSeatNumbers(i)"
-                    :key="index"
-                    class="seat m-1 shadow-lg"
-                    :class="seatParamClass(seatNumber, i)"
-                    @click="reservSeat($event, seatNumber)"
+                    :key="i"
+                    v-for="i in 6"
+                    class="cinema-row flex flex-col flex-wrap"
+                    :class="this.rowSeat(i)"
                 >
-                  <p
-                      class="absolute p-2 text-center opacity-40 font-bold w-full border-b-2 border-spacing-1 border-gray-100"
+                  <!-- <div v-if="i > 3" class="md:m-2"></div> -->
+                  <div
+                      v-for="(seatNumber, index) in getSeatNumbers(i)"
+                      :key="index"
+                      class="seat m-1 shadow-lg"
+                      :class="seatParamClass(seatNumber, i)"
+                      @click="reservSeat($event, seatNumber)"
                   >
-                    {{ seatNumber }}
-                  </p>
+                    <p
+                        class="absolute p-2 text-center opacity-40 font-bold w-full border-b-2 border-spacing-1 border-gray-100"
+                    >
+                      {{ seatNumber }}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div class="cinema-seats right flex flex-wrap">
+                <div
+                    :key="i"
+                    v-for="i in 6"
+                    class="cinema-row shadow-gray-700"
+                    :class="this.rowSeat(i)"
+                >
+                  <!-- <div v-if="i <= 3" class="md:m-5"></div> -->
+                  <div
+                      v-for="(seatNumber, index) in getSeatNumbers(i + 6)"
+                      :key="index"
+                      class="seat m-1 shadow-lg"
+                      :class="seatParamClass(seatNumber, i)"
+                      @click="reservSeat($event, seatNumber)"
+                  >
+                    <p
+                        class="absolute p-2 text-center opacity-40 font-bold border-b-2 border-spacing-1 border-gray-100"
+                    >
+                      {{ seatNumber }}
+                    </p>
+                  </div>
                 </div>
               </div>
             </div>
-            <div class="cinema-seats right flex flex-wrap">
-              <div
-                  :key="i"
-                  v-for="i in 6"
-                  class="cinema-row shadow-gray-700"
-                  :class="this.rowSeat(i)"
-              >
-                <!-- <div v-if="i <= 3" class="md:m-5"></div> -->
-                <div
-                    v-for="(seatNumber, index) in getSeatNumbers(i + 6)"
-                    :key="index"
-                    class="seat m-1 shadow-lg"
-                    :class="seatParamClass(seatNumber, i)"
-                    @click="reservSeat($event, seatNumber)"
-                >
-                  <p
-                      class="absolute p-2 text-center opacity-40 font-bold border-b-2 border-spacing-1 border-gray-100"
-                  >
-                    {{ seatNumber }}
-                  </p>
+            <div class="flex justify-content justify-between">
+              <div></div>
+              <div class="mt-4 flex flex-col justify-start items-start float-right w-[150px]">
+                <div class="flex space-x-6 justify-center items-baseline">
+                  <div class="w-3 h-3 greenSeat"></div>
+                  <p class="text-md">Available</p>
+                </div>
+                <div class="flex space-x-6 justify-center items-baseline">
+                  <div class="w-3 h-3 orangeSeat"></div>
+                  <p class="text-md">Reserved</p>
+                </div>
+                <div class="flex space-x-6 justify-center items-baseline">
+                  <div class="w-3 h-3 redSeat"></div>
+                  <p class="text-md">Not Available</p>
                 </div>
               </div>
             </div>

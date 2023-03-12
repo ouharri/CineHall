@@ -44,7 +44,7 @@
           >
         </div>
         <div role="status"
-             class="flex flex-col justify-center items-center space-y-2.5 animate-pulse max-w-full w-screen"
+             class="flex flex-col justify-center items-center space-y-2.5 animate-pulse w-[65vw] md:w-full"
              v-if="!this.bgMonthImage">
           <div class="flex items-center w-full space-x-2 ">
             <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-full"></div>

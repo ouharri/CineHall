@@ -109,7 +109,7 @@ class usersController
 
                     $jwt = new JWT();
 
-                    $authentication = $jwt->generate($header, $payload, SECRET, $remember? 31556952 : 3600);
+                    $authentication = $jwt->generate($header, $payload, SECRET, $remember ? 31556952 : 3600);
 
                     echo json_encode(
                         array(
@@ -209,18 +209,40 @@ class usersController
                                 $mail->Password = $_ENV['MAIL_PASSWORD'];
                                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;
                                 $mail->Port = $_ENV['MAIL_PORT'];
-                                $mail->setFrom($_ENV['MAIL_USERNAME'],'cinehall');
+                                $mail->setFrom($_ENV['MAIL_USERNAME'], 'cinehall');
                                 $mail->addAddress($email);
                                 $mail->isHTML(true);
                                 $mail->Subject = 'no reply';
                                 $mail->Body = <<<HTML
                                     <center>
-                                    <h1>Hello $_POST[firstName]</h1>
+                                        <center>
+                                            <div style="display: flex;justify-content: center;align-items: center;text-align: center">
+                                                <div style="display: flex;padding: 5px">
+                                                    <h1>Hello $_POST[firstName] To</h1>
+                                                </div>    
+                                                <div style="display: flex;padding-top: 25px;">
+                                                        <div style="padding: 5px">
+                                                            <img src="https://res.cloudinary.com/dggvib6ib/image/upload/v1678284092/logo_pfofug.png"
+                                                                 alt="logo">
+                                                        </div>
+                                                        <div class="tracking-wide dark:text-white flex-1"
+                                                             style="color: #a1a8b7;flex: 1;padding-top: 5px;font-weight: bold;font-size: medium">
+                                                            CineHall<span style="color: red">.</span>
+                                                        </div>
+                                                </div>
+                                            </div>
+                                        </center>
+                                        
                                         <br>
-                                        <h3>
-                                        your Token is : 
-                                        <span style="color: red; font-weight: bold"> $token </span>
-                                        </h3> 
+                                        <br>
+                                        
+                                        <center>
+                                            <h3>
+                                                your Token is : 
+                                                <span style="color: red; font-weight: bold"> $token </span>
+                                            </h3>
+                                        </center> 
+                                        
                                     </center>
                                 HTML;
                                 $mail->send();
@@ -342,11 +364,42 @@ class usersController
                                 $mail->Password = $_ENV['MAIL_PASSWORD'];                               //SMTP password
                                 $mail->SMTPSecure = PHPMailer::ENCRYPTION_SMTPS;            //Enable implicit TLS encryption
                                 $mail->Port = $_ENV['MAIL_PORT'];                                    //TCP port to connect to; use 587 if you have set `SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS`
-                                $mail->setFrom('atman.atharri@gmail.com');
+                                $mail->setFrom($_ENV['MAIL_USERNAME'], 'cineHall');
                                 $mail->addAddress($email);
                                 $mail->isHTML(true);                                  //Set email format to HTML
                                 $mail->Subject = 'no reply';
-                                $mail->Body = "your new Token is : {$token}";
+                                $mail->Body = <<<HTML
+                                    <center>
+                                        <center>
+                                            <center style="display: flex;justify-content: center !important;align-items: center;text-align: center;">
+                                                <div style="display: flex;padding: 5px">
+                                                    <h1>welcome <span style="color: red">$data[firstName]</span> back To </h1>
+                                                </div>
+                                                <div style="display: flex;padding-top: 25px;">
+                                                        <div style="padding: 5px">
+                                                            <img src="https://res.cloudinary.com/dggvib6ib/image/upload/v1678284092/logo_pfofug.png"
+                                                                 alt="logo">
+                                                        </div>
+                                                        <div class="tracking-wide dark:text-white flex-1"
+                                                             style="color: #a1a8b7;flex: 1;padding-top: 5px;font-weight: bold;font-size: medium">
+                                                            CineHall<span style="color: red">.</span>
+                                                        </div>
+                                                </div>
+                                            </center>
+                                        </center>    
+                                        
+                                        <br>
+                                        <br>
+                                        
+                                        <center>
+                                            <h3 style="display: flex;">
+                                                your new Token is : 
+                                                <span style="color: red; font-weight: bold"> $token </span>
+                                            </h3> 
+                                        </center>   
+                                        
+                                    </center>
+                                HTML;
                                 $mail->send();
                             } catch (Exception $e) {
                                 $flag = false;

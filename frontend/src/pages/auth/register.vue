@@ -205,7 +205,7 @@ export default {
                 position: "center",
                 icon: "success",
                 title:
-                    "welcom To <p class='text-red-600'>" +
+                    "welcom <p class='text-red-600'>" +
                     this.firstName +
                     "</p><br>" +
                     result.data.message,

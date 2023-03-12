@@ -17,13 +17,13 @@
 
     <div class="calendar-body">
       <div class="calendar-week-days mt-3">
+        <div>Mon</div>
         <div>Tue</div>
         <div>Wed</div>
         <div>Thu</div>
         <div>Fri</div>
         <div>Sat</div>
         <div>Sun</div>
-        <div>Mon</div>
       </div>
       <div class="calendar-days"></div>
     </div>
@@ -117,16 +117,17 @@ export default {
 
       let first_day = new Date(year, month);
 
-      for (let i = 0; i <= days_of_month[month] + first_day.getDay() - 1; i++) {
+      for (let i = 0; i <= days_of_month[month] + first_day.getDay() - 2; i++) {
+
         let day = document.createElement("div");
 
-        if (i >= first_day.getDay()) {
-          day.innerHTML = i - first_day.getDay() + 1;
+        if (i + 1 >= first_day.getDay()) {
+          day.innerHTML = i - first_day.getDay() + 2;
           const date =
-              year + "-" + (month + 1) + "-" + (i - first_day.getDay() + 1);
+              year + "-" + (month + 1) + "-" + (i - first_day.getDay() + 2);
 
           if (
-              i - first_day.getDay() + 1 === currentDate.getDate() &&
+              i - first_day.getDay() + 2 === currentDate.getDate() &&
               year === currentDate.getFullYear() &&
               month === currentDate.getMonth()
           ) {
@@ -139,7 +140,7 @@ export default {
                   month < currentDate.getMonth()) ||
               (year === currentDate.getFullYear() &&
                   month === currentDate.getMonth() &&
-                  i - first_day.getDay() + 1 < currentDate.getDate())
+                  i - first_day.getDay() + 2 < currentDate.getDate())
           ) {
             day.classList.add("cursor-not-allowed");
             day.classList.add("hover:bg-gray-200");

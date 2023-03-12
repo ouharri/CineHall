@@ -1,6 +1,6 @@
 <template>
   <calendar :cliked="this.date" @clikedDate="getAllByDate"></calendar>
-  <div class="flex items-center justify-between mt-10" v-if="events.length > 0 && this.eventDate === ''">
+  <div class="flex items-center justify-between mt-10" v-if="events.length > 0">
     <span class="font-semibold text-gray-700 text-base dark:text-white">
       Event {{ this.eventDate !== "" ? " in : " + this.eventDate : "" }}
     </span>
@@ -114,7 +114,6 @@ export default {
       this.$router.push({name: "reserve", params: {id: id}});
     },
     async getEvent() {
-      const jwt = JSON.parse(localStorage.getItem("auth:cinhall"));
       await axios({
         method: "get",
         url: `${config.API_URL}event/getAll`,

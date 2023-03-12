@@ -1,8 +1,5 @@
 <?php
 
-/*************************\
- * - front-end controller  -*
- * \*************************/
 class app
 {
     protected string $controller = "HomeController";
@@ -15,10 +12,10 @@ class app
         $this->render();
     }
 
-    /****************************************************\
-     * -  extract controller and method and all parameters  -
-     * -                    @return void                    -
-     * \****************************************************/
+    /**
+     * extract controller and method and all parameters
+     * @return void
+     */
     private function prepareURL(): void
     {
         $url = $_SERVER['REQUEST_URI'];

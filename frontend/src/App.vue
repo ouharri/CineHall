@@ -5,7 +5,7 @@ import navBar from "./components/navBar.vue";
 
 export default {
   name: "App",
-  components: {
+  components: {²
     leftSideBar,
     rightSideBar,
     navBar,

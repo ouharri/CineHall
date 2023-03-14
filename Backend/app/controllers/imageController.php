@@ -23,7 +23,7 @@ class imageController
 
             header('Expires: 0');
             header('Pragma: public');
-                header('Access-Control-Allow-Origin: *');
+            header('Access-Control-Allow-Origin: *');
             header('Content-Transfer-Encoding: binary');
             header('Content-Description: File Transfer');
             header("Content-Type: {$data['type']}; charset=UTF-8");

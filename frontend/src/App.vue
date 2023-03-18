@@ -5,7 +5,7 @@ import navBar from "./components/navBar.vue";
 
 export default {
   name: "App",
-  components: {²
+  components: {
     leftSideBar,
     rightSideBar,
     navBar,
@@ -127,6 +127,7 @@ export default {
       ></rightSideBar>
     </div>
   </div>
+
 </template>
 
 <style>

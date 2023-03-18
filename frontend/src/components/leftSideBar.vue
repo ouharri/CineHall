@@ -287,24 +287,17 @@
         </svg>
         <span>Logout</span>
       </a>
-      <a class="flex items-center space-x-2 py-1 mt-4" href="#">
-        <div
-            class="relative inline-block w-10 mr-2 align-middle select-none transition duration-200 ease-in"
-        >
-          <input
-              type="checkbox"
-              name="toggle"
-              id="toggle"
-              class="toggle-checkbox absolute block w-6 h-6 rounded-full bg-white border-4 border-gray-300 appearance-none cursor-pointer"
-              @click="$emit('isdark')"
-              :value="this.isDark"
-          />
-          <label
-              for="toggle"
-              class="toggle-label block overflow-hidden h-6 rounded-full bg-gray-300 cursor-pointer"
-          ></label>
-        </div>
-        <label for="toggle" class="">Dark Theme</label>
+      <a class="flex items-center space-x-2 py-1 mt-4">
+        <label class="relative inline-flex items-center mb-4 cursor-pointer">
+          <input type="checkbox"
+                 class="sr-only peer"
+                 @click="$emit('isdark')"
+                 :value="this.isDark"
+                 :checked="this.isDark">
+          <div
+              class="w-11 h-6 mr-2 bg-gray-200 rounded-full peer peer-focus:ring-4 peer-focus:ring-transparent dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-red-600"></div>
+          <span>Dark Theme</span>
+        </label>
       </a>
     </div>
     <!-- /Menu -->

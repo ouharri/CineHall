@@ -22,7 +22,7 @@ export default {
       isLoged: null,
       user: localStorage.getItem("auth:cinhall")
           ? this.parseJwt(JSON.stringify(localStorage.getItem("auth:cinhall")))
-          : null,
+          : null
     };
   },
   methods: {

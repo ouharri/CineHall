@@ -315,7 +315,7 @@ export default {
     },
     Loged: {
       type: Boolean,
-      default: false,
+      default: true,
     },
   },
   methods: {

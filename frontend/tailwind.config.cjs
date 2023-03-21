@@ -34,7 +34,6 @@ module.exports = {
     },
   },
   plugins: [
-    // require('tailwindcss-dark-mode')(),
     require('flowbite/plugin'),
     require('tailwind-scrollbar'),
   ],

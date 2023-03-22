@@ -127,7 +127,6 @@ export default {
       ></rightSideBar>
     </div>
   </div>
-
 </template>
 
 <style>

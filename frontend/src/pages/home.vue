@@ -344,7 +344,6 @@
             class="flex flex-col px-2 opacity-50 justify-center items-center rounded-xl overflow-hidden aspect-square border border-opacity-[20%] dark:border-zinc-700"
             v-for="i in 3"
             :key="i"
-
         >
           <div role="status" class="max-w-sm animate-pulse w-full h-full">
             <div class="h-2.5 bg-gray-200 rounded-full dark:bg-gray-700 w-32 px-2 mt-3 mb-4"></div>

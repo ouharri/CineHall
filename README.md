@@ -1,8 +1,12 @@
 # CineHall
 
+![img.png](Backend/public/uploads/img.png)
+
 Context of the project
 CineHall wants to implement an online reservation for cinema tickets for the benefit of their users, they call on your
 skills as a full stack developer to achieve this.
+
+![img_1.png](Backend/public/uploads/img_1.png)
 
 ​
 
@@ -27,6 +31,8 @@ There will be at least 3 rooms available for reservations.
 Past dates will not be included in the booking options.
 
 Reserved seats will be unavailable.
+
+![img_2.png](Backend/public/uploads/img_2.png)
 
 ​
 

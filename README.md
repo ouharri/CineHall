@@ -33,7 +33,6 @@ Past dates will not be included in the booking options.
 Reserved seats will be unavailable.
 
 ![img_2.png](Backend/public/uploads/img_2.png)
-
 ​
 
 Ex: Reservation table characterized by the room, the film, the reservation date, reserved seat number.

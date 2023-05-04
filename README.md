@@ -1,12 +1,12 @@
 # CineHall
 
-![img.png](./Backend/public/uploads/img.png)
+![img.png](asset/img.png)
 
 Context of the project
 CineHall wants to implement an online reservation for cinema tickets for the benefit of their users, they call on your
 skills as a full stack developer to achieve this.
 
-![img_1.png](./Backend/public/uploads/img_1.png)
+![img_1.png](asset/img_1.png)
 ​
 
 Instructions :
@@ -31,7 +31,7 @@ Past dates will not be included in the booking options.
 
 Reserved seats will be unavailable.
 
-![img_2.png](./Backend/public/uploads/img_2.png)
+![img_2.png](asset/img_2.png)
 ​
 
 Ex: Reservation table characterized by the room, the film, the reservation date, reserved seat number.

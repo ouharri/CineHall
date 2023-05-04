@@ -7,7 +7,6 @@ CineHall wants to implement an online reservation for cinema tickets for the ben
 skills as a full stack developer to achieve this.
 
 ![img_1.png](Backend/public/uploads/img_1.png)
-
 ​
 
 Instructions :

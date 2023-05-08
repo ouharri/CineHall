@@ -20,7 +20,7 @@ class usersController
     /** get one user
      * @param $token
      * @return void
-     * @throws Exception|\Exception
+     * @throws \Exception
      */
     public function get($token): void
     {
@@ -41,7 +41,7 @@ class usersController
     /**
      * get all users
      * @return void
-     * @throws Exception|\Exception
+     * @throws \Exception
      */
     public function getAll(): void
     {
@@ -60,7 +60,7 @@ class usersController
 
     /**
      * login with token
-     * @throws Exception|\Exception
+     * @throws \Exception
      */
     public function login(): void
     {

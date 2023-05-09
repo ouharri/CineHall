@@ -105,9 +105,9 @@
             <router-link
                 to="/login"
                 class="text-[#f5c518] hover:underline dark:text-[#cba724]"
-            >Log in
-            </router-link
             >
+              Log in
+            </router-link>
           </div>
         </form>
       </div>

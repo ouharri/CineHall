@@ -23,12 +23,13 @@
             </div>
           </div>
         </div>
-        <form class="space-y-6 py-10" action="#" @submit="checkForm">
+        <form class="space-y-6 py-10" @submit="checkForm">
           <label
               for="password"
               class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-          >Your Token</label
           >
+            Your Token
+          </label>
           <input
               type="password"
               name="password"
@@ -59,8 +60,9 @@
               <label
                   for="remember"
                   class="ml-2 text-sm font-medium text-gray-900 dark:text-gray-300"
-              >Remember me</label
               >
+                Remember me
+              </label>
             </div>
             <router-link
                 to="/forgot"
@@ -81,9 +83,9 @@
                 to="/register"
                 href="#"
                 class="text-[#f5c518] hover:underline dark:text-[#cba724]"
-            >Create account
-            </router-link
             >
+              Create account
+            </router-link>
           </div>
         </form>
       </div>

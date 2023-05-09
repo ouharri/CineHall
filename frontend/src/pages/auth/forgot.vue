@@ -24,7 +24,7 @@
             <span class="text-red-600">:</span>
           </h3>
         </div>
-        <form class="space-y-6 py-10" action="#" @submit="checkForm">
+        <form class="space-y-6 py-10" @submit="checkForm">
           <label
               for="email"
               class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"

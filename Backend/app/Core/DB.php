@@ -38,8 +38,7 @@ class DB
      */
     public function delete($id): bool
     {
-        $db = $this->db->where('id', $id);
-        return $db->delete($this->table);
+        return $this->db->where('id', $id)->delete($this->table);
     }
 
 
@@ -55,26 +54,26 @@ class DB
 
     /**
      * @param $id
+     * @param string $row
      * @return array|string|null
      * @throws Exception
      */
-    public function getRow($id, $row = 'id'): array|string|null
+    public function getRow($id, string $row = 'id'): array|string|null
     {
-        $db = $this->db->where($row, $id);
-        return $db->getOne($this->table);
+        return $this->db->where($row, $id)->getOne($this->table);
     }
 
 
     /**
      * @param $id
      * @param $data
+     * @param string $by
      * @return bool tue if row updated successfully
      * @throws Exception
      */
-    public function update($id, $data, $by = 'id'): bool
+    public function update($id, $data, string $by = 'id'): bool
     {
-        $db = $this->db->where($by, $id);
-        return $db->update($this->table, $data);
+        return $this->db->where($by, $id)->update($this->table, $data);
     }
 
 

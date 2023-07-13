@@ -22,11 +22,8 @@ class ComposerStaticInitf325fe0f4817f309b6334b47d3fc9680
         ),
         'M' => 
         array (
+            'Mpdf\\PsrLogAwareTrait\\' => 22,
             'Mpdf\\' => 5,
-        ),
-        'H' => 
-        array (
-            'Http\\Message\\' => 13,
         ),
         'D' => 
         array (
@@ -47,13 +44,13 @@ class ComposerStaticInitf325fe0f4817f309b6334b47d3fc9680
         array (
             0 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
+        'Mpdf\\PsrLogAwareTrait\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/mpdf/psr-log-aware-trait/src',
+        ),
         'Mpdf\\' => 
         array (
             0 => __DIR__ . '/..' . '/mpdf/mpdf/src',
-        ),
-        'Http\\Message\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/php-http/message-factory/src',
         ),
         'DeepCopy\\' => 
         array (

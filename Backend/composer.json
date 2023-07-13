@@ -1,5 +1,10 @@
 {
     "require": {
-        "mpdf/mpdf": "^8.1"
+        "mpdf/mpdf": "^8.1",
+      "ext-mysqli": "*"
     }
+  ,
+  "require-dev": {
+    "roave/security-advisories": "dev-latest"
+  }
 }

@@ -10,19 +10,24 @@ class _validate
             $blob = trim($blob);
             // Return the escaped input
             return addslashes($blob);
-        } else {
-            // Return false if the input is invalid
-            return false;
         }
+
+        return false;
     }
 
-    static function post(): void
+    /**
+     * @throws JsonException
+     */
+    public static function post(): void
     {
         foreach ($_POST as $key => $value) {
-            $_POST[$key] = _validate::_string($value);
+            $_POST[$key] = self::_string($value);
         }
     }
 
+    /**
+     * @throws JsonException
+     */
     public static function _string($data)
     {
         //connect to db
@@ -42,22 +47,23 @@ class _validate
         foreach ($injection_patterns as $pattern) {
             if (stripos($data, $pattern) !== false) {
                 http_response_code(405);
-                echo json_encode(
-                    array(
-                        'message' => 'Invalid input ( not white me ! )',
-                        'status' => 405
-                    )
-                );
+                echo json_encode(array(
+                    'message' => 'Invalid input ( not white me ! )',
+                    'status' => 405
+                ), JSON_THROW_ON_ERROR);
                 exit();
             }
         }
         return $data;
     }
 
-    static function arr($array): void
+    /**
+     * @throws JsonException
+     */
+    public static function arr($array): void
     {
         foreach ($array as $key => $value) {
-            $array[$key] = _validate::_string($value);
+            $array[$key] = self::_string($value);
         }
     }
 }

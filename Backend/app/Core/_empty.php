@@ -5,7 +5,9 @@ class _empty
     public static function file(...$data): bool
     {
         foreach ($data as $key) {
-            if (empty($_FILES[$key]['tmp_name'])) return false;
+            if (empty($_FILES[$key]['tmp_name'])) {
+                return false;
+            }
         }
         return true;
     }
@@ -13,7 +15,9 @@ class _empty
     public static function delete($_DELETE, ...$data): bool
     {
         foreach ($data as $key) {
-            if (empty($_DELETE[$key])) return false;
+            if (empty($_DELETE[$key])) {
+                return false;
+            }
         }
         return true;
     }
@@ -21,7 +25,9 @@ class _empty
     public static function post($_DELETE, ...$data): bool
     {
         foreach ($data as $key) {
-            if (empty($_POST[$key])) return false;
+            if (empty($_POST[$key])) {
+                return false;
+            }
         }
         return true;
     }
